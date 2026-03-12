@@ -1,0 +1,2 @@
+using UnityEngine;using TMPro;
+public class FloatingScore : MonoBehaviour{[SerializeField]private float speed=100,fadeDur=0.8f;private CanvasGroup cg;private float elapsed;private void Awake(){cg=GetComponent<CanvasGroup>();if(!cg)cg=gameObject.AddComponent<CanvasGroup>();}private void Update(){elapsed+=Time.deltaTime;float t=elapsed/fadeDur;transform.position+=Vector3.up*speed*Time.deltaTime;cg.alpha=Mathf.Lerp(1,0,t);if(t>=1)Destroy(gameObject);}}
