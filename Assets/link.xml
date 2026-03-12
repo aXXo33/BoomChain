@@ -1,0 +1,1 @@
+<linker>\n<assembly fullname="UnityEngine">\n<type fullname="UnityEngine.Purchasing.*" preserve="all"/>\n</assembly>\n</linker>
