@@ -98,16 +98,16 @@ canvas{display:block}
 <canvas id="gameCanvas"></canvas>
 <!-- MENU -->
 <div id="menuS" class="overlay" style="display:flex">
-<div style="font-size:3.5em;margin-bottom:5px">🔬</div>
+<div style="font-size:3.5em;margin-bottom:5px">ð¬</div>
 <div class="title">RICOCHET LAB</div>
 <div class="subtitle">CHAIN REACTOR</div>
-<div id="menuCoins" class="hud-coin" style="font-size:1.1em;margin-bottom:10px">🪙 0</div>
-<button class="btn btn-primary" onclick="startWorldMap()">▶ PLAY</button>
-<button class="btn btn-gold" onclick="openDailyReward()">🎰 DAILY SPIN</button>
+<div id="menuCoins" class="hud-coin" style="font-size:1.1em;margin-bottom:10px">ðª 0</div>
+<button class="btn btn-primary" onclick="startWorldMap()">â¶ PLAY</button>
+<button class="btn btn-gold" onclick="openDailyReward()">ð° DAILY SPIN</button>
 <div style="display:flex;gap:5px;margin-top:5px">
-<button class="btn btn-secondary btn-small" onclick="openShop()">🛒 SHOP</button>
-<button class="btn btn-secondary btn-small" onclick="openAchievements()">🏆 BADGES</button>
-<button class="btn btn-secondary btn-small" onclick="openLeaderboard()">📊 RANK</button>
+<button class="btn btn-secondary btn-small" onclick="openShop()">ð SHOP</button>
+<button class="btn btn-secondary btn-small" onclick="openAchievements()">ð BADGES</button>
+<button class="btn btn-secondary btn-small" onclick="openLeaderboard()">ð RANK</button>
 </div>
 <div id="streakInfo" style="color:#ff6b35;font-size:0.8em;margin-top:10px"></div>
 <div id="dailyInfo" style="color:#4CAF50;font-size:0.75em;margin-top:5px"></div>
@@ -116,19 +116,19 @@ canvas{display:block}
 <!-- TUTORIAL -->
 <div id="tutorialS" class="overlay">
 <div class="tutorial-box" style="position:relative">
-<div id="tutIcon" class="tut-icon">🎯</div>
+<div id="tutIcon" class="tut-icon">ð¯</div>
 <div id="tutTitle" style="font-size:1.1em;font-weight:700;color:#ff6b35"></div>
 <div id="tutText" class="tut-text"></div>
-<button class="btn btn-primary btn-small" onclick="nextTutorial()" id="tutBtn">NEXT →</button>
+<button class="btn btn-primary btn-small" onclick="nextTutorial()" id="tutBtn">NEXT â</button>
 </div>
 </div>
 
 <!-- WORLD MAP -->
 <div id="worldMapS" class="overlay">
-<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:5px">🗺️ WORLD MAP</div>
-<div id="mapCoins" class="hud-coin" style="margin-bottom:10px">🪙 0</div>
+<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:5px">ðºï¸ WORLD MAP</div>
+<div id="mapCoins" class="hud-coin" style="margin-bottom:10px">ðª 0</div>
 <div id="roomGrid" style="display:flex;flex-wrap:wrap;justify-content:center;max-width:480px"></div>
-<button class="btn btn-secondary btn-small" onclick="showMenu()" style="margin-top:15px">← BACK</button>
+<button class="btn btn-secondary btn-small" onclick="showMenu()" style="margin-top:15px">â BACK</button>
 </div>
 
 <!-- ROOM INTRO -->
@@ -137,7 +137,7 @@ canvas{display:block}
 <div id="riName" style="font-size:1.5em;font-weight:800;color:#fff;margin:5px 0"></div>
 <div id="riDesc" style="color:#aaa;font-size:0.85em;margin-bottom:10px"></div>
 <div id="riDots" class="level-dots"></div>
-<button class="btn btn-secondary btn-small" onclick="startWorldMap()" style="margin-top:10px">← MAP</button>
+<button class="btn btn-secondary btn-small" onclick="startWorldMap()" style="margin-top:10px">â MAP</button>
 </div>
 
 <!-- HUD -->
@@ -146,9 +146,9 @@ canvas{display:block}
 <div class="hud-item">LVL <span id="hudLevel">1</span></div>
 <div class="hud-room" id="hudRoom">Glass Lab</div>
 </div>
-<div class="hud-item hud-coin" id="hudCoins">🪙 0</div>
+<div class="hud-item hud-coin" id="hudCoins">ðª 0</div>
 <div style="text-align:center">
-<div class="hud-item" id="hudTargets">●●●</div>
+<div class="hud-item" id="hudTargets">âââ</div>
 </div>
 <div style="text-align:right">
 <div class="hud-item">SHOTS: <span id="hudShots">3</span></div>
@@ -158,73 +158,73 @@ canvas{display:block}
 
 <!-- LEVEL COMPLETE -->
 <div id="levelCompleteS" class="overlay">
-<div style="font-size:2.5em;margin-bottom:5px" id="lcEmoji">🎉</div>
+<div style="font-size:2.5em;margin-bottom:5px" id="lcEmoji">ð</div>
 <div style="font-size:1.5em;font-weight:800;color:#4CAF50" id="lcTitle">LEVEL COMPLETE!</div>
-<div class="stars" id="lcStars">⭐⭐⭐</div>
+<div class="stars" id="lcStars">â­â­â­</div>
 <div style="color:#f7c948;font-size:1.3em;font-weight:700" id="lcScore">+100</div>
-<div id="lcCoins" style="color:#f7c948;font-size:1em;margin:5px 0">🪙 +10</div>
-<div id="lcPerfect" style="color:#ff6b35;font-size:1.2em;font-weight:800;display:none">💥 PERFECT SHOT!</div>
-<button class="btn btn-primary" onclick="nextLevel()">NEXT →</button>
-<button class="btn btn-secondary btn-small" onclick="showReplay()">📹 REPLAY</button>
-<button class="btn btn-secondary btn-small" onclick="shareScore()">📤 SHARE</button>
+<div id="lcCoins" style="color:#f7c948;font-size:1em;margin:5px 0">ðª +10</div>
+<div id="lcPerfect" style="color:#ff6b35;font-size:1.2em;font-weight:800;display:none">ð¥ PERFECT SHOT!</div>
+<button class="btn btn-primary" onclick="nextLevel()">NEXT â</button>
+<button class="btn btn-secondary btn-small" onclick="showReplay()">ð¹ REPLAY</button>
+<button class="btn btn-secondary btn-small" onclick="shareScore()">ð¤ SHARE</button>
 </div>
 
 <!-- BOSS CLEAR -->
 <div id="bossClearS" class="overlay">
-<div style="font-size:3em">🏆</div>
+<div style="font-size:3em">ð</div>
 <div style="font-size:1.8em;font-weight:900;color:#f7c948;margin:10px 0">BOSS DEFEATED!</div>
 <div id="bcRoom" style="color:#aaa;font-size:0.9em"></div>
 <div id="bcUnlock" style="color:#4CAF50;font-size:1em;font-weight:700;margin:10px 0"></div>
-<div id="bcCoins" style="color:#f7c948;font-size:1.1em;margin:5px 0">🪙 +50</div>
-<button class="btn btn-gold" onclick="nextLevel()">CONTINUE →</button>
+<div id="bcCoins" style="color:#f7c948;font-size:1.1em;margin:5px 0">ðª +50</div>
+<button class="btn btn-gold" onclick="nextLevel()">CONTINUE â</button>
 </div>
 
 <!-- GAME OVER -->
 <div id="gameOverS" class="overlay">
-<div id="goEmoji" style="font-size:2.5em">😤</div>
+<div id="goEmoji" style="font-size:2.5em">ð¤</div>
 <div id="goTitle" style="font-size:1.5em;font-weight:800;color:#ff1744;margin:5px 0">SO CLOSE!</div>
 <div id="goSubtitle" style="color:#aaa;font-size:0.9em;margin-bottom:10px"></div>
 <div id="goTargetLeft" style="color:#ff6b35;font-size:1.1em;font-weight:700;margin-bottom:10px"></div>
-<button class="btn btn-primary" onclick="retryLevel()" style="animation:shake 0.5s infinite">🔄 RETRY</button>
-<button class="btn btn-secondary btn-small" onclick="startWorldMap()">← MAP</button>
+<button class="btn btn-primary" onclick="retryLevel()" style="animation:shake 0.5s infinite">ð RETRY</button>
+<button class="btn btn-secondary btn-small" onclick="startWorldMap()">â MAP</button>
 </div>
 
 <!-- SHOP -->
 <div id="shopS" class="overlay">
-<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:3px">🛒 SHOP</div>
-<div id="shopCoins" class="hud-coin" style="margin-bottom:8px">🪙 0</div>
+<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:3px">ð SHOP</div>
+<div id="shopCoins" class="hud-coin" style="margin-bottom:8px">ðª 0</div>
 <div class="tab-bar" id="shopTabs">
-<button class="tab-btn active" onclick="shopTab('skins')">⚽ BALLS</button>
-<button class="tab-btn" onclick="shopTab('trails')">✨ TRAILS</button>
-<button class="tab-btn" onclick="shopTab('effects')">💥 EFFECTS</button>
+<button class="tab-btn active" onclick="shopTab('skins')">â½ BALLS</button>
+<button class="tab-btn" onclick="shopTab('trails')">â¨ TRAILS</button>
+<button class="tab-btn" onclick="shopTab('effects')">ð¥ EFFECTS</button>
 </div>
 <div id="shopGrid" class="shop-grid"></div>
-<button class="btn btn-secondary btn-small" onclick="closeShop()" style="margin-top:10px">← BACK</button>
+<button class="btn btn-secondary btn-small" onclick="closeShop()" style="margin-top:10px">â BACK</button>
 </div>
 
 <!-- ACHIEVEMENTS -->
 <div id="achieveS" class="overlay">
-<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:8px">🏆 ACHIEVEMENTS</div>
+<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:8px">ð ACHIEVEMENTS</div>
 <div id="achieveList" class="achievement-list"></div>
-<button class="btn btn-secondary btn-small" onclick="closeAchievements()" style="margin-top:10px">← BACK</button>
+<button class="btn btn-secondary btn-small" onclick="closeAchievements()" style="margin-top:10px">â BACK</button>
 </div>
 
 <!-- LEADERBOARD -->
 <div id="leaderboardS" class="overlay">
-<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:8px">📊 LEADERBOARD</div>
+<div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:8px">ð LEADERBOARD</div>
 <div id="lbList" class="leaderboard-list"></div>
-<button class="btn btn-secondary btn-small" onclick="closeLeaderboard()" style="margin-top:10px">← BACK</button>
+<button class="btn btn-secondary btn-small" onclick="closeLeaderboard()" style="margin-top:10px">â BACK</button>
 </div>
 
 <!-- DAILY SPIN -->
 <div id="dailySpinS" class="overlay">
-<div style="font-size:1.5em;font-weight:800;color:#f7c948;margin-bottom:5px">🎰 DAILY SPIN</div>
+<div style="font-size:1.5em;font-weight:800;color:#f7c948;margin-bottom:5px">ð° DAILY SPIN</div>
 <div id="spinStatus" style="color:#aaa;font-size:0.8em;margin-bottom:10px"></div>
 <div class="spin-pointer"></div>
 <div class="spin-wheel" id="spinWheel"></div>
 <div id="spinResult" style="color:#f7c948;font-size:1.2em;font-weight:700;margin:10px 0;display:none"></div>
-<button class="btn btn-gold" id="spinBtn" onclick="doSpin()">🎰 SPIN!</button>
-<button class="btn btn-secondary btn-small" onclick="closeDailySpin()" style="margin-top:8px">← BACK</button>
+<button class="btn btn-gold" id="spinBtn" onclick="doSpin()">ð° SPIN!</button>
+<button class="btn btn-secondary btn-small" onclick="closeDailySpin()" style="margin-top:8px">â BACK</button>
 </div>
 
 <div class="fomo" id="fomo"></div>
@@ -254,7 +254,28 @@ let save = loadSave();
 function loadSave(){
   try{
     const s = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s) return s;
+    if(s){
+      // Migration: ensure all new fields exist
+      if(!s.ownedSkins) s.ownedSkins = ['default'];
+      if(!s.ownedTrails) s.ownedTrails = ['none'];
+      if(!s.ownedEffects) s.ownedEffects = ['default'];
+      if(!s.achievements) s.achievements = [];
+      if(!s.roomProgress || s.roomProgress.length < 6){
+        s.roomProgress = [{unlocked:true,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]}];
+      }
+      // Ensure each room has proper structure
+      for(var ri = 0; ri < 6; ri++){
+        if(!s.roomProgress[ri]) s.roomProgress[ri] = {unlocked:ri===0,cleared:false,levels:[0,0,0,0,0]};
+        if(!s.roomProgress[ri].levels) s.roomProgress[ri].levels = [0,0,0,0,0];
+        if(s.roomProgress[ri].unlocked === undefined) s.roomProgress[ri].unlocked = (ri === 0);
+      }
+      if(!s.totalShots) s.totalShots = 0;
+      if(!s.totalPerfects) s.totalPerfects = 0;
+      if(!s.totalBosses) s.totalBosses = 0;
+      if(!s.totalCombos) s.totalCombos = 0;
+      if(!s.coins) s.coins = 0;
+      return s;
+    }
   }catch(e){}
   return {bestLevel:0,highScore:0,roomProgress:[{unlocked:true,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]}],streak:0,lastPlay:'',coins:0,equippedSkin:'default',equippedTrail:'none',equippedEffect:'default',ownedSkins:['default'],ownedTrails:['none'],ownedEffects:['default'],achievements:[],dailySpinDate:'',tutorialDone:false,totalShots:0,totalPerfects:0,totalBosses:0,totalCombos:0};
 }
@@ -277,12 +298,12 @@ function initFromSave(){
 
 // ===== ROOMS =====
 const ROOMS = [
-  {name:'Glass Lab',icon:'🔬',desc:'Where it all begins. Clean shots, glass targets.',color:'#1a3a5c',accent:'#4fc3f7',grid:'rgba(79,195,247,0.08)',targetTypes:['normal','hard','crystal'],bg1:'#0a1628',bg2:'#1a3a5c'},
-  {name:'Gravity Lab',icon:'🌀',desc:'Gravity zones pull your ball. Master the curves.',color:'#2a1a4a',accent:'#ba68c8',grid:'rgba(186,104,200,0.08)',targetTypes:['normal','hard','crystal','moving'],bg1:'#10082a',bg2:'#2a1a4a'},
-  {name:'Chaos Lab',icon:'🔥',desc:'Portals and lasers everywhere. Pure chaos.',color:'#4a1a1a',accent:'#ef5350',grid:'rgba(239,83,80,0.08)',targetTypes:['normal','hard','explosive','moving','crystal'],bg1:'#2a0808',bg2:'#4a1a1a'},
-  {name:'Neon Lab',icon:'💜',desc:'Neon lights and ghost targets. Tricky!',color:'#0a3a3a',accent:'#26c6da',grid:'rgba(38,198,218,0.08)',targetTypes:['normal','hard','ghost','crystal','moving'],bg1:'#041a1a',bg2:'#0a3a3a'},
-  {name:'Void Lab',icon:'🕳️',desc:'Black holes consume everything. Be precise.',color:'#3a0a1a',accent:'#f44336',grid:'rgba(244,67,54,0.08)',targetTypes:['normal','hard','blackhole','explosive','moving','ghost'],bg1:'#1a0408',bg2:'#3a0a1a'},
-  {name:'Endless Lab',icon:'♾️',desc:'Infinite levels. How far can you go?',color:'#3a2a0a',accent:'#ffd54f',grid:'rgba(255,213,79,0.08)',targetTypes:['normal','hard','crystal','explosive','moving','ghost','blackhole'],bg1:'#1a1404',bg2:'#3a2a0a'}
+  {name:'Glass Lab',icon:'ð¬',desc:'Where it all begins. Clean shots, glass targets.',color:'#1a3a5c',accent:'#4fc3f7',grid:'rgba(79,195,247,0.08)',targetTypes:['normal','hard','crystal'],bg1:'#0a1628',bg2:'#1a3a5c'},
+  {name:'Gravity Lab',icon:'ð',desc:'Gravity zones pull your ball. Master the curves.',color:'#2a1a4a',accent:'#ba68c8',grid:'rgba(186,104,200,0.08)',targetTypes:['normal','hard','crystal','moving'],bg1:'#10082a',bg2:'#2a1a4a'},
+  {name:'Chaos Lab',icon:'ð¥',desc:'Portals and lasers everywhere. Pure chaos.',color:'#4a1a1a',accent:'#ef5350',grid:'rgba(239,83,80,0.08)',targetTypes:['normal','hard','explosive','moving','crystal'],bg1:'#2a0808',bg2:'#4a1a1a'},
+  {name:'Neon Lab',icon:'ð',desc:'Neon lights and ghost targets. Tricky!',color:'#0a3a3a',accent:'#26c6da',grid:'rgba(38,198,218,0.08)',targetTypes:['normal','hard','ghost','crystal','moving'],bg1:'#041a1a',bg2:'#0a3a3a'},
+  {name:'Void Lab',icon:'ð³ï¸',desc:'Black holes consume everything. Be precise.',color:'#3a0a1a',accent:'#f44336',grid:'rgba(244,67,54,0.08)',targetTypes:['normal','hard','blackhole','explosive','moving','ghost'],bg1:'#1a0408',bg2:'#3a0a1a'},
+  {name:'Endless Lab',icon:'â¾ï¸',desc:'Infinite levels. How far can you go?',color:'#3a2a0a',accent:'#ffd54f',grid:'rgba(255,213,79,0.08)',targetTypes:['normal','hard','crystal','explosive','moving','ghost','blackhole'],bg1:'#1a1404',bg2:'#3a2a0a'}
 ];
 
 // ===== SKINS SYSTEM =====
@@ -320,21 +341,21 @@ const EFFECTS = [
 
 // ===== ACHIEVEMENTS =====
 const ACHIEVEMENTS = [
-  {id:'first_shot',name:'First Shot',desc:'Complete your first level',icon:'🎯',check:()=>save.bestLevel>=1},
-  {id:'perfect1',name:'Perfect!',desc:'Get a Perfect Shot',icon:'💥',check:()=>save.totalPerfects>=1},
-  {id:'perfect10',name:'Perfectionist',desc:'Get 10 Perfect Shots',icon:'🔥',check:()=>save.totalPerfects>=10},
-  {id:'combo5',name:'Combo Master',desc:'Get a 5x combo',icon:'⚡',check:()=>save.totalCombos>=5},
-  {id:'boss1',name:'Boss Slayer',desc:'Defeat your first boss',icon:'🏆',check:()=>save.totalBosses>=1},
-  {id:'boss3',name:'Boss Hunter',desc:'Defeat 3 bosses',icon:'👑',check:()=>save.totalBosses>=3},
-  {id:'room2',name:'Explorer',desc:'Unlock Gravity Lab',icon:'🌀',check:()=>save.roomProgress[1].unlocked},
-  {id:'room3',name:'Adventurer',desc:'Unlock Chaos Lab',icon:'🔥',check:()=>save.roomProgress[2].unlocked},
-  {id:'coins100',name:'Collector',desc:'Earn 100 coins',icon:'🪙',check:()=>save.coins>=100},
-  {id:'coins500',name:'Rich',desc:'Earn 500 coins',icon:'💰',check:()=>save.coins>=500},
-  {id:'streak3',name:'Dedicated',desc:'3-day streak',icon:'📅',check:()=>save.streak>=3},
-  {id:'streak7',name:'Addicted',desc:'7-day streak',icon:'🔥',check:()=>save.streak>=7},
-  {id:'level10',name:'Veteran',desc:'Reach level 10',icon:'⭐',check:()=>save.bestLevel>=10},
-  {id:'level25',name:'Legend',desc:'Reach level 25',icon:'🌟',check:()=>save.bestLevel>=25},
-  {id:'shots100',name:'Sharpshooter',desc:'Fire 100 shots',icon:'🎯',check:()=>save.totalShots>=100}
+  {id:'first_shot',name:'First Shot',desc:'Complete your first level',icon:'ð¯',check:()=>save.bestLevel>=1},
+  {id:'perfect1',name:'Perfect!',desc:'Get a Perfect Shot',icon:'ð¥',check:()=>save.totalPerfects>=1},
+  {id:'perfect10',name:'Perfectionist',desc:'Get 10 Perfect Shots',icon:'ð¥',check:()=>save.totalPerfects>=10},
+  {id:'combo5',name:'Combo Master',desc:'Get a 5x combo',icon:'â¡',check:()=>save.totalCombos>=5},
+  {id:'boss1',name:'Boss Slayer',desc:'Defeat your first boss',icon:'ð',check:()=>save.totalBosses>=1},
+  {id:'boss3',name:'Boss Hunter',desc:'Defeat 3 bosses',icon:'ð',check:()=>save.totalBosses>=3},
+  {id:'room2',name:'Explorer',desc:'Unlock Gravity Lab',icon:'ð',check:()=>save.roomProgress[1].unlocked},
+  {id:'room3',name:'Adventurer',desc:'Unlock Chaos Lab',icon:'ð¥',check:()=>save.roomProgress[2].unlocked},
+  {id:'coins100',name:'Collector',desc:'Earn 100 coins',icon:'ðª',check:()=>save.coins>=100},
+  {id:'coins500',name:'Rich',desc:'Earn 500 coins',icon:'ð°',check:()=>save.coins>=500},
+  {id:'streak3',name:'Dedicated',desc:'3-day streak',icon:'ð',check:()=>save.streak>=3},
+  {id:'streak7',name:'Addicted',desc:'7-day streak',icon:'ð¥',check:()=>save.streak>=7},
+  {id:'level10',name:'Veteran',desc:'Reach level 10',icon:'â­',check:()=>save.bestLevel>=10},
+  {id:'level25',name:'Legend',desc:'Reach level 25',icon:'ð',check:()=>save.bestLevel>=25},
+  {id:'shots100',name:'Sharpshooter',desc:'Fire 100 shots',icon:'ð¯',check:()=>save.totalShots>=100}
 ];
 
 // ===== LEADERBOARD (SIMULATED) =====
@@ -411,24 +432,24 @@ function showMenu(){
 }
 
 function updateMenuInfo(){
-  document.getElementById('menuCoins').textContent = '\u1fa99 ' + coins;
+  document.getElementById('menuCoins').textContent = '🪙 ' + coins;
   var si = document.getElementById('streakInfo');
-  if(save.streak > 0) si.textContent = '\ud83d\udd25 ' + save.streak + ' day streak!';
+  if(save.streak > 0) si.textContent = '🔥 ' + save.streak + ' day streak!';
   else si.textContent = '';
   var di = document.getElementById('dailyInfo');
   var today = new Date().toDateString();
-  if(save.dailySpinDate === today) di.textContent = '\u2705 Daily spin used';
-  else di.textContent = '\u1f3b0 Free daily spin available!';
+  if(save.dailySpinDate === today) di.textContent = '✅ Daily spin used';
+  else di.textContent = '🎰 Free daily spin available!';
 }
 
 function updateFOMO(){
   var base = 2000 + Math.floor(Math.random()*3000);
   var el = document.getElementById('fomo');
-  el.textContent = '\ud83c\udf10 ' + base.toLocaleString() + ' playing now';
+  el.textContent = '🌐 ' + base.toLocaleString() + ' playing now';
   setInterval(function(){
     base += Math.floor(Math.random()*20)-8;
     if(base < 1500) base = 1500;
-    el.textContent = '\ud83c\udf10 ' + base.toLocaleString() + ' playing now';
+    el.textContent = '🌐 ' + base.toLocaleString() + ' playing now';
   }, 3000);
 }
 
@@ -446,11 +467,11 @@ function checkStreak(){
 
 // ===== TUTORIAL =====
 const TUTORIAL_STEPS = [
-  {icon:'\ud83c\udfaf',title:'Welcome!',text:'Shoot the ball to destroy all targets. Aim by dragging!'},
-  {icon:'\ud83d\udca5',title:'Chain Reactions',text:'Hit explosive targets to create chain reactions. More hits = more points!'},
-  {icon:'\u2b50',title:'Stars & Coins',text:'Save shots for more stars. Stars and combos earn coins for the shop!'},
+  {icon:'🎯',title:'Welcome!',text:'Shoot the ball to destroy all targets. Aim by dragging!'},
+  {icon:'💥',title:'Chain Reactions',text:'Hit explosive targets to create chain reactions. More hits = more points!'},
+  {icon:'⭐',title:'Stars & Coins',text:'Save shots for more stars. Stars and combos earn coins for the shop!'},
   {icon:'\ud83c\udfc6',title:'Boss Rooms',text:'Every 5th level is a Boss Room. Defeat the boss with just 1 shot!'},
-  {icon:'\ud83d\ude80',title:'Ready?',text:'Let\'s go! Tap to aim, release to shoot!'}
+  {icon:'🚀',title:'Ready?',text:'Let\'s go! Tap to aim, release to shoot!'}
 ];
 
 function startTutorial(){
@@ -484,7 +505,7 @@ function nextTutorial(){
 // ===== WORLD MAP =====
 function startWorldMap(){
   showScreen('worldMapS');
-  document.getElementById('mapCoins').textContent = '\u1fa99 ' + coins;
+  document.getElementById('mapCoins').textContent = '🪙 ' + coins;
   var grid = document.getElementById('roomGrid');
   grid.innerHTML = '';
   ROOMS.forEach(function(room, ri){
@@ -499,9 +520,9 @@ function startWorldMap(){
     var progressColor = room.accent;
     card.innerHTML = '<div class="room-icon">' + room.icon + '</div>' +
       '<div class="room-name">' + room.name + '</div>' +
-      '<div class="room-stars">' + (isLocked ? '\ud83d\udd12' : '\u2b50 ' + stars + '/' + maxStars) + '</div>' +
+      '<div class="room-stars">' + (isLocked ? '🔒' : '⭐ ' + stars + '/' + maxStars) + '</div>' +
       '<div class="room-info">' + (isLocked ? 'LOCKED' : completedLevels + '/' + rp.levels.length + ' levels') + '</div>' +
-      (isLocked ? '<div class="lock-icon">\ud83d\udd12</div>' : '') +
+      (isLocked ? '<div class="lock-icon">🔒</div>' : '') +
       '<div class="room-progress"><div class="room-progress-fill" style="width:' + progressPct + '%;background:' + progressColor + '"></div></div>' +
       (rp.levels[4] === 0 && !isLocked ? '<div style="color:#ff1744;font-size:0.6em;margin-top:3px">BOSS LVL</div>' : '');
     if(!isLocked){
@@ -535,7 +556,7 @@ function openRoomIntro(ri){
       else dot.classList.add('locked');
     }
     if(isBoss) dot.classList.add('boss');
-    dot.textContent = isBoss ? '\ud83d\udc80' : (i + 1);
+    dot.textContent = isBoss ? '💀' : (i + 1);
     dot.style.borderColor = isBoss ? '#ff1744' : room.accent;
     if(!dot.classList.contains('locked')){
       (function(li){
@@ -673,8 +694,8 @@ C.addEventListener('mousemove', function(e){
 C.addEventListener('mouseup', function(e){
   if(!aiming) return;
   aiming = false;
-  var dx = e.clientX - launchX;
-  var dy = e.clientY - launchY;
+  var dx = aimX - launchX;
+  var dy = aimY - launchY;
   shoot(dx, dy);
 });
 C.addEventListener('touchstart', function(e){
@@ -787,7 +808,7 @@ function showScoreFly(x, y, amount){
 function showCoinFly(x, y, amount){
   var el = document.createElement('div');
   el.className = 'score-fly';
-  el.textContent = '\u1fa99 +' + amount;
+  el.textContent = '🪙 +' + amount;
   el.style.left = x + 'px';
   el.style.top = y + 'px';
   el.style.color = '#f7c948';
@@ -1048,10 +1069,10 @@ function updateHUD(){
   document.getElementById('hudLevel').textContent = level;
   document.getElementById('hudShots').textContent = shotsLeft;
   document.getElementById('hudScore').textContent = score;
-  document.getElementById('hudCoins').textContent = '\u1fa99 ' + coins;
+  document.getElementById('hudCoins').textContent = '🪙 ' + coins;
   var dots = '';
   targets.forEach(function(t){
-    dots += t.alive ? '\u25cf' : '\u25cb';
+    dots += t.alive ? '●' : '○';
   });
   document.getElementById('hudTargets').textContent = dots;
 }
@@ -1112,12 +1133,12 @@ function levelComplete(){
   var lcCoins = document.getElementById('lcCoins');
   var lcPerfect = document.getElementById('lcPerfect');
 
-  lcEmoji.textContent = isPerfect ? '\ud83d\udca5' : '\ud83c\udf89';
+  lcEmoji.textContent = isPerfect ? '💥' : '🎉';
   lcTitle.textContent = isPerfect ? 'PERFECT SHOT!' : 'LEVEL COMPLETE!';
   lcTitle.style.color = isPerfect ? '#ff6b35' : '#4CAF50';
-  lcStars.textContent = '\u2b50'.repeat(starsEarned) + '\u2606'.repeat(3 - starsEarned);
+  lcStars.textContent = '⭐'.repeat(starsEarned) + '☆'.repeat(3 - starsEarned);
   lcScore.textContent = '+' + score;
-  lcCoins.textContent = '\u1fa99 +' + coinBonus;
+  lcCoins.textContent = '🪙 +' + coinBonus;
   lcPerfect.style.display = isPerfect ? 'block' : 'none';
 
   showScreen('levelCompleteS');
@@ -1127,8 +1148,8 @@ function showBossClear(coinBonus){
   var room = ROOMS[currentRoom];
   var nextRoom = currentRoom < ROOMS.length - 1 ? ROOMS[currentRoom + 1] : null;
   document.getElementById('bcRoom').textContent = room.name + ' CLEARED!';
-  document.getElementById('bcUnlock').textContent = nextRoom ? '\ud83d\udd13 ' + nextRoom.name + ' Unlocked!' : '\ud83c\udf1f All Rooms Complete!';
-  document.getElementById('bcCoins').textContent = '\u1fa99 +' + (coinBonus + 50);
+  document.getElementById('bcUnlock').textContent = nextRoom ? '🔓 ' + nextRoom.name + ' Unlocked!' : '🌟 All Rooms Complete!';
+  document.getElementById('bcCoins').textContent = '🪙 +' + (coinBonus + 50);
   coins += 50;
   saveSave();
   sndWin();
@@ -1162,20 +1183,20 @@ function gameOver(){
   var goTargetLeft = document.getElementById('goTargetLeft');
 
   if(leftCount === 1){
-    goEmoji.textContent = '\ud83d\ude29';
+    goEmoji.textContent = '😩';
     goTitle.textContent = 'SO CLOSE!';
     goSubtitle.textContent = 'Just ONE target left!';
-    goTargetLeft.textContent = '\ud83d\udca2 Almost had it!';
+    goTargetLeft.textContent = '💢 Almost had it!';
     triggerSlowMo(800);
     // Pulse the remaining target
     targets.forEach(function(t){if(t.alive) t.pulse = 2;});
   } else if(leftCount <= 2){
-    goEmoji.textContent = '\ud83d\ude24';
+    goEmoji.textContent = '😤';
     goTitle.textContent = 'ALMOST!';
     goSubtitle.textContent = leftCount + ' targets remaining';
     goTargetLeft.textContent = 'So close yet so far...';
   } else {
-    goEmoji.textContent = '\ud83d\ude14';
+    goEmoji.textContent = '😔';
     goTitle.textContent = 'TRY AGAIN';
     goSubtitle.textContent = leftCount + '/' + total + ' targets left';
     goTargetLeft.textContent = 'You can do this!';
@@ -1196,7 +1217,7 @@ function showReplay(){
 
 // ===== SHARE =====
 function shareScore(){
-  var text = 'I scored ' + score + ' on Level ' + level + ' in Ricochet Lab! Can you beat me? \ud83d\udd2c\ud83c\udfaf';
+  var text = 'I scored ' + score + ' on Level ' + level + ' in Ricochet Lab! Can you beat me? 🔬🎯';
   if(navigator.share){
     navigator.share({title:'Ricochet Lab',text:text,url:window.location.href}).catch(function(){});
   } else {
@@ -1211,7 +1232,7 @@ function shareScore(){
 // ===== SHOP =====
 function openShop(){
   showScreen('shopS');
-  document.getElementById('shopCoins').textContent = '\u1fa99 ' + coins;
+  document.getElementById('shopCoins').textContent = '🪙 ' + coins;
   shopTab('skins');
 }
 
@@ -1243,12 +1264,12 @@ function shopTab(tab){
       var tColor = item.color === 'rainbow' ? '#fff' : (item.color === 'transparent' ? '#555' : item.color);
       preview = '<div style="font-size:1.8em;margin-bottom:4px;color:' + tColor + '">\u2728</div>';
     } else {
-      preview = '<div style="font-size:1.8em;margin-bottom:4px">\ud83d\udca5</div>';
+      preview = '<div style="font-size:1.8em;margin-bottom:4px">💥</div>';
     }
 
     div.innerHTML = preview +
       '<div class="skin-name">' + item.name + '</div>' +
-      '<div class="skin-price">' + (isEquipped ? '\u2705 EQUIPPED' : (owned ? 'TAP TO EQUIP' : '\u1fa99 ' + item.price)) + '</div>';
+      '<div class="skin-price">' + (isEquipped ? '✅ EQUIPPED' : (owned ? 'TAP TO EQUIP' : '🪙 ' + item.price)) + '</div>';
 
     div.onclick = function(){
       if(isEquipped) return;
@@ -1269,7 +1290,7 @@ function shopTab(tab){
         sndCoin();
         saveSave();
         shopTab(tab);
-        document.getElementById('shopCoins').textContent = '\u1fa99 ' + coins;
+        document.getElementById('shopCoins').textContent = '🪙 ' + coins;
       }
     };
     grid.appendChild(div);
@@ -1291,9 +1312,9 @@ function renderAchievements(){
     var unlocked = save.achievements.indexOf(a.id) !== -1;
     var div = document.createElement('div');
     div.className = 'achievement' + (unlocked ? ' unlocked' : '');
-    div.innerHTML = '<div class="ach-icon">' + (unlocked ? a.icon : '\ud83d\udd12') + '</div>' +
+    div.innerHTML = '<div class="ach-icon">' + (unlocked ? a.icon : '🔒') + '</div>' +
       '<div class="ach-info"><div class="ach-name">' + a.name + '</div><div class="ach-desc">' + a.desc + '</div></div>' +
-      '<div class="ach-status">' + (unlocked ? '\u2705' : '') + '</div>';
+      '<div class="ach-status">' + (unlocked ? '✅' : '') + '</div>';
     list.appendChild(div);
   });
 }
@@ -1343,7 +1364,7 @@ function openLeaderboard(){
   lb.forEach(function(entry, idx){
     var row = document.createElement('div');
     row.className = 'lb-row' + (entry.isMe ? ' me' : '');
-    var rankText = (idx === 0) ? '\ud83e\udd47' : (idx === 1 ? '\ud83e\udd48' : (idx === 2 ? '\ud83e\udd49' : (idx + 1)));
+    var rankText = (idx === 0) ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : (idx + 1)));
     row.innerHTML = '<div class="lb-rank">' + rankText + '</div><div class="lb-name">' + entry.name + '</div><div class="lb-score">' + entry.score.toLocaleString() + '</div>';
     list.appendChild(row);
   });
@@ -1366,14 +1387,14 @@ function openDailyReward(){
 function closeDailySpin(){showMenu()}
 
 const SPIN_REWARDS = [
-  {label:'\u1fa99 10',coins:10,color:'#ff6b35'},
-  {label:'\u1fa99 25',coins:25,color:'#4CAF50'},
-  {label:'\u1fa99 50',coins:50,color:'#2196F3'},
-  {label:'\u1fa99 100',coins:100,color:'#f7c948'},
-  {label:'\u1fa99 15',coins:15,color:'#9c27b0'},
-  {label:'\u1fa99 200',coins:200,color:'#e91e63'},
-  {label:'\u1fa99 30',coins:30,color:'#00bcd4'},
-  {label:'\u1fa99 75',coins:75,color:'#ff9800'}
+  {label:'🪙 10',coins:10,color:'#ff6b35'},
+  {label:'🪙 25',coins:25,color:'#4CAF50'},
+  {label:'🪙 50',coins:50,color:'#2196F3'},
+  {label:'🪙 100',coins:100,color:'#f7c948'},
+  {label:'🪙 15',coins:15,color:'#9c27b0'},
+  {label:'🪙 200',coins:200,color:'#e91e63'},
+  {label:'🪙 30',coins:30,color:'#00bcd4'},
+  {label:'🪙 75',coins:75,color:'#ff9800'}
 ];
 
 function renderWheel(){
@@ -1575,13 +1596,13 @@ function draw(){
     ctx.font = (t.r * 0.8) + 'px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    var icon = t.type === 'explosive' ? '\ud83d\udca3' :
-              t.type === 'crystal' ? '\ud83d\udc8e' :
-              t.type === 'hard' ? '\ud83d\udee1' :
-              t.type === 'moving' ? '\u27a1' :
-              t.type === 'ghost' ? '\ud83d\udc7b' :
-              t.type === 'blackhole' ? '\ud83c\udf00' :
-              t.type === 'boss' ? '\ud83d\udc80' : '';
+    var icon = t.type === 'explosive' ? '💣' :
+              t.type === 'crystal' ? '💎' :
+              t.type === 'hard' ? '🛡' :
+              t.type === 'moving' ? '➡' :
+              t.type === 'ghost' ? '👻' :
+              t.type === 'blackhole' ? '🌀' :
+              t.type === 'boss' ? '💀' : '';
     if(icon) ctx.fillText(icon, 0, 0);
 
     ctx.restore();
@@ -1707,7 +1728,7 @@ function draw(){
     ctx.font = 'bold 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.globalAlpha = 0.6;
-    ctx.fillText('\u23f3 SLOW MOTION', W/2, H - 25);
+    ctx.fillText('⏳ SLOW MOTION', W/2, H - 25);
     ctx.globalAlpha = 1;
   }
 }
