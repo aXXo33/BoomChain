@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Graphics Generator</title>
+<style>body{margin:0;padding:20px;background:#111;color:#fff;font-family:Arial}
+canvas{display:block;margin:10px auto;border:1px solid #333}
+.btn{background:#4CAF50;color:#fff;border:none;padding:10px 20px;margin:5px;cursor:pointer;border-radius:5px}
+h2{text-align:center;color:#FFD700}.section{margin:30px 0;text-align:center}</style></head>
+<body>
+<h1 style="text-align:center;color:#FF6600">Boom Chain Graphics Generator</h1>
+<div class="section"><h2>App Icon (512x512)</h2>
+<canvas id="icon" width="512" height="512"></canvas>
+<button class="btn" onclick="dl('icon','boom_chain_icon.png')">Download</button></div>
+<div class="section"><h2>Feature Graphic (1024x500)</h2>
+<canvas id="feat" width="1024" height="500"></canvas>
+<button class="btn" onclick="dl('feat','feature_graphic.png')">Download</button></div>
+<div class="section"><h2>Screenshot 1 (1080x1920)</h2>
+<canvas id="ss1" width="1080" height="1920" style="max-height:500px"></canvas>
+<button class="btn" onclick="dl('ss1','screenshot_1.png')">Download</button></div>
+<div class="section"><h2>Screenshot 2 (1080x1920)</h2>
+<canvas id="ss2" width="1080" height="1920" style="max-height:500px"></canvas>
+<button class="btn" onclick="dl('ss2','screenshot_2.png')">Download</button></div>
+<script>
+function dl(id,fn){var c=document.getElementById(id),a=document.createElement('a');a.download=fn;a.href=c.toDataURL('image/png');a.click()}
+var C={o:'#FF6600',y:'#FFD700',c:'#00FFFF',m:'#FF00FF',g:'#00FF88',r:'#FF3344',w:'#FFFFFF'};
+function glow(x,y,rad,col,ctx){var g=ctx.createRadialGradient(x,y,0,x,y,rad);g.addColorStop(0,col+'AA');g.addColorStop(1,col+'00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,rad,0,Math.PI*2);ctx.fill()}
+function ball(x,y,r,col,ctx){glow(x,y,r*2.5,col,ctx);var g=ctx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);g.addColorStop(0,'#FFF');g.addColorStop(.3,col);g.addColorStop(1,'#000');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,255,0.4)';ctx.beginPath();ctx.arc(x-r*.25,y-r*.25,r*.35,0,Math.PI*2);ctx.fill()}
+function boom(x,y,mr,col,ctx){for(var i=0;i<12;i++){var a=(i/12)*Math.PI*2,d=mr*(.5+Math.random()*.5),px=x+Math.cos(a)*d,py=y+Math.sin(a)*d,s=3+Math.random()*8;glow(px,py,s*3,col,ctx);ctx.fillStyle=col;ctx.beginPath();ctx.arc(px,py,s,0,Math.PI*2);ctx.fill()}glow(x,y,mr*.8,col,ctx)}
+function stars(w,h,n,ctx){for(var i=0;i<n;i++){ctx.fillStyle='rgba(255,255,255,'+(0.3+Math.random()*0.7)+')';ctx.beginPath();ctx.arc(Math.random()*w,Math.random()*h,Math.random()*2,0,Math.PI*2);ctx.fill()}}
+function grid(w,h,s,a,ctx){ctx.strokeStyle='rgba(0,255,255,'+(a||.08)+')';ctx.lineWidth=1;for(var x=0;x<w;x+=s){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(var y=0;y<h;y+=s){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}}
+
+// ICON
+(function(){var c=document.getElementById('icon'),x=c.getContext('2d'),w=512,h=512;
+var bg=x.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.7);bg.addColorStop(0,'#1a0a4e');bg.addColorStop(1,'#050520');x.fillStyle=bg;x.fillRect(0,0,w,h);
+var r=80;x.save();x.beginPath();x.moveTo(r,0);x.lineTo(w-r,0);x.quadraticCurveTo(w,0,w,r);x.lineTo(w,h-r);x.quadraticCurveTo(w,h,w-r,h);x.lineTo(r,h);x.quadraticCurveTo(0,h,0,h-r);x.lineTo(0,r);x.quadraticCurveTo(0,0,r,0);x.clip();
+x.fillStyle=bg;x.fillRect(0,0,w,h);stars(w,h,60,x);grid(w,h,40,.06,x);
+glow(w/2,h/2+30,180,C.o,x);glow(w/2,h/2+30,100,C.y,x);
+var bc=[C.o,C.c,C.m,C.g,C.r,C.y],bp=[[180,340,28],[332,340,28],[256,290,30],[210,400,24],[302,400,24],[140,280,22],[372,280,22],[256,380,26]];
+bp.forEach(function(b,i){ball(b[0],b[1],b[2],bc[i%bc.length],x)});
+boom(256,330,60,C.o,x);
+x.font='bold 72px Arial';x.textAlign='center';x.textBaseline='middle';
+x.shadowColor=C.o;x.shadowBlur=25;x.fillStyle='#FFF';x.fillText('BOOM',256,110);
+x.shadowColor=C.c;x.fillStyle=C.c;x.fillText('CHAIN',256,180);x.shadowBlur=0;
+x.strokeStyle='rgba(255,255,255,0.3)';x.lineWidth=2;x.strokeText('BOOM',256,110);x.strokeText('CHAIN',256,180);
+x.font='bold 22px Arial';x.fillStyle=C.y;x.shadowColor=C.y;x.shadowBlur=10;x.fillText('AIM. SHOOT. BLAST!',256,470);x.shadowBlur=0;x.restore()})();
+
+// FEATURE
+(function(){var c=document.getElementById('feat'),x=c.getContext('2d'),w=1024,h=500;
+var bg=x.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#0a0a3e');bg.addColorStop(.5,'#1a0a4e');bg.addColorStop(1,'#050530');x.fillStyle=bg;x.fillRect(0,0,w,h);
+stars(w,h,120,x);grid(w,h,50,.04,x);
+boom(150,250,80,C.o,x);boom(400,350,60,C.m,x);boom(700,200,70,C.c,x);boom(900,380,50,C.g,x);
+var bc=[C.o,C.c,C.m,C.g,C.r,C.y],bp=[[100,120,18],[200,400,22],[350,150,20],[500,300,25],[650,400,18],[800,150,22],[950,300,20]];
+bp.forEach(function(b,i){ball(b[0],b[1],b[2],bc[i%bc.length],x)});
+x.font='bold 90px Arial';x.textAlign='center';x.textBaseline='middle';x.shadowColor=C.o;x.shadowBlur=30;x.fillStyle='#FFF';x.fillText('BOOM CHAIN',w/2,180);x.shadowBlur=0;
+x.strokeStyle=C.o;x.lineWidth=3;x.strokeText('BOOM CHAIN',w/2,180);
+x.font='bold 36px Arial';x.fillStyle=C.c;x.shadowColor=C.c;x.shadowBlur=15;x.fillText('Aim. Shoot. Trigger Chain Reactions!',w/2,260);x.shadowBlur=0;
+x.font='24px Arial';x.fillStyle=C.y;x.shadowColor=C.y;x.shadowBlur=10;x.fillText('Infinite Levels  \u2022  Epic Combos  \u2022  Addictive Gameplay',w/2,440);x.shadowBlur=0})();
+
+// SS1
+(function(){var c=document.getElementById('ss1'),x=c.getContext('2d'),w=1080,h=1920;
+var bg=x.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#0a0a2e');bg.addColorStop(1,'#050520');x.fillStyle=bg;x.fillRect(0,0,w,h);stars(w,h,200,x);
+x.fillStyle='rgba(0,0,0,0.5)';x.fillRect(0,0,w,120);x.font='bold 36px Arial';x.fillStyle=C.y;x.textAlign='left';x.fillText('Level 7',40,75);x.textAlign='right';x.fillStyle=C.o;x.fillText('Shots: 3',w-40,75);
+x.font='bold 56px Arial';x.textAlign='center';x.fillStyle='#FFF';x.shadowColor=C.o;x.shadowBlur=20;x.fillText('AIM & SHOOT',w/2,250);x.font='bold 40px Arial';x.fillStyle=C.c;x.shadowColor=C.c;x.fillText('Trigger Chain Reactions!',w/2,320);x.shadowBlur=0;
+grid(w,h,60,.03,x);
+var bc=[C.o,C.c,C.m,C.g,C.r,C.y],balls2=[[300,600,35],[500,700,35],[700,550,35],[200,800,35],[540,900,35],[400,1050,35],[650,1100,35],[250,1150,35],[800,850,35],[350,1300,35],[600,1350,35],[150,1000,35],[750,1250,35],[450,500,35],[850,700,35]];
+balls2.forEach(function(b,i){ball(b[0],b[1],b[2],bc[i%bc.length],x)});
+x.setLineDash([10,10]);x.strokeStyle='rgba(255,255,255,0.5)';x.lineWidth=3;x.beginPath();x.moveTo(w/2,1600);x.lineTo(400,1050);x.stroke();x.setLineDash([]);
+ball(w/2,1700,40,C.o,x);
+x.fillStyle='rgba(0,0,0,0.6)';x.fillRect(0,h-120,w,120);x.font='bold 32px Arial';x.textAlign='center';x.fillStyle=C.y;x.fillText('Target: 8 balls  |  Best Combo: x5',w/2,h-55)})();
+
+// SS2
+(function(){var c=document.getElementById('ss2'),x=c.getContext('2d'),w=1080,h=1920;
+var bg=x.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#1a0a3e');bg.addColorStop(1,'#050520');x.fillStyle=bg;x.fillRect(0,0,w,h);stars(w,h,150,x);
+x.font='bold 56px Arial';x.textAlign='center';x.fillStyle='#FFF';x.shadowColor=C.m;x.shadowBlur=20;x.fillText('EPIC CHAIN',w/2,200);x.fillText('REACTIONS!',w/2,270);x.shadowBlur=0;
+x.font='bold 80px Arial';x.fillStyle=C.y;x.shadowColor=C.y;x.shadowBlur=30;x.fillText('x12 COMBO!',w/2,450);x.shadowBlur=0;
+grid(w,h,60,.03,x);
+var expl=[[350,700,80,C.o],[550,850,70,C.c],[300,1000,75,C.m],[600,1100,65,C.g],[450,1250,85,C.r],[700,900,60,C.y],[200,1150,55,C.o],[500,650,50,C.c]];
+expl.forEach(function(e){boom(e[0],e[1],e[2],e[3],x)});
+x.strokeStyle='rgba(255,200,0,0.3)';x.lineWidth=4;for(var i=0;i<expl.length-1;i++){x.beginPath();x.moveTo(expl[i][0],expl[i][1]);x.lineTo(expl[i+1][0],expl[i+1][1]);x.stroke()}
+var bc=[C.g,C.c,C.r];[[150,750,30],[800,1050,30],[250,1400,30],[650,1350,30],[400,1500,30]].forEach(function(b,i){ball(b[0],b[1],b[2],bc[i%bc.length],x)});
+x.font='bold 48px Arial';x.fillStyle=C.g;x.shadowColor=C.g;x.shadowBlur=15;x.textAlign='center';x.fillText('+2400 pts',w/2,550);x.shadowBlur=0;
+x.fillStyle='rgba(0,0,0,0.6)';x.fillRect(0,h-150,w,150);x.font='bold 36px Arial';x.fillStyle='#FFF';x.fillText('Chain reactions = More points!',w/2,h-80)})();
+</script></body></html>
