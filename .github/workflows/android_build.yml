@@ -1,0 +1,28 @@
+name: Build Android AAB
+on:
+  workflow_dispatch: # Manuel başlatma butonu için
+
+jobs:
+  build:
+    name: Build My Game
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+
+      - name: Build Unity Project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: Android
+          androidAppBundle: true # .aab formatı için kritik ayar
+
+      - name: Upload Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: BoomChain-AAB-File
+          path: build/Android
