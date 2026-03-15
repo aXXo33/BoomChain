@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>Ricochet Lab: Chain Reactor</title>
+<title>Boom Chain</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a1a;overflow:hidden;font-family:'Segoe UI',sans-serif;touch-action:none;user-select:none}
@@ -91,8 +91,8 @@ canvas{display:block}
 <canvas id="gameCanvas"></canvas>
 <div id="menuS" class="overlay" style="display:flex">
 <div style="font-size:3.5em;margin-bottom:5px">&#x1F52C;</div>
-<div class="title">RICOCHET LAB</div>
-<div class="subtitle">CHAIN REACTOR</div>
+<div class="title">BOOM CHAIN</div>
+<div class="subtitle">BLAST & BOUNCE</div>
 <div id="menuCoins" class="hud-coin" style="font-size:1.1em;margin-bottom:10px"></div>
 <button class="btn btn-primary" onclick="startWorldMap()">&#x25B6; PLAY</button>
 <button class="btn btn-gold" onclick="openDailyReward()">&#x1F3B0; DAILY SPIN</button>
@@ -210,7 +210,7 @@ canvas{display:block}
 
 <script>
 
-// v5.2 RICOCHET LAB
+// v6.2 BOOM CHAIN
 var COIN=String.fromCodePoint(0x1FA99),FIRE=String.fromCodePoint(0x1F525),STAR='\u2B50',STAR_E='\u2606',
 PARTY=String.fromCodePoint(0x1F389),BOOM=String.fromCodePoint(0x1F4A5),LOCK=String.fromCodePoint(0x1F512),
 UNLOCK=String.fromCodePoint(0x1F513),SPARKLE=String.fromCodePoint(0x1F31F),
@@ -737,7 +737,7 @@ function gameOver(){
 function retryLevel(){startRoomLevel(currentRoom,currentRoomLevel);}
 function watchAdExtraShot(){showRewardedAd('grantExtraShot');}
 function grantExtraShot(){shotsLeft++;totalShots++;shooting=false;gameActive=true;hideAll();document.getElementById('hud').style.display='flex';startMusic();updateHUD();logEvent('rewarded_extra_shot',{level:level});}
-function shareScore(){var text='I scored '+score+' on Level '+level+' in Ricochet Lab! Can you beat me?';if(navigator.share)navigator.share({title:'Ricochet Lab',text:text,url:location.href}).catch(function(){});else{navigator.clipboard.writeText(text+' '+location.href).then(function(){alert('Copied!')}).catch(function(){alert(text)});}}
+function shareScore(){var text='I scored '+score+' on Level '+level+' in Boom Chain! Can you beat me?';if(navigator.share)navigator.share({title:'Boom Chain',text:text,url:location.href}).catch(function(){});else{navigator.clipboard.writeText(text+' '+location.href).then(function(){alert('Copied!')}).catch(function(){alert(text)});}}
 function openShop(){logEvent('shop_visit',{});showScreen('shopS');document.getElementById('shopCoins').textContent=COIN+' '+coins;shopTab('skins');}
 function closeShop(){showMenu();}
 function shopTab(tab){
