@@ -1,61 +1,56 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
-/// Automatically creates a Camera if none exists in the scene.
-/// This runs before any other script via RuntimeInitializeOnLoadMethod.
+/// Fixes magenta/pink screen by ensuring URP pipeline asset exists,
+/// and creates a camera if none exists in the scene.
 /// </summary>
 public static class AutoCameraSetup
 {
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void EnsureCameraExists()
-{
-        // Check if a camera already exists
-        if (Camera.main != null) return;
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void EnsureRenderingWorks()
+        {
+                    // === FIX 1: Ensure URP Pipeline Asset exists ===
+                    if (GraphicsSettings.currentRenderPipeline == null)
+                    {
+                                    Debug.Log("[AutoCameraSetup] No render pipeline asset found. Creating URP asset.");
+                                    var urpAsset = ScriptableObject.CreateInstance<UniversalRenderPipelineAsset>();
+                                    GraphicsSettings.defaultRenderPipeline = urpAsset;
+                                    QualitySettings.renderPipeline = urpAsset;
+                                    Debug.Log("[AutoCameraSetup] URP pipeline asset created and assigned.");
+                    }
+                    else
+                    {
+                                    Debug.Log("[AutoCameraSetup] Render pipeline OK: " + GraphicsSettings.currentRenderPipeline.name);
+                    }
+        }
 
-        Camera[] allCameras = Object.FindObjectsByType<Camera>(FindObjectsSortMode.None);
-        if (allCameras.Length > 0) return;
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        static void EnsureCameraExists()
+        {
+                    // === FIX 2: Ensure a Camera exists ===
+                    if (Camera.main != null) return;
 
-        Debug.Log("[AutoCameraSetup] No camera found in scene. Creating default camera.");
+                    Camera[] allCameras = Object.FindObjectsByType<Camera>(FindObjectsSortMode.None);
+                    if (allCameras.Length > 0) return;
 
-        // Create camera GameObject
-        GameObject camObj = new GameObject("Main Camera");
-        camObj.tag = "MainCamera";
+                    Debug.Log("[AutoCameraSetup] No camera found. Creating default camera.");
 
-        // Add Camera component
-        Camera cam = camObj.AddComponent<Camera>();
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
-        cam.orthographic = false;
-        cam.fieldOfView = 60f;
-        cam.nearClipPlane = 0.1f;
-        cam.farClipPlane = 1000f;
+                    GameObject camObj = new GameObject("Main Camera");
+                    camObj.tag = "MainCamera";
 
-        // Position the camera to see the scene
-        camObj.transform.position = new Vector3(0f, 5f, -10f);
-        camObj.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
+                    Camera cam = camObj.AddComponent<Camera>();
+                    cam.clearFlags = CameraClearFlags.SolidColor;
+                    cam.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
+                    cam.orthographic = false;
+                    cam.fieldOfView = 60f;
+                    cam.nearClipPlane = 0.1f;
+                    cam.farClipPlane = 1000f;
 
-        // Add AudioListener
-        camObj.AddComponent<AudioListener>();
+                    // Add URP camera data for proper rendering
+                    camObj.AddComponent<UniversalAdditionalCameraData>();
 
-        // Try to add URP camera data if URP is available
-        try
-{
-            var urpCamDataType = System.Type.GetType("UnityEngine.Rendering.Universal.UniversalAdditionalCameraData, Unity.RenderPipelines.Universal.Runtime");
-            if (urpCamDataType != null)
-{
-                camObj.AddComponent(urpCamDataType);
-                Debug.Log("[AutoCameraSetup] Added URP camera data.");
-}
-}
-        catch (System.Exception e)
-{
-            Debug.LogWarning("[AutoCameraSetup] Could not add URP camera data: " + e.Message);
-}
-
-        // Don't destroy on load so camera persists between scenes
-        Object.DontDestroyOnLoad(camObj);
-
-        Debug.Log("[AutoCameraSetup] Default camera created successfully.");
-}
+                    Debug.Log("[AutoCameraSetup] Camera created with URP support.");
+        }
 }
