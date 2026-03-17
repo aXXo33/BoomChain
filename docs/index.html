@@ -531,7 +531,7 @@ var HANDCRAFTED={
     {x:0.5,y:0.35,type:'crystal'},{x:0.2,y:0.4,type:'normal'},{x:0.8,y:0.4,type:'normal'}
   ],walls:[{x:0.45,y:0.18,w:0.1,h:0.01}]},
   // Room 0, Level 4: BOSS - big skull in center
-  '0_4':{shots:2,targets:[{x:0.5,y:0.3,type:'boss'}],walls:[]},
+  '0_4':{shots:3,targets:[{x:0.5,y:0.3,type:'boss'}],walls:[]},
   // Room 1 (Gravity Lab), Level 0: Moving targets intro
   '1_0':{shots:5,targets:[
     {x:0.3,y:0.2,type:'moving'},{x:0.5,y:0.3,type:'normal'},{x:0.7,y:0.2,type:'moving'}
@@ -571,11 +571,11 @@ function generateLevel(room,li,gl){
     });
   }else{
     // Procedural generation
-    if(isBossRoom){shotsLeft=totalShots=2;}else{totalShots=Math.max(2,5-Math.floor(li/2));shotsLeft=totalShots;}
+    if(isBossRoom){shotsLeft=totalShots=3;}else{totalShots=Math.max(2,5-Math.floor(li/2));shotsLeft=totalShots;}
     var numT=isBossRoom?1:Math.min(3+li+Math.floor(gl/3),15);
     var types=room.targetTypes;
     for(var i=0;i<numT;i++){
-      var tx=margin+Math.random()*playW,ty=topMargin+30+Math.random()*(playH*0.55);
+      var tx=margin+Math.random()*playW,ty=topMargin+30hh+Math.random()*(playH*0.55);
       var type=types[Math.floor(Math.random()*types.length)];
       if(isBossRoom)type='boss';
       targets.push({x:tx,y:ty,r:isBossRoom?30:(type==='hard'?10:14),type:type,
