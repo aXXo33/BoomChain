@@ -575,7 +575,7 @@ function generateLevel(room,li,gl){
     var numT=isBossRoom?1:Math.min(3+li+Math.floor(gl/3),15);
     var types=room.targetTypes;
     for(var i=0;i<numT;i++){
-      var tx=margin+Math.random()*playW,ty=topMargin+30hh+Math.random()*(playH*0.55);
+      var tx=margin+Math.random()*playW,ty=topMargin+30+Math.random()*(playH*0.55);
       var type=types[Math.floor(Math.random()*types.length)];
       if(isBossRoom)type='boss';
       targets.push({x:tx,y:ty,r:isBossRoom?30:(type==='hard'?10:14),type:type,
