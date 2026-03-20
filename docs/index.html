@@ -7,7 +7,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a1a;overflow:hidden;font-family:'Segoe UI',sans-serif;touch-action:none;user-select:none}
-canvas{display:block}
+canvas{display:block}h
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100;background:rgba(5,5,20,0.95)}
 .overlay.active{display:flex!important}
 .title{font-size:2.8em;font-weight:900;background:linear-gradient(135deg,#ff6b35,#f7c948,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 40px rgba(255,107,53,0.3);margin-bottom:10px;animation:pulse 2s infinite}
@@ -311,24 +311,22 @@ logEvent('session_start',{});
 // ===== AD SYSTEM (PLACEHOLDER) =====
 var adCounter=0,AD_FREQUENCY=3;
 function shouldShowAd(){adCounter++;return adCounter%AD_FREQUENCY===0;}
-function showInterstitialAd(callback){
-  // Placeholder: In production, replace with AdMob interstitial
-  var overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;';
-  overlay.innerHTML='<div style="font-size:1.5em;font-weight:700;margin-bottom:10px">AD PLACEHOLDER</div><div style="color:#aaa;font-size:0.85em;margin-bottom:20px">In production: AdMob interstitial here</div><div style="width:300px;height:250px;background:#222;border:2px dashed #555;display:flex;align-items:center;justify-content:center;border-radius:12px;margin-bottom:15px"><span style="color:#666">300x250 Ad Unit</span></div><button onclick="this.parentElement.remove();('+callback+')()" style="padding:10px 30px;background:#ff6b35;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:1em">CONTINUE</button>';
-  document.body.appendChild(overlay);
-  logEvent('ad_shown',{type:'interstitial'});
-}
-function showRewardedAd(callback){
-  // Placeholder: In production, replace with AdMob rewarded video
-  var overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;';
-  overlay.innerHTML='<div style="font-size:1.5em;font-weight:700;margin-bottom:10px;color:#f7c948">REWARDED AD</div><div style="color:#aaa;font-size:0.85em;margin-bottom:20px">Watch ad for reward!</div><div style="width:300px;height:250px;background:#222;border:2px dashed #f7c948;display:flex;align-items:center;justify-content:center;border-radius:12px;margin-bottom:15px"><span style="color:#f7c948">Rewarded Video</span></div><div id="adTimer" style="color:#ff6b35;font-size:1.2em;font-weight:700;margin-bottom:10px">5</div><button id="adCloseBtn" disabled onclick="this.parentElement.remove();('+callback+')()" style="padding:10px 30px;background:#555;color:#999;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:1em">WAIT...</button>';
-  document.body.appendChild(overlay);
-  var sec=5;var tmr=setInterval(function(){sec--;document.getElementById('adTimer').textContent=sec;
-  if(sec<=0){clearInterval(tmr);var btn=document.getElementById('adCloseBtn');btn.disabled=false;btn.style.background='#f7c948';btn.style.color='#1a1a2e';btn.textContent='CLAIM REWARD';}},1000);
-  logEvent('ad_shown',{type:'rewarded'});
-}
+  function showInterstitialAd(callback){
+        if(window.ReactNativeWebView){
+                window._adCallback=callback;
+                window.ReactNativeWebView.postMessage(JSON.stringify({type:'interstitialAd',callback:callback}));
+        }else{
+                window[callback]();
+        }
+  }
+  function showRewardedAd(callback){
+        if(window.ReactNativeWebView){
+                window._adCallback=callback;
+                window.ReactNativeWebView.postMessage(JSON.stringify({type:'rewardedAd',callback:callback}));
+        }else{
+                window[callback]();
+        }
+  }
 var C=document.getElementById('gameCanvas'),ctx=C.getContext('2d'),
 CC=document.getElementById('confettiCanvas'),cctx=CC.getContext('2d');
 var W,H,balls=[],targets=[],walls=[],particles=[],shockwaves=[],textPops=[];
