@@ -174,6 +174,7 @@ canvas{display:block}h
 <button class="tab-btn active" onclick="shopTab('skins')">BALLS</button>
 <button class="tab-btn" onclick="shopTab('trails')">TRAILS</button>
 <button class="tab-btn" onclick="shopTab('effects')">EFFECTS</button>
+<button class="tab-btn" onclick="shopTab('vip')">⭐ VIP</button>
 </div>
 <div id="shopGrid" class="shop-grid"></div>
 <button class="btn btn-secondary btn-small" onclick="closeShop()" style="margin-top:10px">&#x2190; BACK</button>
@@ -740,8 +741,9 @@ function openShop(){logEvent('shop_visit',{});showScreen('shopS');document.getEl
 function closeShop(){showMenu();}
 function shopTab(tab){
   var tabs=document.querySelectorAll('.tab-btn');tabs.forEach(function(t,i){t.classList.remove('active');
-  if((tab==='skins'&&i===0)||(tab==='trails'&&i===1)||(tab==='effects'&&i===2))t.classList.add('active');});
+  if((tab==='skins'&&i===0)||(tab==='trails'&&i===1)||(tab==='effects'&&i===2)||(tab==='vip'&&i===3))t.classList.add('active');});
   var grid=document.getElementById('shopGrid');grid.innerHTML='';
+if(tab==='vip'){   var isPremium=window._isPremium||false;   var items=[     {id:'$rc_lifetime',name:'No Ads',desc:'Remove all ads forever!',price:'£2.99',icon:'🚫'},     {id:'coins_100',name:'100 Coins',desc:'Unlock balls, trails & effects!',price:'£0.99',icon:'🪙'},     {id:'coins_500',name:'500 Coins',desc:'Premium items unlocked!',price:'£3.99',icon:'💎'}   ];   items.forEach(function(item){     var div=document.createElement('div');     div.className='shop-item';     div.style.cssText='grid-column:span 3;display:flex;align-items:center;gap:10px;padding:15px;';     div.innerHTML='<div style="font-size:2em">'+item.icon+'</div><div style="flex:1"><div style="color:#fff;font-weight:700;font-size:0.9em">'+item.name+'</div><div style="color:#888;font-size:0.7em">'+item.desc+'</div></div><button onclick="buyItem(\''+item.id+'\')" style="padding:8px 16px;background:linear-gradient(135deg,#f7c948,#f2a900);color:#1a1a2e;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85em">'+item.price+'</button>';     grid.appendChild(div);   });   var restoreDiv=document.createElement('div');   restoreDiv.style.cssText='grid-column:span 3;text-align:center;margin-top:10px;';   restoreDiv.innerHTML='<button onclick="restorePurchases()" style="padding:8px 20px;background:rgba(255,255,255,0.1);color:#aaa;border:1px solid rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;font-size:0.8em">Restore Purchases</button>';   grid.appendChild(restoreDiv);   return; }
   var items=tab==='skins'?SKINS:(tab==='trails'?TRAILS:EFFECTS);
   var ownedList=tab==='skins'?save.ownedSkins:(tab==='trails'?save.ownedTrails:save.ownedEffects);
   var equipped=tab==='skins'?equippedSkin:(tab==='trails'?equippedTrail:equippedEffect);
@@ -878,6 +880,10 @@ initFromSave();
 if(!save.tutorialDone)startTutorial();else showMenu();
 gameLoop();
 
+function buyItem(productId){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'purchase',productId:productId}));   }else{     alert('In-app purchases only available in the mobile app!');   } }
+function restorePurchases(){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'restorePurchases'}));   } }
+window.onPurchaseComplete=function(result){   if(result.success){     window._isPremium=result.isPremium;     sndWin();     spawnConfetti(W/2,H/2,50);     alert(result.isPremium?'🎉 Ads removed! Enjoy Boom Chain ad-free!':'🪙 Coins added to your account!');     closeShop();   }else{     alert('Purchase failed. Please try again.');   } };
+window.onRestoreComplete=function(result){   if(result.success&&result.isPremium){     window._isPremium=true;     alert('✅ Purchases restored! Ads removed.');   }else{     alert('No purchases to restore.');   } };
 </script>
 </body>
 </html>
