@@ -695,7 +695,7 @@ function levelComplete(){
   var gl=currentRoom*5+currentRoomLevel+1;
   if(gl>save.bestLevel)save.bestLevel=gl;if(score>save.highScore)save.highScore=score;
   if(maxCombo>=5)save.totalCombos=(save.totalCombos||0)+1;
-  if(isBossRoom){save.totalBosses=(save.totalBosses||0)+1;
+  if(isBossRoom&&currentRoom!==5){save.totalBosses=(save.totalBosses||0)+1;
     if(currentRoom<ROOMS.length-1){save.roomProgress[currentRoom].cleared=true;save.roomProgress[currentRoom+1].unlocked=true;}
     saveSave();checkAchievements();setTimeout(function(){showBossClear(coinBonus)},500);return;}
   saveSave();checkAchievements();
