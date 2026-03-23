@@ -442,7 +442,7 @@ function updateFOMO(){
 function checkStreak(){
   var today=new Date().toDateString();
   if(save.lastPlay!==today){var yesterday=new Date(Date.now()-86400000).toDateString();
-  if(save.lastPlay===yesterday)save.streak=(save.streak||0)+1;else save.streak=1;
+  if(save.lastPlay===yesterday)save.streak=(save.streak||0)+1;else save.streak=1;h
   save.lastPlay=today;saveSave();}
 }
 var TUTORIAL_STEPS=[
@@ -701,7 +701,7 @@ function levelComplete(){
   saveSave();checkAchievements();
   document.getElementById('lcEmoji').textContent=isPerfect?BOOM:PARTY;
   document.getElementById('lcTitle').textContent=isPerfect?'PERFECT SHOT!':'LEVEL COMPLETE!';
-  document.getElementById('lcTitle').style.color=isPerfect?'#ff6b35':'#4CAF50';
+  document.getElementById('lcTitlhhe').style.color=isPerfect?'#ff6b35':'#4CAF50';
   document.getElementById('lcStars').textContent=STAR.repeat(starsEarned)+STAR_E.repeat(3-starsEarned);
   document.getElementById('lcScore').textContent='+'+score;
   document.getElementById('lcCoins').textContent=COIN+' +'+coinBonus;
@@ -717,9 +717,10 @@ function showBossClear(coinBonus){
   coins+=50;saveSave();sndWin();spawnConfetti(W/2,H/3,100);showScreen('bossClearS');
 }
 function nextLevel(){if(shouldShowAd()){showInterstitialAd('nextLevelReal');return;}nextLevelReal();}function nextLevelReal(){
-  if(isBossRoom&&currentRoom<ROOMS.length-1)openRoomIntro(currentRoom+1);
-  else if(currentRoomLevel<4)startRoomLevel(currentRoom,currentRoomLevel+1);
-  else startWorldMap();
+  if(currentRoom===5){currentRoomLevel=(currentRoomLevel+1)%5;level++;startRoomLevel(5,currentRoomLevel);return;}
+    if(isBossRoom&&currentRoom<ROOMS.length-1)openRoomIntro(currentRoom+1);
+    else if(currentRoomLevel<4)startRoomLevel(currentRoom,currentRoomLevel+1);
+    else startWorldMap();
 }
 function gameOver(){
   gameActive=false;stopMusic();sndFail();logEvent('level_fail',{level:level,targetsLeft:targets.filter(function(t){return t.alive}).length});
