@@ -84,6 +84,25 @@ canvas{display:block}
 .tab-bar{display:flex;gap:5px;margin-bottom:15px}
 .tab-btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.8em;background:rgba(255,255,255,0.1);color:#aaa;transition:all 0.2s}
 .tab-btn.active{background:linear-gradient(135deg,#ff6b35,#e8552a);color:#fff}
+
+.impossible-warning{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300;background:rgba(255,0,0,0.15);pointer-events:none;animation:impossiblePulse 0.5s ease-out forwards}
+@keyframes impossiblePulse{0%{background:rgba(255,0,0,0.4)}100%{background:rgba(255,0,0,0)}}
+.impossible-text{font-size:2.5em;font-weight:900;color:#ff1744;text-shadow:0 0 30px rgba(255,23,68,0.8),0 0 60px rgba(255,23,68,0.4);animation:impossibleShake 0.5s ease-out}
+@keyframes impossibleShake{0%,100%{transform:translateX(0)}10%{transform:translateX(-10px)}20%{transform:translateX(10px)}30%{transform:translateX(-8px)}40%{transform:translateX(8px)}50%{transform:translateX(-5px)}}
+.impossible-sub{color:#ff5252;font-size:0.9em;margin-top:5px;font-weight:700}
+.rage-bar{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);width:200px;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;z-index:55;overflow:hidden;opacity:0;transition:opacity 0.3s}
+.rage-bar.visible{opacity:1}
+.rage-fill{height:100%;border-radius:4px;transition:width 0.3s;background:linear-gradient(90deg,#ff9800,#ff1744)}
+.rage-label{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);color:#ff5722;font-size:0.65em;font-weight:700;z-index:55;opacity:0;transition:opacity 0.3s}
+.rage-label.visible{opacity:1}
+.rage-mode-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:45;pointer-events:none;display:none;border:4px solid #ff1744;box-shadow:inset 0 0 60px rgba(255,23,68,0.3);animation:ragePulse 0.3s infinite alternate}
+@keyframes ragePulse{0%{border-color:#ff1744;box-shadow:inset 0 0 60px rgba(255,23,68,0.3)}100%{border-color:#ff5722;box-shadow:inset 0 0 80px rgba(255,87,34,0.4)}}
+.near-miss{position:fixed;font-size:1.8em;font-weight:900;color:#ff1744;z-index:200;pointer-events:none;text-shadow:0 0 20px rgba(255,23,68,0.8);animation:nearMissAnim 1.5s forwards}
+@keyframes nearMissAnim{0%{transform:scale(2);opacity:0}15%{transform:scale(1);opacity:1}70%{opacity:1}100%{transform:translateY(-40px);opacity:0}}
+.boss-taunt{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(255,23,68,0.9);color:#fff;padding:10px 20px;border-radius:12px;font-weight:700;font-size:0.9em;z-index:200;animation:tauntAnim 2.5s forwards;pointer-events:none}
+@keyframes tauntAnim{0%{transform:translateX(-50%) scale(0)}10%{transform:translateX(-50%) scale(1.1)}20%{transform:translateX(-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-20px)}}
+.chain-record-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#f7c948,#ff6b35);color:#1a1a2e;padding:15px 25px;border-radius:16px;font-weight:900;font-size:1.3em;z-index:250;animation:popIn 0.5s;text-align:center;pointer-events:none}
+.daily-badge{position:absolute;top:-5px;left:-5px;background:#ff1744;color:#fff;font-size:0.5em;padding:2px 6px;border-radius:8px;font-weight:700;animation:pulse 1.5s infinite}
 </style>
 </head>
 <body>
@@ -96,6 +115,7 @@ canvas{display:block}
 <div id="menuCoins" class="hud-coin" style="font-size:1.1em;margin-bottom:10px"></div>
 <button class="btn btn-primary" onclick="startWorldMap()">&#x25B6; PLAY</button>
 <button class="btn btn-gold" onclick="openDailyReward()">&#x1F3B0; DAILY SPIN</button>
+  <button class="btn btn-secondary btn-small" onclick="startDailyChallenge()" style="margin-top:5px;border-color:#ff1744;color:#ff1744">\u26A0\uFE0F DAILY IMPOSSIBLE</button>
 <div style="display:flex;gap:5px;margin-top:5px">
 <button class="btn btn-secondary btn-small" onclick="openShop()">&#x1F6D2; SHOP</button>
 <button class="btn btn-secondary btn-small" onclick="openAchievements()">&#x1F3C6; BADGES</button>
@@ -163,7 +183,8 @@ canvas{display:block}
 <div id="goSubtitle" style="color:#aaa;font-size:0.9em;margin-bottom:10px"></div>
 <div id="goTargetLeft" style="color:#ff6b35;font-size:1.1em;font-weight:700;margin-bottom:10px"></div>
 <button class="btn btn-gold btn-small" onclick="watchAdExtraShot()" style="margin-bottom:5px">&#x1F3AC; WATCH AD = +1 SHOT</button>
-<button class="btn btn-primary" onclick="retryLevel()" style="animation:shake 0.5s infinite">&#x1F504; RETRY</button>
+<button class="btn btn-primary" id="rageBtn" onclick="activateRageModeFromGameOver()" style="display:none;background:linear-gradient(135deg,#ff1744,#d50000);margin-bottom:5px">&#x1F525; RAGE MODE</button>
+  <button class="btn btn-primary" onclick="retryLevel()" style="animation:shake 0.5s infinite">&#x1F504; RETRY</button>
 <button class="btn btn-secondary btn-small" onclick="startWorldMap()">&#x2190; MAP</button>
 </div>
 
@@ -207,6 +228,9 @@ canvas{display:block}
 <div id="statsContent" style="color:#aaa;font-size:0.85em;max-width:320px;text-align:left;line-height:1.8"></div>
 <button class="btn btn-secondary btn-small" onclick="showMenu()" style="margin-top:10px">&#x2190; BACK</button>
 </div>
+<div class="rage-bar" id="rageBar"><div class="rage-fill" id="rageFill"></div></div>
+<div class="rage-label" id="rageLabel">RAGE: 0%</div>
+<div id="rageModeOverlay"></div>
 <div class="fomo" id="fomo"></div>
 
 <script>
@@ -346,6 +370,137 @@ var currentRoom=0,currentRoomLevel=0,gameActive=false,isBossRoom=false;
 var screenShake=0,slowMo=1,slowMoTimer=0;
 var confetti=[],trailParticles=[];
 var coins=0,equippedSkin='default',equippedTrail='none',equippedEffect='default';
+
+// ===== VIRAL FEATURES =====
+var rageLevel=0,rageModeActive=false,rageModeTimer=0,rageModeShots=0;
+var bestChainCombo=0,isImpossibleLevel=false,nearMissDistance=0;
+var dailySeed=0,isDailyChallenge=false,dailyBestLevel=0;
+var bossTaunts=['Is that your best shot? \u{1F60F}','You will need more than luck.','Too slow! \u{1F602}','My grandma shoots better!','Getting tired yet? \u{1F634}','Pathetic attempt! \u{1F480}'];
+var bossTauntsDefeat=['IMPOSSIBLE... HOW?! \u{1F631}','NO! This cannot be! \u{1F62D}','I will return stronger... \u{1F620}','You got lucky! \u{1F624}'];
+var impossibleBeaters=Math.floor(Math.random()*30)+5;
+
+function getDailySeed(){var d=new Date();return d.getFullYear()*10000+d.getMonth()*100+d.getDate();}
+function seededRandom(seed){seed=(seed*9301+49297)%233280;return seed/233280;}
+
+// Impossible Level check
+function checkImpossibleLevel(lvl){return currentRoom===5&&lvl>0&&lvl%25===0;}
+
+// Show impossible warning
+function showImpossibleWarning(){
+  var w=document.createElement('div');w.className='impossible-warning';
+  w.innerHTML='<div class="impossible-text">\u26A0\uFE0F WARNING</div><div class="impossible-text" style="font-size:1.8em">IMPOSSIBLE LEVEL</div><div class="impossible-sub">Only '+impossibleBeaters+' players worldwide have beaten this</div>';
+  document.body.appendChild(w);
+  hapticHeavy();playTone(100,'sawtooth',0.5,0.2);playTone(150,'square',0.6,0.15);
+  setTimeout(function(){w.remove()},2500);
+}
+
+// Near miss detection
+function checkNearMiss(){
+  if(targetsLeft<=0)return;
+  var closest=Infinity;var closestT=null;
+  targets.forEach(function(t){if(!t.alive)return;
+    balls.forEach(function(b){if(b.active)return;
+      var last=b.trail&&b.trail.length>0?b.trail[b.trail.length-1]:b;
+      var dx=last.x-t.x,dy=last.y-t.y,dist=Math.sqrt(dx*dx+dy*dy)-t.r-8;
+      if(dist<closest&&dist>0){closest=dist;closestT=t;}
+    });
+  });
+  if(closest<30&&closestT){
+    nearMissDistance=Math.round(closest);
+    var el=document.createElement('div');el.className='near-miss';
+    el.textContent='MISSED BY '+nearMissDistance+'px!';
+    el.style.left=(closestT.x-80)+'px';el.style.top=(closestT.y-40)+'px';
+    document.body.appendChild(el);setTimeout(function(){el.remove()},1500);
+    hapticHeavy();playTone(200,'sawtooth',0.2,0.15);
+  }
+}
+
+// Rage system
+function addRage(amount){
+  if(currentRoom!==5)return;
+  rageLevel=Math.min(100,rageLevel+amount);
+  updateRageUI();
+}
+function updateRageUI(){
+  var bar=document.getElementById('rageBar');var fill=document.getElementById('rageFill');var label=document.getElementById('rageLabel');
+  if(!bar)return;
+  if(currentRoom===5&&rageLevel>0){
+    bar.classList.add('visible');label.classList.add('visible');
+    fill.style.width=rageLevel+'%';
+    label.textContent=rageLevel>=100?'\u{1F525} RAGE READY! TAP RAGE!':'RAGE: '+Math.round(rageLevel)+'%';
+    label.style.color=rageLevel>=100?'#ff1744':'#ff5722';
+  } else {bar.classList.remove('visible');label.classList.remove('visible');}
+}
+function activateRageMode(){
+  if(rageLevel<100||rageModeActive)return;
+  rageModeActive=true;rageModeTimer=3000;rageLevel=0;rageModeShots=0;
+  document.getElementById('rageModeOverlay').style.display='block';
+  hapticHeavy();playTone(80,'sawtooth',0.5,0.2);playTone(120,'square',0.4,0.18);
+  var txt=document.createElement('div');txt.className='combo-text';txt.textContent='\u{1F525} RAGE MODE!';txt.style.color='#ff1744';txt.style.left=(W/2-100)+'px';txt.style.top=(H/2-30)+'px';txt.style.fontSize='2.5em';document.body.appendChild(txt);setTimeout(function(){txt.remove()},1000);
+  updateRageUI();
+}
+function updateRageMode(){
+  if(!rageModeActive)return;
+  rageModeTimer-=16;
+  if(rageModeTimer<=0){rageModeActive=false;document.getElementById('rageModeOverlay').style.display='none';rageModeShots=0;updateRageUI();}
+  else if(!shooting&&rageModeShots<20){shotsLeft=Math.max(shotsLeft,3);updateHUD();}
+}
+
+// Boss taunt system
+function showBossTaunt(){
+  var taunt=bossTaunts[Math.floor(Math.random()*bossTaunts.length)];
+  var el=document.createElement('div');el.className='boss-taunt';el.textContent=taunt;
+  document.body.appendChild(el);setTimeout(function(){el.remove()},2500);
+}
+function showBossDefeatTaunt(){
+  var taunt=bossTauntsDefeat[Math.floor(Math.random()*bossTauntsDefeat.length)];
+  var el=document.createElement('div');el.className='boss-taunt';el.style.background='rgba(76,175,80,0.9)';el.textContent=taunt;
+  document.body.appendChild(el);setTimeout(function(){el.remove()},2500);
+}
+
+// Chain record system
+function checkChainRecord(combo){
+  if(combo>(save.bestChainCombo||0)){
+    save.bestChainCombo=combo;saveSave();
+    if(combo>=4){
+      var el=document.createElement('div');el.className='chain-record-popup';
+      el.innerHTML='\u{1F3C6} NEW CHAIN RECORD!<br>'+combo+'-CHAIN!';
+      document.body.appendChild(el);setTimeout(function(){el.remove()},2000);
+      hapticHeavy();sndAchieve();
+    }
+  }
+}
+
+// Wordle-style share
+function generateShareText(){
+  var dayNum=Math.floor((Date.now()-new Date('2026-01-01').getTime())/86400000);
+  var lvl=currentRoom===5?(level-25):level;
+  var icons='';
+  targets.forEach(function(t){
+    if(!t.alive)icons+=t.type==='boss'?'\u{1F480}':'\u2B50';
+    else icons+=t.type==='boss'?'\u{1F6E1}':'\u2606';
+  });
+  var starIcons='';for(var i=0;i<3;i++)starIcons+=(shotsLeft>=(3-i)?'\u2B50':'\u2606');
+  var header=isDailyChallenge?'Boom Chain Daily #'+dayNum:'Boom Chain Endless LVL '+lvl;
+  return header+'\n'+starIcons+' '+icons+'\n'+(maxCombo>=3?maxCombo+'x COMBO \u{1F525}':'')+'\nhttps://axxo33.github.io/BoomChain/';
+}
+
+// Impossible level generation modifier
+function applyImpossibleModifier(li,gl){
+  isImpossibleLevel=true;
+  shotsLeft=totalShots=2;
+  var numExtra=Math.min(Math.floor(gl/10),8);
+  for(var i=0;i<numExtra;i++){
+    var margin=50,topMargin=80,playW=W-margin*2,playH=H-topMargin-margin;
+    var tx=margin+Math.random()*playW,ty=topMargin+30+Math.random()*(playH*0.55);
+    var types=ROOMS[5].targetTypes;var type=types[Math.floor(Math.random()*types.length)];
+    targets.push({x:tx,y:ty,r:type==='hard'?10:14,type:type,hp:type==='hard'?2:1,maxHp:type==='hard'?2:1,alive:true,pulse:0,angle:Math.random()*Math.PI*2,speed:type==='moving'?(2+gl*0.15):0,moveDir:Math.random()>0.5?1:-1,ghostTimer:0,ghostVisible:true,bh_pull:type==='blackhole'?(60+gl*2):0});
+  }
+  targetsLeft=targets.filter(function(t){return t.alive}).length;
+  isImpossibleLevel=false;
+  if(checkImpossibleLevel(currentRoomLevel)){applyImpossibleModifier(li,gl);setTimeout(showImpossibleWarning,300);}
+}
+
 var SAVE_KEY='rl2_save';
 var save=loadSave();
 
@@ -364,7 +519,7 @@ function loadSave(){
       if(!s.roomProgress[i].levels)s.roomProgress[i].levels=[0,0,0,0,0];
     }
     if(!s.totalShots)s.totalShots=0;if(!s.totalPerfects)s.totalPerfects=0;
-    if(!s.totalBosses)s.totalBosses=0;if(!s.totalCombos)s.totalCombos=0;
+    if(!s.totalBosses)s.totalBosses=0;if(!s.totalCombos)s.totalCombos=0;if(!s.bestChainCombo)s.bestChainCombo=0;
     if(!s.coins)s.coins=0;
     return s;
   }}catch(e){}
@@ -434,7 +589,7 @@ function resize(){W=C.width=CC.width=window.innerWidth;H=C.height=CC.height=wind
 window.addEventListener('resize',resize);resize();
 function hideAll(){document.querySelectorAll('.overlay').forEach(function(o){o.classList.remove('active');o.style.display='none'});document.getElementById('hud').style.display='none';}
 function showScreen(id){hideAll();var el=document.getElementById(id);el.style.display='flex';el.classList.add('active');}
-function showMenu(){initFromSave();showScreen('menuS');updateMenuInfo();updateFOMO();checkStreak();}
+function showMenu(){isDailyChallenge=false;initFromSave();showScreen('menuS');updateMenuInfo();updateFOMO();checkStreak();}
 function updateMenuInfo(){
   document.getElementById('menuCoins').textContent=COIN+' '+coins;
   var si=document.getElementById('streakInfo');
@@ -527,7 +682,10 @@ function startRoomLevel(ri,li){
   generateLevel(room,li,gl);hideAll();
   document.getElementById('hud').style.display='flex';
   document.getElementById('hudRoom').textContent=room.name;
-  gameActive=true;score=0;combo=0;maxCombo=0;updateHUD();startMusic();logEvent('level_start',{level:level,room:currentRoom,roomLevel:currentRoomLevel});
+  if(isDailyChallenge)document.getElementById('hudRoom').textContent='DAILY IMPOSSIBLE';
+  gameActive=true;score=0;combo=0;maxCombo=0;rageLevel=0;updateRageUI();updateHUD();startMusic();
+  if(isBossRoom)setTimeout(showBossTaunt,800);
+  logEvent('level_start',{level:level,room:currentRoom,roomLevel:currentRoomLevel});
 }
 
 // ===== HANDCRAFTED LEVELS =====
@@ -618,7 +776,7 @@ function getBallColor(t){var skin=SKINS.find(function(s){return s.id===equippedS
 function shoot(dx,dy){
   if(!gameActive||shooting||shotsLeft<=0)return;
   var dist=Math.sqrt(dx*dx+dy*dy);if(dist<10)return;
-  shooting=true;shotsLeft--;save.totalShots=(save.totalShots||0)+1;
+  shooting=true;if(!rageModeActive)shotsLeft--;else rageModeShots++;save.totalShots=(save.totalShots||0)+1;
   var speed=10,vx=(dx/dist)*speed,vy=(dy/dist)*speed;
   balls.push({x:launchX,y:launchY,vx:vx,vy:vy,r:8,active:true,bounces:0,trail:[]});
   sndShoot();updateHUD();
@@ -641,6 +799,7 @@ function triggerShake(intensity){screenShake=Math.max(screenShake,intensity);}
 function triggerSlowMo(duration){slowMo=0.3;slowMoTimer=duration;}
 
 function update(){
+  updateRageMode();
   if(slowMoTimer>0){slowMoTimer-=16;if(slowMoTimer<=0){slowMo=1;slowMoTimer=0;}}
   if(screenShake>0)screenShake*=0.9;if(screenShake<0.5)screenShake=0;
   targets.forEach(function(t){if(!t.alive)return;
@@ -683,8 +842,9 @@ function update(){
             particles.push({x:t.x,y:t.y,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,r:Math.random()*5+2,color:'rgba(200,230,255,0.8)',life:1,decay:0.01,gravity:0.1,isShard:true,rotation:Math.random()*360,rotSpeed:Math.random()*10});}
           }else if(t.type==='boss'){sndBoss();triggerShake(15);triggerSlowMo(1500);spawnConfetti(t.x,t.y,60);spawnParticles(t.x,t.y,'#f7c948',50,10,8);
           }else{sndHit();}
-          showComboText(combo);if(combo>=3)triggerSlowMo(400);
-        }else{sndHit();spawnParticles(t.x,t.y,'#fff',5,3,2);b.vx=(dx/dist)*7;b.vy=(dy/dist)*7;}}});
+          showComboText(combo);checkChainRecord(combo);if(combo>=3)triggerSlowMo(400);
+        }else{sndHit();spawnParticles(t.x,t.y,'#fff',5,3,2);b.vx=(dx/dist)*7;b.vy=(dy/dist)*7;
+  if(t.type==='boss'&&t.hp>0&&Math.random()<0.4)showBossTaunt();}}});
   });
   trailParticles.forEach(function(tp){tp.life-=tp.decay});trailParticles=trailParticles.filter(function(tp){return tp.life>0});
   particles.forEach(function(p){p.x+=p.vx*slowMo;p.y+=p.vy*slowMo;p.vy+=(p.gravity||0)*slowMo;p.life-=p.decay*slowMo;if(p.isShard)p.rotation+=(p.rotSpeed||0);});
@@ -699,7 +859,7 @@ function update(){
 }
 
 function updateHUD(){
-  document.getElementById('hudLevel').textContent=level;
+  document.getElementById('hudLevel').textContent=level+(isImpossibleLevel?' \u26A0\uFE0F':'');
   document.getElementById('hudShots').textContent=shotsLeft;
   document.getElementById('hudScore').textContent=score;
   document.getElementById('hudCoins').textContent=COIN+' '+coins;
@@ -718,9 +878,10 @@ function levelComplete(){
   var gl=currentRoom*5+currentRoomLevel+1;
   if(gl>save.bestLevel)save.bestLevel=gl;if(score>save.highScore)save.highScore=score;
   if(maxCombo>=5)save.totalCombos=(save.totalCombos||0)+1;
-  if(isBossRoom){save.totalBosses=(save.totalBosses||0)+1;
+  if(isBossRoom){save.totalBosses=(save.totalBosses||0)+1;showBossDefeatTaunt();
     if(currentRoom<ROOMS.length-1){save.roomProgress[currentRoom].cleared=true;save.roomProgress[currentRoom+1].unlocked=true;}
     saveSave();checkAchievements();setTimeout(function(){showBossClear(coinBonus)},500);return;}
+  if(isImpossibleLevel){impossibleBeaters++;}
   saveSave();checkAchievements();
   document.getElementById('lcEmoji').textContent=isPerfect?BOOM:PARTY;
   document.getElementById('lcTitle').textContent=isPerfect?'PERFECT SHOT!':'LEVEL COMPLETE!';
@@ -755,12 +916,27 @@ function gameOver(){
     document.getElementById('goSubtitle').textContent=leftCount+' targets remaining';document.getElementById('goTargetLeft').textContent='So close yet so far...';
   }else{document.getElementById('goEmoji').textContent=SAD;document.getElementById('goTitle').textContent='TRY AGAIN';
     document.getElementById('goSubtitle').textContent=leftCount+'/'+total+' targets left';document.getElementById('goTargetLeft').textContent='You can do this!';}
-  triggerShake(6);showScreen('gameOverS');
+  triggerShake(6);addRage(35);
+  var rageBtn=document.getElementById('rageBtn');if(rageBtn)rageBtn.style.display=rageLevel>=100?'block':'none';
+  showScreen('gameOverS');
 }
 function retryLevel(){startRoomLevel(currentRoom,currentRoomLevel);}
 function watchAdExtraShot(){showRewardedAd('grantExtraShot');}
 function grantExtraShot(){shotsLeft++;totalShots++;shooting=false;gameActive=true;hideAll();document.getElementById('hud').style.display='flex';startMusic();updateHUD();logEvent('rewarded_extra_shot',{level:level});}
-function shareScore(){var text='I scored '+score+' on Level '+level+' in Boom Chain! Can you beat me?';if(navigator.share)navigator.share({title:'Boom Chain',text:text,url:location.href}).catch(function(){});else{navigator.clipboard.writeText(text+' '+location.href).then(function(){alert('Copied!')}).catch(function(){alert(text)});}}
+
+function activateRageModeFromGameOver(){
+  if(rageLevel<100)return;
+  rageModeActive=true;rageModeTimer=3000;rageLevel=0;rageModeShots=0;
+  shooting=false;gameActive=true;
+  hideAll();document.getElementById('hud').style.display='flex';
+  document.getElementById('rageModeOverlay').style.display='block';
+  startMusic();updateHUD();updateRageUI();
+  hapticHeavy();playTone(80,'sawtooth',0.5,0.2);
+  var txt=document.createElement('div');txt.className='combo-text';txt.textContent='\u{1F525} RAGE MODE!';txt.style.color='#ff1744';txt.style.left=(W/2-100)+'px';txt.style.top=(H/2-30)+'px';txt.style.fontSize='2.5em';document.body.appendChild(txt);setTimeout(function(){txt.remove()},1000);
+  shotsLeft=5;totalShots+=5;updateHUD();
+}
+
+function shareScore(){var text=generateShareText();if(navigator.share)navigator.share({title:'Boom Chain',text:text,url:'https://axxo33.github.io/BoomChain/'}).catch(function(){});else{navigator.clipboard.writeText(text).then(function(){alert('Score copied! Share it!\n\n'+text)}).catch(function(){alert(text)});}}
 function openShop(){logEvent('shop_visit',{});showScreen('shopS');document.getElementById('shopCoins').textContent=COIN+' '+coins;shopTab('skins');}
 function closeShop(){showMenu();}
 function shopTab(tab){
@@ -892,6 +1068,8 @@ function showStats(){
   html+='<b style="color:#f7c948">Perfect Shots:</b> '+s.perfectShots+'<br>';
   html+='<b style="color:#f7c948">Total Coins:</b> '+s.coinsEarned+'<br>';
   html+='<b style="color:#ff6b35">Shop Visits:</b> '+s.shopVisits+'<br>';
+  html+='<b style="color:#f7c948">Best Chain:</b> '+(save.bestChainCombo||0)+'-combo<br>';
+  html+='<b style="color:#ff1744">Endless Best:</b> Lvl '+(save.endlessHighLevel?save.endlessHighLevel-25:0)+'<br>';
   if(Object.keys(s.dropOffLevels).length>0){
     html+='<br><b style="color:#ff1744">Hardest Levels:</b><br>';
     var sorted=Object.entries(s.dropOffLevels).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
@@ -899,6 +1077,44 @@ function showStats(){
   }
   document.getElementById('statsContent').innerHTML=html;
 }
+
+// ===== DAILY IMPOSSIBLE CHALLENGE =====
+function startDailyChallenge(){
+  var today=new Date().toDateString();
+  isDailyChallenge=true;currentRoom=5;currentRoomLevel=0;
+  dailySeed=getDailySeed();
+  var room=ROOMS[5];level=26;
+  isBossRoom=false;
+  balls=[];targets=[];walls=[];particles=[];shockwaves=[];textPops=[];confetti=[];trailParticles=[];
+  screenShake=0;slowMo=1;slowMoTimer=0;
+  var margin=50,topMargin=80,playW=W-margin*2,playH=H-topMargin-margin;
+  launchX=W/2;launchY=H-60;
+  shotsLeft=totalShots=2;
+  var seed=dailySeed;var types=room.targetTypes;
+  var numT=12;
+  for(var i=0;i<numT;i++){
+    seed=(seed*9301+49297)%233280;var rx=seed/233280;
+    seed=(seed*9301+49297)%233280;var ry=seed/233280;
+    seed=(seed*9301+49297)%233280;var rt=seed/233280;
+    var tx=margin+rx*playW,ty=topMargin+30+ry*(playH*0.55);
+    var type=types[Math.floor(rt*types.length)];
+    targets.push({x:tx,y:ty,r:type==='hard'?10:14,type:type,hp:type==='hard'?2:1,maxHp:type==='hard'?2:1,alive:true,pulse:0,angle:Math.random()*Math.PI*2,speed:type==='moving'?2.5:0,moveDir:Math.random()>0.5?1:-1,ghostTimer:0,ghostVisible:true,bh_pull:type==='blackhole'?80:0});
+  }
+  var numW=5;
+  for(var i=0;i<numW;i++){
+    seed=(seed*9301+49297)%233280;var wx2=seed/233280;
+    seed=(seed*9301+49297)%233280;var wy2=seed/233280;
+    walls.push({x:margin+wx2*playW,y:topMargin+wy2*(playH*0.8),w:Math.random()>0.5?80:8,h:Math.random()>0.5?8:80});
+  }
+  targetsLeft=targets.filter(function(t){return t.alive}).length;
+  isImpossibleLevel=true;
+  hideAll();document.getElementById('hud').style.display='flex';
+  document.getElementById('hudRoom').textContent='DAILY IMPOSSIBLE';
+  gameActive=true;score=0;combo=0;maxCombo=0;rageLevel=0;updateRageUI();updateHUD();startMusic();
+  setTimeout(showImpossibleWarning,300);
+  logEvent('daily_challenge_start',{seed:dailySeed});
+}
+
 function gameLoop(){if(gameActive)update();draw();requestAnimationFrame(gameLoop);}
 initFromSave();
 if(!save.tutorialDone)startTutorial();else showMenu();
