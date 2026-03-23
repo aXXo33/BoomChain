@@ -451,7 +451,7 @@ function updateFOMO(){
 function checkStreak(){
   var today=new Date().toDateString();
   if(save.lastPlay!==today){var yesterday=new Date(Date.now()-86400000).toDateString();
-  if(save.lastPlay===yesterday)save.streak=(save.streak||0)+1;else save.streak=1;h
+  if(save.lastPlay===yesterday)save.streak=(save.streak||0)+1;else save.streak=1;
   save.lastPlay=today;saveSave();}
 }
 var TUTORIAL_STEPS=[
@@ -592,7 +592,7 @@ function generateLevel(room,li,gl){
     });
   }else{
     // Procedural generation
-    if(isBossRoom){shotsLeft=totalShots=3;}else if(ri===5){totalShots=Math.max(2,5-Math.floor(Math.min(li,8)/2));shotsLeft=totalShots;}else{totalShots=Math.max(2,5-Math.floor(li/2));shotsLeft=totalShots;}
+    if(isBossRoom){shotsLeft=totalShots=3;}else if(currentRoom===5){totalShots=Math.max(2,5-Math.floor(Math.min(li,8)/2));shotsLeft=totalShots;}else{totalShots=Math.max(2,5-Math.floor(li/2));shotsLeft=totalShots;}
     var numT=isBossRoom?1:Math.min(3+li+Math.floor(gl/3),15);
     var types=room.targetTypes;
     for(var i=0;i<numT;i++){
@@ -724,7 +724,7 @@ function levelComplete(){
   saveSave();checkAchievements();
   document.getElementById('lcEmoji').textContent=isPerfect?BOOM:PARTY;
   document.getElementById('lcTitle').textContent=isPerfect?'PERFECT SHOT!':'LEVEL COMPLETE!';
-  document.getElementById('lcTitlhhe').style.color=isPerfect?'#ff6b35':'#4CAF50';
+  document.getElementById('lcTitle').style.color=isPerfect?'#ff6b35':'#4CAF50';
   document.getElementById('lcStars').textContent=STAR.repeat(starsEarned)+STAR_E.repeat(3-starsEarned);
   document.getElementById('lcScore').textContent='+'+score;
   document.getElementById('lcCoins').textContent=COIN+' +'+coinBonus;
