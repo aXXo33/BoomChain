@@ -236,43 +236,52 @@ function hapticBoss(){vibrate([100,50,100,50,200]);}
 // ===== BACKGROUND MUSIC =====
 var musicPlaying=false,musicNodes=[];
 function startMusic(){
-  if(musicPlaying)return;musicPlaying=true;
-  try{
-    var a=getAudio();
-    // Create ambient pad
-    var lfo=a.createOscillator();lfo.type='sine';lfo.frequency.value=0.2;
-    var lfoGain=a.createGain();lfoGain.gain.value=3;
-    lfo.connect(lfoGain);
-    // Pad oscillators - dreamy chords
-    var notes=[196,246.94,293.66,349.23]; // G3,B3,D4,F4 - Gmaj7
-    var masterGain=a.createGain();masterGain.gain.value=0.04;masterGain.connect(a.destination);
-    notes.forEach(function(freq,i){
-      var osc=a.createOscillator();osc.type='sine';osc.frequency.value=freq;
-      var oscGain=a.createGain();oscGain.gain.value=0.25;
-      lfoGain.connect(osc.frequency);
-      osc.connect(oscGain);oscGain.connect(masterGain);
-      osc.start();musicNodes.push(osc);
-    });
-    lfo.start();musicNodes.push(lfo);
-    // Slow arpeggio
-    var arpNotes=[392,493.88,587.33,698.46,587.33,493.88];
-    var arpIdx=0;
-    var arpInterval=setInterval(function(){
-      if(!musicPlaying){clearInterval(arpInterval);return;}
-      var o=a.createOscillator();o.type='triangle';o.frequency.value=arpNotes[arpIdx%arpNotes.length];
-      var g=a.createGain();g.gain.setValueAtTime(0.03,a.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+2);
-      o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+2);
-      arpIdx++;
-    },3000);
-    window._arpInterval=arpInterval;
-  }catch(e){}
+      if(musicPlaying)return;musicPlaying=true;
+      try{
+              var a=getAudio();
+              // Chord progression: Cmaj7 -> Am7 -> Fmaj7 -> G7
+              var chords=[[261.63,329.63,392,493.88],[220,261.63,329.63,415.3],[174.61,220,261.63,329.63],[196,246.94,293.66,369.99]];
+              var chordIdx=0;
+              var masterGain=a.createGain();masterGain.gain.value=0.035;masterGain.connect(a.destination);
+              var padOscs=[];
+              function setChord(idx){
+                        padOscs.forEach(function(o){try{o.stop();}catch(e){}});
+                        padOscs=[];
+                        chords[idx].forEach(function(freq){
+                                    var osc=a.createOscillator();osc.type='sine';osc.frequency.value=freq;
+                                    var g=a.createGain();g.gain.value=0.2;
+                                    osc.connect(g);g.connect(masterGain);
+                                    osc.start();padOscs.push(osc);musicNodes.push(osc);
+                        });
+              }
+              setChord(0);
+              // Change chord every 4 seconds
+              var chordInterval=setInterval(function(){
+                        if(!musicPlaying){clearInterval(chordInterval);return;}
+                        chordIdx=(chordIdx+1)%4;
+                        setChord(chordIdx);
+              },4000);
+              window._chordInterval=chordInterval;
+              // Melody line
+              var melody=[523.25,587.33,659.25,587.33,523.25,493.88,440,493.88,523.25,659.25,587.33,523.25,493.88,440,392,440];
+              var melIdx=0;
+              var melInterval=setInterval(function(){
+                        if(!musicPlaying){clearInterval(melInterval);return;}
+                        var o=a.createOscillator();o.type='triangle';o.frequency.value=melody[melIdx%melody.length];
+                        var g=a.createGain();g.gain.setValueAtTime(0.06,a.currentTime);
+                        g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+1.5);
+                        o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+1.5);
+                        melIdx++;
+              },750);
+              window._melInterval=melInterval;
+              window._arpInterval=chordInterval;
+      }catch(e){}
 }
 function stopMusic(){
   musicPlaying=false;
   musicNodes.forEach(function(n){try{n.stop();}catch(e){}});
   musicNodes=[];
-  if(window._arpInterval)clearInterval(window._arpInterval);
+      if(window._arpInterval)clearInterval(window._arpInterval);if(window._chordInterval)clearInterval(window._chordInterval);if(window._melInterval)clearInterval(window._melInterval);
 }
 function setMusicVolume(v){/* future use */}
 
@@ -500,7 +509,7 @@ function openRoomIntro(ri){
 }
 
 function startRoomLevel(ri,li){
-  currentRoom=ri;currentRoomLevel=li;isBossRoom=(li===4);
+  currentRoom=ri;currentRoomLevel=li;isBossRoom=(li===4&&ri!==5);
   var room=ROOMS[ri];var gl=ri*5+li+1;level=gl;
   generateLevel(room,li,gl);hideAll();
   document.getElementById('hud').style.display='flex';
@@ -695,7 +704,7 @@ function levelComplete(){
   var gl=currentRoom*5+currentRoomLevel+1;
   if(gl>save.bestLevel)save.bestLevel=gl;if(score>save.highScore)save.highScore=score;
   if(maxCombo>=5)save.totalCombos=(save.totalCombos||0)+1;
-  if(isBossRoom&&currentRoom!==5){save.totalBosses=(save.totalBosses||0)+1;
+  if(isBossRoom){save.totalBosses=(save.totalBosses||0)+1;
     if(currentRoom<ROOMS.length-1){save.roomProgress[currentRoom].cleared=true;save.roomProgress[currentRoom+1].unlocked=true;}
     saveSave();checkAchievements();setTimeout(function(){showBossClear(coinBonus)},500);return;}
   saveSave();checkAchievements();
