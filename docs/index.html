@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>Boom Chain</title>
+<title>Boom Chain</title>h
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a1a;overflow:hidden;font-family:'Segoe UI',sans-serif;touch-action:none;user-select:none}
@@ -482,7 +482,8 @@ function startWorldMap(){
     var cl=rp.levels.filter(function(l){return l>0}).length;
     var card=document.createElement('div');card.className='room-card'+(isLocked?' locked':'');
     var pp=(cl/rp.levels.length*100);
-    card.innerHTML='<div class="room-icon">'+room.icon+'</div><div class="room-name">'+room.name+'</div><div class="room-stars">'+(isLocked?LOCK:STAR+' '+stars+'/'+rp.levels.length*3)+'</div><div class="room-info">'+(isLocked?'LOCKED':cl+'/'+rp.levels.length+' levels')+'</div>'+(isLocked?'<div class="lock-icon">'+LOCK+'</div>':'')+'<div class="room-progress"><div class="room-progress-fill" style="width:'+pp+'%;background:'+room.accent+'"></div></div>'+(rp.levels[4]===0&&!isLocked?'<div style="color:#ff1744;font-size:0.6em;margin-top:3px">BOSS LVL</div>':'');
+    var endlessInfo=(ri===5&&!isLocked)?('Best: Lvl '+(save.endlessHighLevel?save.endlessHighLevel-25:1)):'';
+    card.innerHTML='<div class="room-icon">'+room.icon+'</div><div class="room-name">'+room.name+'</div><div class="room-stars">'+(isLocked?LOCK:(ri===5?'\u221E ENDLESS':STAR+' '+stars+'/'+rp.levels.length*3))+'</div><div class="room-info">'+(isLocked?'LOCKED':(ri===5?endlessInfo:cl+'/'+rp.levels.length+' levels'))+'</div>'+(isLocked?'<div class="lock-icon">'+LOCK+'</div>':'')+'<div class="room-progress"><div class="room-progress-fill" style="width:'+pp+'%;background:'+room.accent+'"></div></div>'+(ri!==5&&rp.levels[4]===0&&!isLocked?'<div style="color:#ff1744;font-size:0.6em;margin-top:3px">BOSS LVL</div>':'');
     if(!isLocked){card.onclick=function(){openRoomIntro(ri)};card.style.borderColor=room.accent;}
     grid.appendChild(card);
   });
@@ -494,6 +495,17 @@ function openRoomIntro(ri){
   document.getElementById('riName').style.color=room.accent;
   document.getElementById('riDesc').textContent=room.desc;
   var dots=document.getElementById('riDots');dots.innerHTML='';
+  if(ri===5){
+    var endlessLevel=save.endlessHighLevel?save.endlessHighLevel-25:1;
+    var startDot=document.createElement('div');startDot.className='level-dot current';
+    startDot.textContent='\u221E';
+    startDot.style.borderColor=room.accent;startDot.style.fontSize='1.2em';
+    startDot.onclick=function(){startRoomLevel(ri,0)};
+    dots.appendChild(startDot);
+    var info=document.createElement('div');info.style.cssText='color:#ffd54f;font-size:0.85em;margin-top:8px;font-weight:700;';
+    info.textContent='Highest: Level '+endlessLevel+' | Tap to play!';
+    dots.appendChild(info);
+  } else {
   for(var i=0;i<5;i++){
     var dot=document.createElement('div');dot.className='level-dot';
     var ib=(i===4);var sc=rp.levels[i];
@@ -505,12 +517,13 @@ function openRoomIntro(ri){
     if(!dot.classList.contains('locked')){(function(li){dot.onclick=function(){startRoomLevel(ri,li)};})(i);}
     dots.appendChild(dot);
   }
+  }
   showScreen('roomIntroS');
 }
 
 function startRoomLevel(ri,li){
   currentRoom=ri;currentRoomLevel=li;isBossRoom=(li===4&&ri!==5);
-  var room=ROOMS[ri];var gl=ri*5+li+1;level=gl;
+  var room=ROOMS[ri];var gl=(ri===5)?(26+li):(ri*5+li+1);level=gl;
   generateLevel(room,li,gl);hideAll();
   document.getElementById('hud').style.display='flex';
   document.getElementById('hudRoom').textContent=room.name;
@@ -579,7 +592,7 @@ function generateLevel(room,li,gl){
     });
   }else{
     // Procedural generation
-    if(isBossRoom){shotsLeft=totalShots=3;}else{totalShots=Math.max(2,5-Math.floor(li/2));shotsLeft=totalShots;}
+    if(isBossRoom){shotsLeft=totalShots=3;}else if(ri===5){totalShots=Math.max(2,5-Math.floor(Math.min(li,8)/2));shotsLeft=totalShots;}else{totalShots=Math.max(2,5-Math.floor(li/2));shotsLeft=totalShots;}
     var numT=isBossRoom?1:Math.min(3+li+Math.floor(gl/3),15);
     var types=room.targetTypes;
     for(var i=0;i<numT;i++){
@@ -699,8 +712,9 @@ function levelComplete(){
   if(isPerfect){save.totalPerfects=(save.totalPerfects||0)+1;sndPerfect();logEvent('perfect_shot',{level:level});triggerSlowMo(1000);spawnConfetti(W/2,H/2,80);}
   else{sndWin();spawnConfetti(W/2,H/3,40);}
   var coinBonus=starsEarned*5+(isPerfect?25:0)+(maxCombo>2?maxCombo*3:0);coins+=coinBonus;
-  if(save.roomProgress[currentRoom]){var old=save.roomProgress[currentRoom].levels[currentRoomLevel];
+  if(save.roomProgress[currentRoom]&&currentRoomLevel<save.roomProgress[currentRoom].levels.length){var old=save.roomProgress[currentRoom].levels[currentRoomLevel];
   if(starsEarned>old)save.roomProgress[currentRoom].levels[currentRoomLevel]=starsEarned;}
+  if(currentRoom===5){if(!save.endlessHighLevel||level>save.endlessHighLevel)save.endlessHighLevel=level;}
   var gl=currentRoom*5+currentRoomLevel+1;
   if(gl>save.bestLevel)save.bestLevel=gl;if(score>save.highScore)save.highScore=score;
   if(maxCombo>=5)save.totalCombos=(save.totalCombos||0)+1;
@@ -726,7 +740,7 @@ function showBossClear(coinBonus){
   coins+=50;saveSave();sndWin();spawnConfetti(W/2,H/3,100);showScreen('bossClearS');
 }
 function nextLevel(){if(shouldShowAd()){showInterstitialAd('nextLevelReal');return;}nextLevelReal();}function nextLevelReal(){
-  if(currentRoom===5){currentRoomLevel=(currentRoomLevel+1)%5;level++;startRoomLevel(5,currentRoomLevel);return;}
+  if(currentRoom===5){currentRoomLevel++;level++;startRoomLevel(5,currentRoomLevel);return;}
     if(isBossRoom&&currentRoom<ROOMS.length-1)openRoomIntro(currentRoom+1);
     else if(currentRoomLevel<4)startRoomLevel(currentRoom,currentRoomLevel+1);
     else startWorldMap();
