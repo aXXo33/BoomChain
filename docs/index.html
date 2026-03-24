@@ -104,6 +104,10 @@ canvas{display:block}
 .chain-record-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#f7c948,#ff6b35);color:#1a1a2e;padding:15px 25px;border-radius:16px;font-weight:900;font-size:1.3em;z-index:250;animation:popIn 0.5s;text-align:center;pointer-events:none}
 .daily-badge{position:absolute;top:-5px;left:-5px;background:#ff1744;color:#fff;font-size:0.5em;padding:2px 6px;border-radius:8px;font-weight:700;animation:pulse 1.5s infinite}
 </style>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
@@ -117,12 +121,14 @@ canvas{display:block}
 <button class="btn btn-gold" onclick="openDailyReward()">&#x1F3B0; DAILY SPIN</button>
   <button class="btn btn-secondary btn-small" onclick="startDailyChallenge()" style="margin-top:5px;border-color:#ff1744;color:#ff1744">&#x26A0;&#xFE0F; DAILY IMPOSSIBLE</button>
     <button class="btn btn-secondary btn-small" onclick="startWeeklyChallenge()" style="margin-top:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:1px solid #8b5cf6">&#x1F3C6; WEEKLY CHALLENGE</button>
+<button class="btn btn-small" onclick="openSeasonPass()" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;margin:6px;box-shadow:0 4px 15px rgba(155,89,182,0.4)">&#x1F31F; SEASON PASS</button>
 <div style="display:flex;gap:5px;margin-top:5px">
 <button class="btn btn-secondary btn-small" onclick="openShop()">&#x1F6D2; SHOP</button>
 <button class="btn btn-secondary btn-small" onclick="openAchievements()">&#x1F3C6; BADGES</button>
 <button class="btn btn-secondary btn-small" onclick="openLeaderboard()">&#x1F4CA; RANK</button>
 </div>
-<div style="display:flex;gap:5px;margin-top:8px"><button class="btn btn-secondary btn-small" id="musicToggle" onclick="toggleMusic()">&#x1F3B5; MUSIC: OFF</button><button class="btn btn-secondary btn-small" onclick="showStats()">&#x1F4C8; STATS</button></div>
+<div style="display:flex;gap:5px;margin-top:8px"><button class="btn btn-secondary btn-small" id="musicToggle" onclick="toggleMusic()">&#x1F3B5; MUSIC: OFF</button><button class="btn btn-secondary btn-small" onclick="showStats()">&#x1F4C8; STATS</button>
+<button class="btn btn-small btn-secondary" onclick="requestNotificationPermission()" id="notifBtn" style="margin:6px">&#x1F514; NOTIFICATIONS</button></div>
 <div id="streakInfo" style="color:#ff6b35;font-size:0.8em;margin-top:10px"></div>
 <div id="dailyInfo" style="color:#4CAF50;font-size:0.75em;margin-top:5px"></div>
 </div>
@@ -166,6 +172,7 @@ canvas{display:block}
 <div id="lcCoins" style="color:#f7c948;font-size:1em;margin:5px 0"></div>
 <div id="lcPerfect" style="color:#ff6b35;font-size:1.2em;font-weight:800;display:none"></div>
 <button class="btn btn-primary" onclick="nextLevel()">NEXT &#x2192;</button>
+<button class="btn btn-gold btn-small" id="doubleCoinsBtn" onclick="watchAdDoubleCoins()" style="margin-bottom:8px">&#x1F3AC; WATCH AD = 2x COINS</button>
 <button class="btn btn-secondary btn-small" onclick="shareScore()">&#x1F4E4; SHARE</button>
 </div>
 
@@ -1249,6 +1256,154 @@ if(!save.weeklyBest)save.weeklyBest={};
 if(!save.adsWatched)save.adsWatched=0;
 if(!save.noMissWins)save.noMissWins=0;
 
+
+// ===== FIREBASE INIT =====
+var firebaseConfig={apiKey:"AIzaSyBoomChainDemo2024",authDomain:"boomchain-game.firebaseapp.com",databaseURL:"https://boomchain-game-default-rtdb.firebaseio.com",projectId:"boomchain-game",storageBucket:"boomchain-game.appspot.com",messagingSenderId:"123456789",appId:"1:123456789:web:abcdef123456"};
+var fbApp=null,fbDb=null,fbAnalytics=null;
+try{if(typeof firebase!=='undefined'){fbApp=firebase.initializeApp(firebaseConfig);fbDb=firebase.database();fbAnalytics=firebase.analytics();}}catch(e){}
+
+// ===== FIREBASE LEADERBOARD =====
+function submitScore(pName,sc,rm){if(!fbDb)return;try{fbDb.ref('leaderboard').push({name:pName||'Player',score:sc,room:rm||'endless',timestamp:Date.now()});}catch(e){}}
+var _origGenLB=typeof generateLeaderboard==='function'?generateLeaderboard:null;
+generateLeaderboard=function(){
+if(!fbDb){if(_origGenLB)return _origGenLB();return;}
+var ct=document.querySelector('#leaderboardS div:nth-child(2)');
+if(!ct){if(_origGenLB)return _origGenLB();return;}
+ct.innerHTML='<div style="color:#aaa;padding:20px">Loading...<\/div>';
+fbDb.ref('leaderboard').orderByChild('score').limitToLast(20).once('value').then(function(snap){
+var entries=[];snap.forEach(function(c){entries.push(c.val());});
+entries.sort(function(a,b){return b.score-a.score;});
+var html='';
+var sv=JSON.parse(localStorage.getItem('rl2_save')||'{}');
+var myBest=sv.highScore||0;
+entries.forEach(function(e,i){
+var medal=i<3?['\u{1F947}','\u{1F948}','\u{1F949}'][i]:'<span style="color:#f7c948;font-weight:700;width:28px;display:inline-block">'+(i+1)+'<\/span>';
+html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;margin:4px 0;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.1)">';
+html+='<span>'+medal+' <b>'+e.name+'<\/b><\/span><span style="color:#f7c948">'+e.score.toLocaleString()+'<\/span><\/div>';
+});
+if(myBest>0){
+html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;margin:4px 0;background:rgba(255,255,255,0.15);border-radius:8px;border:1px solid rgba(247,201,72,0.5)">';
+html+='<span>\u{1F3AF} <b>YOU<\/b><\/span><span style="color:#f7c948">'+myBest.toLocaleString()+'<\/span><\/div>';}
+ct.innerHTML=html||'<div style="color:#aaa;padding:20px">No scores yet!<\/div>';
+}).catch(function(){if(_origGenLB)_origGenLB();});
+};
+
+// ===== 2x COINS AD =====
+var _lastLevelCoins=0;
+var _origLC=levelComplete;
+levelComplete=function(){_lastLevelCoins=100+(level*10);_origLC.apply(this,arguments);var btn=document.getElementById('doubleCoinsBtn');if(btn)btn.style.display='block';};
+function watchAdDoubleCoins(){showRewardedAd('grantDoubleCoins');}
+function grantDoubleCoins(){var earned=_lastLevelCoins||100;coins+=earned;showCoinFly(earned);var btn=document.getElementById('doubleCoinsBtn');if(btn)btn.style.display='none';saveSave();logEvent('double_coins_ad',{earned:earned*2});}
+
+// ===== PUSH NOTIFICATIONS =====
+function requestNotificationPermission(){
+if(!('Notification' in window)){alert('Notifications not supported');return;}
+Notification.requestPermission().then(function(p){
+if(p==='granted'){var b=document.getElementById('notifBtn');if(b)b.textContent='\u{1F514} NOTIFICATIONS: ON';setupFallbackNotifs();logEvent('notif_enabled');alert('Notifications enabled!');}
+});}
+function setupFallbackNotifs(){
+var last=localStorage.getItem('lastNotifTime')||0;
+if(Date.now()-last>86400000){setTimeout(function(){if(Notification.permission==='granted'){new Notification('Boom Chain',{body:'\u{1F3B0} Daily spin ready! Free coins!',icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>\u{1F52C}<\/text><\/svg>'});localStorage.setItem('lastNotifTime',Date.now());}},10000);}
+}
+
+// ===== SEASON PASS =====
+var SEASON_PASS_DATA={name:'Season 1 - Neon Dreams',tiers:[
+{xp:0,free:'50 Coins',premium:'200 Coins',icon:'\u{1FA99}'},
+{xp:200,free:'Ball: Neon Blue',premium:'Ball: Void',icon:'\u{1F535}'},
+{xp:500,free:'100 Coins',premium:'Trail: Fire',icon:'\u{1FA99}'},
+{xp:800,free:'Trail: Spark',premium:'Effect: Shockwave',icon:'\u{2728}'},
+{xp:1000,free:'150 Coins',premium:'500 Coins',icon:'\u{1FA99}'},
+{xp:1500,free:'Ball: Ice',premium:'Ball: Rainbow',icon:'\u{2744}'},
+{xp:2000,free:'200 Coins',premium:'Ball: Aurora',icon:'\u{1FA99}'},
+{xp:2500,free:'Effect: Stars',premium:'Exclusive: Crystal Ball',icon:'\u{2B50}'},
+{xp:3000,free:'300 Coins',premium:'1000 Coins + Badge',icon:'\u{1F3C6}'},
+{xp:4000,free:'500 Coins',premium:'Diamond Trail + Title',icon:'\u{1F48E}'}
+]};
+function getSPData(){var s=JSON.parse(localStorage.getItem('rl2_save')||'{}');return{xp:s.seasonXp||0,prem:s.seasonPremium||false,claimed:s.seasonClaimed||[]};}
+function saveSPData(d){var s=JSON.parse(localStorage.getItem('rl2_save')||'{}');s.seasonXp=d.xp;s.seasonPremium=d.prem;s.seasonClaimed=d.claimed;localStorage.setItem('rl2_save',JSON.stringify(s));}
+function addSeasonXP(amt){var d=getSPData();d.xp+=amt;saveSPData(d);}
+function openSeasonPass(){
+hideAll();showScreen('seasonPassS');
+var d=getSPData();var tiers=SEASON_PASS_DATA.tiers;var maxXp=tiers[tiers.length-1].xp;
+document.getElementById('spSeasonName').textContent=SEASON_PASS_DATA.name;
+document.getElementById('spXpText').textContent='XP: '+d.xp+' / '+maxXp;
+document.getElementById('spXpBar').style.width=Math.min(100,d.xp/maxXp*100)+'%';
+var pb=document.getElementById('spPremiumBtn');if(d.prem){pb.textContent='\u{2B50} PREMIUM ACTIVE';pb.style.opacity='0.6';}
+var html='';tiers.forEach(function(t,i){
+var ok=d.xp>=t.xp,got=d.claimed.indexOf(i)!==-1;
+var bg=ok?(got?'rgba(46,204,113,0.2)':'rgba(247,201,72,0.2)'):'rgba(255,255,255,0.05)';
+html+='<div style="display:flex;align-items:center;padding:10px;margin:6px 0;background:'+bg+';border-radius:8px;border:1px solid '+(ok?'rgba(247,201,72,0.5)':'rgba(255,255,255,0.1)')+'">';
+html+='<span style="font-size:1.5em;margin-right:10px">'+t.icon+'<\/span><div style="flex:1;text-align:left"><div style="color:#aaa;font-size:0.75em">'+t.xp+' XP<\/div>';
+html+='<div style="color:#fff">'+t.free+'<\/div><div style="color:#f7c948;font-size:0.85em">'+(d.prem?'\u{2B50} ':'\u{1F512} ')+t.premium+'<\/div><\/div>';
+if(ok&&!got)html+='<button class="btn btn-gold btn-small" onclick="claimSPReward('+i+')" style="padding:5px 12px;font-size:0.8em">CLAIM<\/button>';
+else if(got)html+='<span style="color:#2ecc71">\u{2705}<\/span>';else html+='<span style="color:#666">\u{1F512}<\/span>';
+html+='<\/div>';});
+document.getElementById('spRewards').innerHTML=html;logEvent('season_pass_opened');}
+function claimSPReward(idx){var d=getSPData();var t=SEASON_PASS_DATA.tiers[idx];if(d.xp<t.xp||d.claimed.indexOf(idx)!==-1)return;d.claimed.push(idx);var r=d.prem?t.premium:t.free;var m=r.match(/(\d+)\s*Coins/i);if(m){coins+=parseInt(m[1]);showCoinFly(parseInt(m[1]));}saveSPData(d);saveSave();openSeasonPass();logEvent('sp_reward_claimed',{tier:idx});}
+function buySeasonPass(){var d=getSPData();if(d.prem)return;if(typeof webkit!=='undefined'&&webkit.messageHandlers&&webkit.messageHandlers.iap){webkit.messageHandlers.iap.postMessage({action:'purchase',productId:'season_pass_s1'});}else{d.prem=true;saveSPData(d);openSeasonPass();logEvent('season_pass_bought');}}
+
+// ===== ENHANCED LEVEL GEN (10+ levels, new mechanics) =====
+var LEVELS_PER_ROOM=12;
+var _origGenLevel=generateLevel;
+generateLevel=function(){_origGenLevel.apply(this,arguments);
+var rm=currentRoom,lvl=currentRoomLevel;
+if(lvl>=5){var extra=lvl-4;var tc=Math.min(4+extra,10);
+for(var i=targets.length;i<tc;i++){var types=ROOMS[rm]?ROOMS[rm].targetTypes:['normal'];var tp=types[Math.floor(Math.random()*types.length)];
+targets.push({x:100+Math.random()*(canvas.width-200),y:80+Math.random()*(canvas.height*0.5),r:18+Math.random()*8,type:tp,hp:tp==='hard'?2:1,hit:false,opacity:1,scale:1});}
+if(lvl>=7&&Math.random()>0.4){var wc=Math.floor((lvl-6)/2)+1;for(var w=0;w<wc;w++){
+obstacles.push({x:100+Math.random()*(canvas.width-300),y:150+Math.random()*(canvas.height*0.4),w:80+Math.random()*120,h:8,type:'moving',speed:(1+Math.random()*2)*(Math.random()>0.5?1:-1),minX:50,maxX:canvas.width-50});}}
+if(lvl>=8&&ROOMS[rm]&&ROOMS[rm].name==='Chaos Lab'&&Math.random()>0.5){var px=150+Math.random()*(canvas.width-300);var py=100+Math.random()*(canvas.height*0.3);
+targets.push({x:px,y:py,r:15,type:'portal',hp:999,hit:false,opacity:1,scale:1,portalTarget:{x:canvas.width-px,y:py+100}});}
+if(lvl>=9){for(var m=0;m<Math.floor(lvl/4);m++){targets.push({x:100+Math.random()*(canvas.width-200),y:100+Math.random()*(canvas.height*0.4),r:20,type:'magnet',hp:999,hit:false,opacity:1,scale:1,strength:2+Math.random()*3,range:80+Math.random()*40});}}
+shotsLeft=Math.max(3,Math.min(shotsLeft+Math.floor(extra/3),8));totalShots=shotsLeft;}
+};
+
+// ===== MOVING WALL + PORTAL + MAGNET PHYSICS =====
+var _origDraw2=draw;
+draw=function(){_origDraw2.apply(this,arguments);if(!gameActive)return;
+var ctx2=canvas.getContext('2d');
+for(var i=0;i<obstacles.length;i++){var o=obstacles[i];if(o.type==='moving'){o.x+=o.speed;if(o.x<=o.minX||o.x+o.w>=o.maxX)o.speed*=-1;}}
+for(var i=0;i<targets.length;i++){var t=targets[i];
+if(t.type==='portal'&&!t.hit&&t.portalTarget){ctx2.save();ctx2.globalAlpha=0.5+0.3*Math.sin(Date.now()/300);ctx2.beginPath();ctx2.arc(t.x,t.y,t.r,0,Math.PI*2);ctx2.fillStyle='#9b59b6';ctx2.fill();ctx2.beginPath();ctx2.arc(t.portalTarget.x,t.portalTarget.y,t.r,0,Math.PI*2);ctx2.fillStyle='#e74c3c';ctx2.fill();ctx2.restore();}
+if(t.type==='magnet'&&!t.hit){ctx2.save();ctx2.globalAlpha=0.3+0.2*Math.sin(Date.now()/400);ctx2.beginPath();ctx2.arc(t.x,t.y,t.range||80,0,Math.PI*2);ctx2.strokeStyle='#3498db';ctx2.lineWidth=2;ctx2.stroke();ctx2.restore();}}
+for(var b=0;b<balls.length;b++){var ball=balls[b];for(var j=0;j<targets.length;j++){var t=targets[j];
+if(t.type==='portal'&&!t.hit&&t.portalTarget){var dx=ball.x-t.x,dy=ball.y-t.y;if(Math.sqrt(dx*dx+dy*dy)<t.r+(ball.r||8)){ball.x=t.portalTarget.x;ball.y=t.portalTarget.y;}}
+if(t.type==='magnet'&&!t.hit){var dx=t.x-ball.x,dy=t.y-ball.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<(t.range||80)&&dist>0){var f=(t.strength||3)/dist;ball.vx+=dx*f*0.01;ball.vy+=dy*f*0.01;}}}}
+};
+
+// ===== SEASON XP ON LEVEL COMPLETE =====
+var _origLC3=levelComplete;
+levelComplete=function(){_origLC3.apply(this,arguments);addSeasonXP(50);
+var sv=JSON.parse(localStorage.getItem('rl2_save')||'{}');
+if(typeof submitScore==='function')submitScore('Player',sv.highScore||score,ROOMS[currentRoom]?ROOMS[currentRoom].name:'Unknown');};
+
+// ===== ENHANCED ANALYTICS =====
+var _origLog=logEvent;
+logEvent=function(n,d){_origLog.apply(this,arguments);if(fbAnalytics){try{fbAnalytics.logEvent(n,d||{});}catch(e){}}};
+
+// ===== INIT NOTIFICATIONS IF ALREADY GRANTED =====
+if(typeof Notification!=='undefined'&&Notification.permission==='granted'){var nb=document.getElementById('notifBtn');if(nb)nb.textContent='\u{1F514} NOTIFICATIONS: ON';setupFallbackNotifs();}
+
+// ===== SAVE MIGRATION FOR 12 LEVELS =====
+(function(){var s=JSON.parse(localStorage.getItem('rl2_save')||'{}');if(!s.roomProgress)return;var c=false;
+for(var i=0;i<s.roomProgress.length;i++){while(s.roomProgress[i].levels.length<LEVELS_PER_ROOM){s.roomProgress[i].levels.push(0);c=true;}}
+if(c)localStorage.setItem('rl2_save',JSON.stringify(s));})();
+
+// ===== APP PREVIEW VIDEO LINK =====
+setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var last=m.lastElementChild;if(last){var d=document.createElement('div');d.style.cssText='margin-top:10px;text-align:center';d.innerHTML='<a href="preview.html" target="_blank" style="color:#f7c948;font-size:0.8em;text-decoration:underline">\u{1F3AC} Watch Game Preview<\/a>';last.parentNode.insertBefore(d,last.nextSibling);}},1000);
 </script>
+
+<div id="seasonPassS" class="overlay">
+<div class="title">&#x1F31F; SEASON PASS</div>
+<div class="subtitle" id="spSeasonName">Season 1 - Neon Dreams</div>
+<div style="color:#f7c948;font-size:1.2em;margin:10px 0" id="spXpText">XP: 0 / 4000</div>
+<div style="width:80%;max-width:400px;height:20px;background:rgba(255,255,255,0.1);border-radius:10px;margin:0 auto 15px;overflow:hidden">
+<div id="spXpBar" style="width:0%;height:100%;background:linear-gradient(90deg,#9b59b6,#f7c948);border-radius:10px;transition:width 0.5s"></div></div>
+<div id="spRewards" style="max-height:300px;overflow-y:auto;width:90%;max-width:420px;margin:0 auto"></div>
+<div style="margin-top:15px">
+<button class="btn btn-gold btn-small" id="spPremiumBtn" onclick="buySeasonPass()" style="margin:6px">&#x2B50; BUY PREMIUM - &#163;4.99</button>
+</div>
+<button class="btn btn-secondary" onclick="hideAll();showScreen('menuS')">&#x2190; BACK</button>
+</div>
 </body>
 </html>
