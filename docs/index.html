@@ -116,6 +116,7 @@ canvas{display:block}
 <button class="btn btn-primary" onclick="startWorldMap()">&#x25B6; PLAY</button>
 <button class="btn btn-gold" onclick="openDailyReward()">&#x1F3B0; DAILY SPIN</button>
   <button class="btn btn-secondary btn-small" onclick="startDailyChallenge()" style="margin-top:5px;border-color:#ff1744;color:#ff1744">&#x26A0;&#xFE0F; DAILY IMPOSSIBLE</button>
+    <button class="btn btn-secondary btn-small" onclick="startWeeklyChallenge()" style="margin-top:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:1px solid #8b5cf6">&#x1F3C6; WEEKLY CHALLENGE</button>
 <div style="display:flex;gap:5px;margin-top:5px">
 <button class="btn btn-secondary btn-small" onclick="openShop()">&#x1F6D2; SHOP</button>
 <button class="btn btn-secondary btn-small" onclick="openAchievements()">&#x1F3C6; BADGES</button>
@@ -226,7 +227,8 @@ canvas{display:block}
 <div id="statsS" class="overlay">
 <div style="font-size:1.5em;font-weight:800;color:#fff;margin-bottom:8px">&#x1F4C8; STATS</div>
 <div id="statsContent" style="color:#aaa;font-size:0.85em;max-width:320px;text-align:left;line-height:1.8"></div>
-<button class="btn btn-secondary btn-small" onclick="showMenu()" style="margin-top:10px">&#x2190; BACK</button>
+<button class="btn btn-gold btn-small" onclick="watchAdExtraShot()" id="adExtraShotBtn" style="margin-bottom:8px;display:none">&#x1F3AC; Watch Ad for +1 Shot</button>
+      <button class="btn btn-secondary btn-small" onclick="showMenu()" style="margin-top:10px">&#x2190; BACK</button>
 </div>
 <div class="rage-bar" id="rageBar"><div class="rage-fill" id="rageFill"></div></div>
 <div class="rage-label" id="rageLabel">RAGE: 0%</div>
@@ -1124,6 +1126,154 @@ function buyItem(productId){   if(window.ReactNativeWebView){     window.ReactNa
 function restorePurchases(){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'restorePurchases'}));   } }
 window.onPurchaseComplete=function(result){   if(result.success){     window._isPremium=result.isPremium;     sndWin();     spawnConfetti(W/2,H/2,50);     alert(result.isPremium?'🎉 Ads removed! Enjoy Boom Chain ad-free!':'🪙 Coins added to your account!');     closeShop();   }else{     alert('Purchase failed. Please try again.');   } };
 window.onRestoreComplete=function(result){   if(result.success&&result.isPremium){     window._isPremium=true;     alert('✅ Purchases restored! Ads removed.');   }else{     alert('No purchases to restore.');   } };
+
+
+// ===== WEEKLY CHALLENGE SYSTEM =====
+function getWeekSeed(){const d=new Date();const w=Math.floor((d.getTime()-new Date(d.getFullYear(),0,1).getTime())/(7*24*60*60*1000));return d.getFullYear()*100+w}
+function startWeeklyChallenge(){
+  sndShoot();
+  const seed=getWeekSeed();
+  const weekNum=seed%100;
+  const challengeTypes=['Speed Run','No Miss','Minimum Shots','Max Combo','Survival'];
+  const type=challengeTypes[seed%challengeTypes.length];
+  const roomIdx=seed%5;
+  const room=ROOMS[roomIdx];
+  currentRoom=roomIdx;currentLevel=0;isEndless=false;
+  const overlay=document.getElementById('weeklyOverlay');
+  if(!overlay){
+    const o=document.createElement('div');
+    o.id='weeklyOverlay';
+    o.className='overlay active';
+    o.innerHTML='<div style="text-align:center;padding:40px"><div style="font-size:3em">&#x1F3C6;</div><div class="title" style="font-size:1.8em;margin:10px 0">Week '+weekNum+' Challenge</div><div class="subtitle" style="font-size:1.1em;margin-bottom:15px">'+type+'</div><div style="color:#8b5cf6;font-size:0.9em;margin-bottom:5px">Room: '+room.name+'</div><div style="color:#aaa;font-size:0.85em;margin-bottom:20px">Complete 5 levels with the best score!</div><button class="btn btn-primary" onclick="this.parentElement.parentElement.remove();startRoomLevel()">&#x25B6; START</button><br><button class="btn btn-secondary btn-small" style="margin-top:10px" onclick="this.parentElement.parentElement.remove();showMenu()">&#x2190; BACK</button></div>';
+    document.body.appendChild(o);
+  }
+  logEvent('weekly_challenge_start',{week:weekNum,type:type,room:room.name});
+}
+
+// ===== WATCH AD FOR EXTRA SHOT =====
+let adExtraShotUsed=false;
+function watchAdExtraShot(){
+  showRewardedAd(function(){
+    adExtraShotUsed=true;
+    shotsLeft+=1;
+    document.getElementById('adExtraShotBtn').style.display='none';
+    sndCoin();
+    logEvent('rewarded_extra_shot');
+    // Resume the game
+    const resultOverlay=document.getElementById('resultOverlay');
+    if(resultOverlay)resultOverlay.classList.remove('active');
+    hideAll();showScreen('gameScreen');
+  });
+}
+
+// ===== ENHANCED FAIL SCREEN - Show Ad Button =====
+const _origShowResult=typeof showResult==='function'?showResult:null;
+if(typeof showResult==='function'){
+  const _old=showResult;
+  showResult=function(won){
+    _old(won);
+    if(!won&&!adExtraShotUsed){
+      const btn=document.getElementById('adExtraShotBtn');
+      if(btn)btn.style.display='block';
+    }
+  };
+}
+
+// ===== MORE ACHIEVEMENTS =====
+const extraAchievements=[
+  {id:'weekly_warrior',name:'Weekly Warrior',desc:'Complete a weekly challenge',icon:'&#x1F3C6;'},
+  {id:'coin_collector',name:'Coin Collector',desc:'Earn 1000 total coins',icon:'&#x1FA99;'},
+  {id:'sharpshooter',name:'Sharpshooter',desc:'Win 5 levels with no misses',icon:'&#x1F3AF;'},
+  {id:'endless_10',name:'Endless Explorer',desc:'Reach level 10 in Endless Lab',icon:'&#x267E;'},
+  {id:'endless_25',name:'Endless Master',desc:'Reach level 25 in Endless Lab',icon:'&#x1F451;'},
+  {id:'all_rooms',name:'World Traveler',desc:'Unlock all rooms',icon:'&#x1F30D;'},
+  {id:'speed_demon',name:'Speed Demon',desc:'Complete a level in under 3 seconds',icon:'&#x26A1;'},
+  {id:'ad_supporter',name:'Supporter',desc:'Watch 10 rewarded ads',icon:'&#x2764;'}
+];
+if(typeof ACHIEVEMENTS!=='undefined'){
+  extraAchievements.forEach(a=>{if(!ACHIEVEMENTS.find(x=>x.id===a.id))ACHIEVEMENTS.push(a)});
+}
+
+// ===== OBSTACLE SYSTEM: WALLS & BUMPERS =====
+const OBSTACLES={
+  wall:{name:'Wall',color:'#555',width:80,height:12,bounce:0.3},
+  bumper:{name:'Bumper',color:'#ff6b35',radius:15,bounce:1.5},
+  magnet:{name:'Magnet',color:'#8b5cf6',radius:30,force:0.3}
+};
+
+function generateObstacles(level,roomIdx){
+  const obs=[];
+  if(level<2||roomIdx===0)return obs;
+  const count=Math.min(Math.floor(level/2),4);
+  const W=canvas.width,H=canvas.height;
+  for(let i=0;i<count;i++){
+    const type=roomIdx>=3&&Math.random()>0.5?'bumper':(roomIdx>=4&&Math.random()>0.7?'magnet':'wall');
+    obs.push({
+      type:type,
+      x:W*0.2+Math.random()*W*0.6,
+      y:H*0.2+Math.random()*H*0.5,
+      angle:Math.random()*Math.PI,
+      ...OBSTACLES[type]
+    });
+  }
+  return obs;
+}
+
+let currentObstacles=[];
+const _origGenerateLevel=generateLevel;
+generateLevel=function(roomIdx,levelIdx,isBoss){
+  _origGenerateLevel(roomIdx,levelIdx,isBoss);
+  currentObstacles=generateObstacles(levelIdx,roomIdx);
+};
+
+// Draw obstacles in game loop
+const _origGameLoop=typeof gameLoop==='function'?gameLoop:null;
+function drawObstacles(){
+  if(!currentObstacles.length)return;
+  const c=canvas.getContext('2d');
+  currentObstacles.forEach(o=>{
+    c.save();
+    if(o.type==='wall'){
+      c.translate(o.x,o.y);
+      c.rotate(o.angle);
+      c.fillStyle=o.color;
+      c.shadowColor=o.color;
+      c.shadowBlur=8;
+      c.fillRect(-o.width/2,-o.height/2,o.width,o.height);
+    }else if(o.type==='bumper'){
+      c.beginPath();
+      c.arc(o.x,o.y,o.radius,0,Math.PI*2);
+      c.fillStyle=o.color;
+      c.shadowColor=o.color;
+      c.shadowBlur=12;
+      c.fill();
+      c.strokeStyle='#fff';
+      c.lineWidth=2;
+      c.stroke();
+    }else if(o.type==='magnet'){
+      c.beginPath();
+      c.arc(o.x,o.y,o.radius,0,Math.PI*2);
+      c.fillStyle=o.color+'33';
+      c.fill();
+      c.strokeStyle=o.color;
+      c.lineWidth=2;
+      c.setLineDash([4,4]);
+      c.stroke();
+      c.setLineDash([]);
+      c.fillStyle=o.color;
+      c.font='16px Arial';
+      c.textAlign='center';
+      c.fillText('M',o.x,o.y+5);
+    }
+    c.restore();
+  });
+}
+
+// ===== SAVE WEEKLY PROGRESS =====
+if(!save.weeklyBest)save.weeklyBest={};
+if(!save.adsWatched)save.adsWatched=0;
+if(!save.noMissWins)save.noMissWins=0;
+
 </script>
 </body>
 </html>
