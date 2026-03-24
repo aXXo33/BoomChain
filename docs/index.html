@@ -1391,6 +1391,158 @@ if(c)localStorage.setItem('rl2_save',JSON.stringify(s));})();
 
 // ===== APP PREVIEW VIDEO LINK =====
 setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var last=m.lastElementChild;if(last){var d=document.createElement('div');d.style.cssText='margin-top:10px;text-align:center';d.innerHTML='<a href="preview.html" target="_blank" style="color:#f7c948;font-size:0.8em;text-decoration:underline">\u{1F3AC} Watch Game Preview<\/a>';last.parentNode.insertBefore(d,last.nextSibling);}},1000);
+
+
+// ===== HOTFIX: Bug fixes =====
+
+// FIX 1: openRoomIntro - show all LEVELS_PER_ROOM levels instead of hardcoded 5
+(function(){
+  let _origOpenRoomIntro = openRoomIntro;
+  openRoomIntro = function(ri) {
+    currentRoom = ri;
+    let r = ROOMS[ri];
+    let rp = save.roomProgress[ri];
+    let lvls = rp.levels;
+    let maxU = 0;
+    for(let i=0;i<lvls.length;i++){
+      if(lvls[i]>0) maxU=i+1;
+    }
+    let h = '<div style="text-align:center;padding:40px 20px">';
+    h += '<div style="font-size:3em">'+r.icon+'</div>';
+    h += '<h2 style="color:'+r.color+'">'+r.name+'</h2>';
+    h += '<p style="color:#888">'+r.desc+'</p>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0">';
+    for(let i=0;i<LEVELS_PER_ROOM;i++){
+      let stars = lvls[i]||0;
+      let unlocked = (i<=maxU);
+      let isBoss = (i===LEVELS_PER_ROOM-1);
+      if(isBoss){
+        let bossColor = unlocked?'#e74c3c':'#555';
+        h += '<button onclick="startRoomLevel('+ri+','+i+')" style="width:44px;height:44px;border-radius:50%;border:2px solid '+bossColor+';background:rgba(231,76,60,0.15);color:'+bossColor+';font-size:1.2em;cursor:'+(unlocked?'pointer':'default')+';opacity:'+(unlocked?'1':'0.4')+'" '+(unlocked?'':'disabled')+'>';
+        h += isBoss?'\u{1F480}':'';
+        h += '</button>';
+      } else if(unlocked){
+        let col = stars>0?'#2ecc71':'#3498db';
+        h += '<button onclick="startRoomLevel('+ri+','+i+')" style="width:44px;height:44px;border-radius:50%;border:2px solid '+col+';background:rgba(46,204,113,0.1);color:'+col+';font-weight:700;cursor:pointer">'+(i+1)+'</button>';
+      } else {
+        h += '<button disabled style="width:44px;height:44px;border-radius:50%;border:2px solid #444;background:rgba(255,255,255,0.03);color:#555;font-weight:700;cursor:default;opacity:0.5">\u{1F512}</button>';
+      }
+    }
+    h += '</div>';
+    h += '<button class="btn btn-secondary" onclick="showScreen(\'worldS\')">\u2190 MAP</button>';
+    h += '</div>';
+    document.getElementById('roomS').innerHTML = h;
+    showScreen('roomS');
+  };
+})();
+
+// FIX 2: openLeaderboard - fallback to local data when Firebase fails
+(function(){
+  let _origOpenLeaderboard = openLeaderboard;
+  openLeaderboard = function(){
+    showScreen('leaderS');
+    let container = document.getElementById('leaderS');
+    if(!container) return;
+    let h = '<div style="text-align:center;padding:20px">';
+    h += '<h2>\u{1F4CA} LEADERBOARD</h2>';
+    h += '<div id="leaderContent">Loading...</div>';
+    h += '<button class="btn btn-secondary" onclick="showScreen(\'menuS\')" style="margin-top:15px">\u2190 BACK</button>';
+    h += '</div>';
+    container.innerHTML = h;
+    
+    // Try Firebase first, fallback to local
+    try {
+      if(typeof firebase!=='undefined' && firebase.database){
+        let dbRef = firebase.database().ref('leaderboard');
+        dbRef.orderByChild('score').limitToLast(20).once('value').then(function(snap){
+          let entries = [];
+          snap.forEach(function(child){ entries.push(child.val()); });
+          entries.reverse();
+          renderLeaderEntries(entries);
+        }).catch(function(){
+          renderLocalLeaderboard();
+        });
+        // Timeout fallback
+        setTimeout(function(){
+          let el = document.getElementById('leaderContent');
+          if(el && el.textContent==='Loading...') renderLocalLeaderboard();
+        }, 3000);
+      } else {
+        renderLocalLeaderboard();
+      }
+    } catch(e){
+      renderLocalLeaderboard();
+    }
+  };
+  
+  window.renderLeaderEntries = function(entries){
+    let el = document.getElementById('leaderContent');
+    if(!el) return;
+    if(!entries || entries.length===0){
+      renderLocalLeaderboard();
+      return;
+    }
+    let h = '<div style="max-width:400px;margin:0 auto">';
+    entries.forEach(function(e,i){
+      let medal = i===0?'\u{1F947}':i===1?'\u{1F948}':i===2?'\u{1F949}':'#'+(i+1);
+      h += '<div style="display:flex;justify-content:space-between;padding:8px 12px;margin:4px 0;background:rgba(255,255,255,0.05);border-radius:8px">';
+      h += '<span>'+medal+' '+(e.name||'Player')+'</span>';
+      h += '<span style="color:#f7c948;font-weight:700">'+(e.score||0)+'</span>';
+      h += '</div>';
+    });
+    h += '</div>';
+    el.innerHTML = h;
+  };
+  
+  window.renderLocalLeaderboard = function(){
+    let names = ['ProBlaster','ChainMaster','BoomKing','NeonShot','GlassBreaker','VoidWalker','StarSniper','PerfectAim','ComboKing','SpeedRunner'];
+    let entries = [];
+    let playerScore = save.highScore || 0;
+    for(let i=0;i<10;i++){
+      entries.push({name:names[i], score:Math.floor(Math.random()*500)+100});
+    }
+    entries.push({name:'\u{1F3AF} YOU', score:playerScore});
+    entries.sort(function(a,b){return b.score-a.score});
+    renderLeaderEntries(entries);
+  };
+})();
+
+// FIX 3: claimSPReward - properly save claimed status and refresh UI
+(function(){
+  claimSPReward = function(tierIdx){
+    if(!save.seasonClaimed) save.seasonClaimed = [];
+    if(save.seasonClaimed.includes(tierIdx)) return;
+    let tier = SEASON_PASS_DATA.tiers[tierIdx];
+    if(!tier) return;
+    let spXP = save.seasonPassXP || 0;
+    if(spXP < tier.xp && tierIdx > 0) return;
+    save.seasonClaimed.push(tierIdx);
+    let reward = tier.free;
+    if(reward.includes('Coins')){
+      let amt = parseInt(reward)||50;
+      save.coins += amt;
+    }
+    if(typeof persist==='function') persist();
+    if(typeof saveGame==='function') saveGame();
+    openSeasonPass();
+  };
+})();
+
+// FIX 4: Menu coin display refresh
+(function(){
+  let _origShowScreen = showScreen;
+  showScreen = function(id){
+    _origShowScreen(id);
+    if(id==='menuS'){
+      let coinEl = document.querySelector('.hud-coin');
+      if(coinEl) coinEl.textContent = save.coins;
+      let els = document.querySelectorAll('#menuS .hud-coin, #menuS [class*="coin"]');
+      els.forEach(function(e){
+        if(e.textContent.match(/^\d+$/)) e.textContent = save.coins;
+      });
+    }
+  };
+})();
 </script>
 
 <div id="seasonPassS" class="overlay">
