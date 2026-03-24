@@ -1429,10 +1429,10 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
       }
     }
     h += '</div>';
-    h += '<button class="btn btn-secondary" onclick="showScreen(\'worldS\')">\u2190 MAP</button>';
+    h += '<button class="btn btn-secondary" onclick="showScreen(\'worldMapS\')">\u2190 MAP</button>';
     h += '</div>';
-    document.getElementById('roomS').innerHTML = h;
-    showScreen('roomS');
+    document.getElementById('roomIntroS').innerHTML = h;
+    showScreen('roomIntroS');
   };
 })();
 
@@ -1440,8 +1440,8 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
 (function(){
   let _origOpenLeaderboard = openLeaderboard;
   openLeaderboard = function(){
-    showScreen('leaderS');
-    let container = document.getElementById('leaderS');
+    showScreen('leaderboardS');
+    let container = document.getElementById('leaderboardS');
     if(!container) return;
     let h = '<div style="text-align:center;padding:20px">';
     h += '<h2>\u{1F4CA} LEADERBOARD</h2>';
