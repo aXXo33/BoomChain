@@ -968,7 +968,7 @@ function openAchievements(){showScreen('achieveS');var list=document.getElementB
   div.innerHTML='<div class="ach-icon">'+(unlocked?a.icon:LOCK)+'</div><div class="ach-info"><div class="ach-name">'+a.name+'</div><div class="ach-desc">'+a.desc+'</div></div><div class="ach-status">'+(unlocked?CHECK:'')+'</div>';
   list.appendChild(div);});}
 function closeAchievements(){showMenu();}
-function checkAchievements(){var newA=false;ACHIEVEMENTS.forEach(function(a){if(save.achievements.indexOf(a.id)===-1&&a.check()){save.achievements.push(a.id);newA=true;showAchPopup(a);coins+=15;}});if(newA)saveSave();}
+function checkAchievements(){var newA=false;ACHIEVEMENTS.forEach(function(a){if(save.achievements.indexOf(a.id)===-1&&typeof a.check==='function'&&a.check()){save.achievements.push(a.id);newA=true;showAchPopup(a);coins+=15;}});if(newA)saveSave();}
 function showAchPopup(a){sndAchieve();var p=document.createElement('div');p.className='achievement-popup';
   p.innerHTML='<div class="ap-icon">'+a.icon+'</div><div><div class="ap-text">Achievement Unlocked!</div><div class="ap-name">'+a.name+'</div></div>';
   document.body.appendChild(p);setTimeout(function(){p.style.opacity='0';p.style.transition='opacity 0.5s';setTimeout(function(){p.remove()},500)},2500);}
