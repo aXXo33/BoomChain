@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Boom Chain - App Preview</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a1a;color:#fff;font-family:'Segoe UI',sans-serif;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.container{max-width:600px;padding:20px}
+h1{font-size:2.5em;background:linear-gradient(135deg,#ff6b35,#f7c948,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+.subtitle{color:#aaa;font-size:1.1em;margin-bottom:30px}
+.preview-frame{width:100%;max-width:400px;aspect-ratio:9/19.5;background:#1a1a2e;border-radius:30px;margin:0 auto 30px;overflow:hidden;border:3px solid #333;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.preview-frame iframe{width:100%;height:100%;border:none}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:30px 0;text-align:left}
+.feature{background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,0.1)}
+.feature h3{color:#f7c948;font-size:0.95em;margin-bottom:5px}
+.feature p{color:#aaa;font-size:0.8em}
+.cta{margin-top:30px}
+.btn{padding:15px 40px;font-size:1.2em;font-weight:700;border:none;border-radius:12px;cursor:pointer;text-decoration:none;display:inline-block;transition:all 0.2s}
+.btn-play{background:linear-gradient(135deg,#ff6b35,#e8552a);color:#fff;box-shadow:0 4px 15px rgba(255,107,53,0.4)}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.6)}
+.stats{display:flex;justify-content:center;gap:40px;margin:25px 0;color:#aaa}
+.stat-num{font-size:1.8em;color:#f7c948;font-weight:700}
+.screenshots{display:flex;gap:10px;overflow-x:auto;padding:20px 0;justify-content:center}
+.screenshots canvas{width:120px;height:260px;border-radius:12px;background:#1a1a2e;border:1px solid #333}
+</style>
+</head>
+<body>
+<div class="container">
+<div style="font-size:4em;margin-bottom:10px">\u{1F52C}</div>
+<h1>BOOM CHAIN</h1>
+<p class="subtitle">Aim, Shoot & Trigger Epic Chain Reactions!</p>
+
+<div class="preview-frame">
+<iframe src="index.html" title="Game Preview"></iframe>
+</div>
+
+<div class="stats">
+<div><div class="stat-num">6</div>Unique Labs</div>
+<div><div class="stat-num">60+</div>Levels</div>
+<div><div class="stat-num">7</div>Target Types</div>
+</div>
+
+<div class="features">
+<div class="feature"><h3>\u{1F52C} 6 Themed Labs</h3><p>Glass, Gravity, Chaos, Neon, Void + Endless</p></div>
+<div class="feature"><h3>\u{1F4A5} Chain Reactions</h3><p>Epic explosions with satisfying physics</p></div>
+<div class="feature"><h3>\u{1F3C6} Boss Battles</h3><p>Defeat bosses at the end of each lab</p></div>
+<div class="feature"><h3>\u{1F3B0} Daily Rewards</h3><p>Daily Spin, Impossible Mode, Weekly Challenge</p></div>
+<div class="feature"><h3>\u{1F31F} Season Pass</h3><p>Premium rewards, exclusive skins and effects</p></div>
+<div class="feature"><h3>\u{1F4CA} Real Leaderboard</h3><p>Compete with players worldwide via Firebase</p></div>
+</div>
+
+<div class="cta">
+<a href="index.html" class="btn btn-play">\u{25B6} PLAY NOW</a>
+</div>
+
+<div style="margin-top:40px;color:#666;font-size:0.8em">
+<p>\u{00A9} 2025 Prime Quantum Studios. All rights reserved.</p>
+<p style="margin-top:5px"><a href="privacy.html" style="color:#888">Privacy Policy</a></p>
+</div>
+</div>
+
+<script>
+// Auto-generate preview screenshots
+document.querySelectorAll('.screenshots canvas').forEach(function(c,i){
+var ctx=c.getContext('2d');
+c.width=240;c.height=520;
+var colors=['#1a3a5c','#2a1a3c','#3c1a1a','#1a2a3c','#1a1a2a'];
+ctx.fillStyle=colors[i%5];ctx.fillRect(0,0,240,520);
+for(var j=0;j<5;j++){
+ctx.beginPath();ctx.arc(60+Math.random()*120,100+Math.random()*250,15+Math.random()*10,0,Math.PI*2);
+ctx.fillStyle='rgba(79,195,247,0.6)';ctx.fill();}
+ctx.beginPath();ctx.arc(120,450,12,0,Math.PI*2);ctx.fillStyle='#ff6b35';ctx.fill();
+});
+</script>
+</body>
+</html>
