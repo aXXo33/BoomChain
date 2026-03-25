@@ -1126,7 +1126,7 @@ function startDailyChallenge(){
 
 function gameLoop(){if(gameActive)update();draw();requestAnimationFrame(gameLoop);}
 initFromSave();
-if(!save.tutorialDone)startTutorial();else showMenu();
+try{var _rs=JSON.parse(localStorage.getItem(SAVE_KEY));if(_rs&&_rs.tutorialDone)save.tutorialDone=true;}catch(e){}if(!save.tutorialDone)startTutorial();else showMenu();
 gameLoop();
 
 function buyItem(productId){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'purchase',productId:productId}));   }else{     alert('In-app purchases only available in the mobile app!');   } }
