@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-wihdth,initial-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <title>Boom Chain</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -11,12 +11,12 @@ canvas{display:block}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100;background:rgba(5,5,20,0.95)}
 .overlay.active{display:flex!important}
 .title{font-size:2.8em;font-weight:900;background:linear-gradient(135deg,#ff6b35,#f7c948,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 40px rgba(255,107,53,0.3);margin-bottom:10px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
-@keyframes slideUp{from{transform:translateY(30px);opacity:0}tho{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}hh
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes popIn{0%{transform:scale(0);opacity:0}50%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @keyframes glow{0%,100%{box-shadow:0 0 10px rgba(255,107,53,0.5)}50%{box-shadow:0 0 30px rgba(255,107,53,0.8)}}
-@keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-80px) scale(1.5)f;opacity:0}}
+@keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-80px) scale(1.5);opacity:0}}
 .subtitle{color:#aaa;font-size:1em;margin-bottom:25px;letter-spacing:2px}
 .btn{padding:14px 40px;font-size:1.15em;font-weight:700;border:none;border-radius:12px;cursor:pointer;margin:6px;transition:all 0.2s;letter-spacing:1px}
 .btn-primary{background:linear-gradient(135deg,#ff6b35,#e8552a);color:#fff;box-shadow:0 4px 15px rgba(255,107,53,0.4)}
@@ -1201,7 +1201,7 @@ function generateObstacles(level,roomIdx){
   return obs;
 }
 
-let currentObstacles=[];
+let currentObstacles=[],obstacles=[];
 const _origGenerateLevel=generateLevel;
 generateLevel=function(roomIdx,levelIdx,isBoss){
   _origGenerateLevel(roomIdx,levelIdx,isBoss);
@@ -1349,19 +1349,19 @@ generateLevel=function(){_origGenLevel.apply(this,arguments);
 var rm=currentRoom,lvl=currentRoomLevel;
 if(lvl>=5){var extra=lvl-4;var tc=Math.min(4+extra,10);
 for(var i=targets.length;i<tc;i++){var types=ROOMS[rm]?ROOMS[rm].targetTypes:['normal'];var tp=types[Math.floor(Math.random()*types.length)];
-targets.push({x:100+Math.random()*(canvas.width-200),y:80+Math.random()*(canvas.height*0.5),r:18+Math.random()*8,type:tp,hp:tp==='hard'?2:1,hit:false,opacity:1,scale:1});}
+targets.push({x:100+Math.random()*(C.width-200),y:80+Math.random()*(C.height*0.5),r:18+Math.random()*8,type:tp,hp:tp==='hard'?2:1,hit:false,opacity:1,scale:1});}
 if(lvl>=7&&Math.random()>0.4){var wc=Math.floor((lvl-6)/2)+1;for(var w=0;w<wc;w++){
-obstacles.push({x:100+Math.random()*(canvas.width-300),y:150+Math.random()*(canvas.height*0.4),w:80+Math.random()*120,h:8,type:'moving',speed:(1+Math.random()*2)*(Math.random()>0.5?1:-1),minX:50,maxX:canvas.width-50});}}
-if(lvl>=8&&ROOMS[rm]&&ROOMS[rm].name==='Chaos Lab'&&Math.random()>0.5){var px=150+Math.random()*(canvas.width-300);var py=100+Math.random()*(canvas.height*0.3);
-targets.push({x:px,y:py,r:15,type:'portal',hp:999,hit:false,opacity:1,scale:1,portalTarget:{x:canvas.width-px,y:py+100}});}
-if(lvl>=9){for(var m=0;m<Math.floor(lvl/4);m++){targets.push({x:100+Math.random()*(canvas.width-200),y:100+Math.random()*(canvas.height*0.4),r:20,type:'magnet',hp:999,hit:false,opacity:1,scale:1,strength:2+Math.random()*3,range:80+Math.random()*40});}}
+obstacles.push({x:100+Math.random()*(C.width-300),y:150+Math.random()*(C.height*0.4),w:80+Math.random()*120,h:8,type:'moving',speed:(1+Math.random()*2)*(Math.random()>0.5?1:-1),minX:50,maxX:C.width-50});}}
+if(lvl>=8&&ROOMS[rm]&&ROOMS[rm].name==='Chaos Lab'&&Math.random()>0.5){var px=150+Math.random()*(C.width-300);var py=100+Math.random()*(C.height*0.3);
+targets.push({x:px,y:py,r:15,type:'portal',hp:999,hit:false,opacity:1,scale:1,portalTarget:{x:C.width-px,y:py+100}});}
+if(lvl>=9){for(var m=0;m<Math.floor(lvl/4);m++){targets.push({x:100+Math.random()*(C.width-200),y:100+Math.random()*(C.height*0.4),r:20,type:'magnet',hp:999,hit:false,opacity:1,scale:1,strength:2+Math.random()*3,range:80+Math.random()*40});}}
 shotsLeft=Math.max(3,Math.min(shotsLeft+Math.floor(extra/3),8));totalShots=shotsLeft;}
 };
 
 // ===== MOVING WALL + PORTAL + MAGNET PHYSICS =====
 var _origDraw2=draw;
 draw=function(){_origDraw2.apply(this,arguments);if(!gameActive)return;
-var ctx2=canvas.getContext('2d');
+var ctx2=C.getContext('2d');
 for(var i=0;i<obstacles.length;i++){var o=obstacles[i];if(o.type==='moving'){o.x+=o.speed;if(o.x<=o.minX||o.x+o.w>=o.maxX)o.speed*=-1;}}
 for(var i=0;i<targets.length;i++){var t=targets[i];
 if(t.type==='portal'&&!t.hit&&t.portalTarget){ctx2.save();ctx2.globalAlpha=0.5+0.3*Math.sin(Date.now()/300);ctx2.beginPath();ctx2.arc(t.x,t.y,t.r,0,Math.PI*2);ctx2.fillStyle='#9b59b6';ctx2.fill();ctx2.beginPath();ctx2.arc(t.portalTarget.x,t.portalTarget.y,t.r,0,Math.PI*2);ctx2.fillStyle='#e74c3c';ctx2.fill();ctx2.restore();}
