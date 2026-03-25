@@ -521,18 +521,18 @@ function loadSave(){
     if(!s.ownedEffects)s.ownedEffects=['default'];
     if(!s.achievements)s.achievements=[];
     if(!s.roomProgress||s.roomProgress.length<6){
-      s.roomProgress=[];for(var i=0;i<6;i++)s.roomProgress.push({unlocked:i===0,cleared:false,levels:[0,0,0,0,0]});
+      s.roomProgress=[];for(var i=0;i<6;i++)s.roomProgress.push({unlocked:i===0,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]});
     }
     for(var i=0;i<6;i++){
-      if(!s.roomProgress[i])s.roomProgress[i]={unlocked:i===0,cleared:false,levels:[0,0,0,0,0]};
-      if(!s.roomProgress[i].levels)s.roomProgress[i].levels=[0,0,0,0,0];
+      if(!s.roomProgress[i])s.roomProgress[i]={unlocked:i===0,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]};
+      if(!s.roomProgress[i].levels)s.roomProgress[i].levels=[0,0,0,0,0,0,0,0,0,0,0];
     }
     if(!s.totalShots)s.totalShots=0;if(!s.totalPerfects)s.totalPerfects=0;
     if(!s.totalBosses)s.totalBosses=0;if(!s.totalCombos)s.totalCombos=0;if(!s.bestChainCombo)s.bestChainCombo=0;
-    if(!s.coins)s.coins=0;
+    if(!s.coins)s.coins=0;h
     return s;
   }}catch(e){}
-  return{bestLevel:0,highScore:0,roomProgress:[{unlocked:true,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0]}],streak:0,lastPlay:'',coins:0,equippedSkin:'default',equippedTrail:'none',equippedEffect:'default',ownedSkins:['default'],ownedTrails:['none'],ownedEffects:['default'],achievements:[],dailySpinDate:'',tutorialDone:false,totalShots:0,totalPerfects:0,totalBosses:0,totalCombos:0};
+  return{bestLevel:0,highScore:0,roomProgress:[{unlocked:true,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]}],streak:0,lastPlay:'',coins:0,equippedSkin:'default',equippedTrail:'none',equippedEffect:'default',ownedSkins:['default'],ownedTrails:['none'],ownedEffects:['default'],achievements:[],dailySpinDate:'',tutorialDone:false,totalShots:0,totalPerfects:0,totalBosses:0,totalCombos:0};
 }
 function saveSave(){save.coins=coins;save.equippedSkin=equippedSkin;save.equippedTrail=equippedTrail;save.equippedEffect=equippedEffect;localStorage.setItem(SAVE_KEY,JSON.stringify(save));}
 function initFromSave(){coins=save.coins||0;equippedSkin=save.equippedSkin||'default';equippedTrail=save.equippedTrail||'none';equippedEffect=save.equippedEffect||'default';}
@@ -670,9 +670,9 @@ function openRoomIntro(ri){
     info.textContent='Highest: Level '+endlessLevel+' | Tap to play!';
     dots.appendChild(info);
   } else {
-  for(var i=0;i<5;i++){
+  for(var i=0;i<LEVELS_PER_ROOM;i++){
     var dot=document.createElement('div');dot.className='level-dot';
-    var ib=(i===4);var sc=rp.levels[i];
+    var ib=(i===LEVELS_PER_ROOM-1);var sc=rp.levels[i];
     if(sc>0)dot.classList.add('completed');
     else{var prev=(i===0)||rp.levels[i-1]>0;if(prev)dot.classList.add('current');else dot.classList.add('locked');}
     if(ib)dot.classList.add('boss');
@@ -686,7 +686,7 @@ function openRoomIntro(ri){
 }
 
 function startRoomLevel(ri,li){
-  currentRoom=ri;currentRoomLevel=li;isBossRoom=(li===4&&ri!==5);
+  currentRoom=ri;currentRoomLevel=li;isBossRoom=(li===LEVELS_PER_ROOM-1&&ri!==5);
   var room=ROOMS[ri];var gl=(ri===5)?(26+li):(ri*5+li+1);level=gl;
   generateLevel(room,li,gl);hideAll();
   document.getElementById('hud').style.display='flex';
@@ -736,7 +736,7 @@ var HANDCRAFTED={
   ],walls:[{x:0.4,y:0.2,w:0.2,h:0.01},{x:0.4,y:0.4,w:0.2,h:0.01}]}
 };
 function generateLevel(room,li,gl){
-  balls=[];targets=[];walls=[];particles=[];shockwaves=[];textPops=[];confetti=[];trailParticles=[];
+  balls=[];targets=[];walls=[];obstacles=[];particles=[];shockwaves=[];textPops=[];confetti=[];trailParticles=[];
   screenShake=0;slowMo=1;slowMoTimer=0;
   var margin=50,topMargin=80,playW=W-margin*2,playH=H-topMargin-margin;
   launchX=W/2;launchY=H-60;
@@ -912,7 +912,7 @@ function showBossClear(coinBonus){
 function nextLevel(){if(shouldShowAd()){showInterstitialAd('nextLevelReal');return;}nextLevelReal();}function nextLevelReal(){
   if(currentRoom===5){currentRoomLevel++;level++;startRoomLevel(5,currentRoomLevel);return;}
     if(isBossRoom&&currentRoom<ROOMS.length-1)openRoomIntro(currentRoom+1);
-    else if(currentRoomLevel<4)startRoomLevel(currentRoom,currentRoomLevel+1);
+    else if(currentRoomLevel<LEVELS_PER_ROOM-1)startRoomLevel(currentRoom,currentRoomLevel+1);
     else startWorldMap();
 }
 function gameOver(){
@@ -1094,7 +1094,7 @@ function startDailyChallenge(){
   dailySeed=getDailySeed();
   var room=ROOMS[5];level=26;
   isBossRoom=false;
-  balls=[];targets=[];walls=[];particles=[];shockwaves=[];textPops=[];confetti=[];trailParticles=[];
+  balls=[];targets=[];walls=[];obstacles=[];particles=[];shockwaves=[];textPops=[];confetti=[];trailParticles=[];
   screenShake=0;slowMo=1;slowMoTimer=0;
   var margin=50,topMargin=80,playW=W-margin*2,playH=H-topMargin-margin;
   launchX=W/2;launchY=H-60;
@@ -1349,12 +1349,12 @@ generateLevel=function(){_origGenLevel.apply(this,arguments);
 var rm=currentRoom,lvl=currentRoomLevel;
 if(lvl>=5){var extra=lvl-4;var tc=Math.min(4+extra,10);
 for(var i=targets.length;i<tc;i++){var types=ROOMS[rm]?ROOMS[rm].targetTypes:['normal'];var tp=types[Math.floor(Math.random()*types.length)];
-targets.push({x:100+Math.random()*(C.width-200),y:80+Math.random()*(C.height*0.5),r:18+Math.random()*8,type:tp,hp:tp==='hard'?2:1,hit:false,opacity:1,scale:1});}
+targets.push({x:100+Math.random()*(C.width-200),y:80+Math.random()*(C.height*0.5),r:18+Math.random()*8,type:tp,hp:tp==='hard'?2:1,maxHp:tp==='hard'?2:1,alive:true,pulse:0,angle:Math.random()*Math.PI*2,speed:tp==='moving'?1.5:0,moveDir:Math.random()>0.5?1:-1,ghostTimer:0,ghostVisible:true,bh_pull:0});}
 if(lvl>=7&&Math.random()>0.4){var wc=Math.floor((lvl-6)/2)+1;for(var w=0;w<wc;w++){
 obstacles.push({x:100+Math.random()*(C.width-300),y:150+Math.random()*(C.height*0.4),w:80+Math.random()*120,h:8,type:'moving',speed:(1+Math.random()*2)*(Math.random()>0.5?1:-1),minX:50,maxX:C.width-50});}}
 if(lvl>=8&&ROOMS[rm]&&ROOMS[rm].name==='Chaos Lab'&&Math.random()>0.5){var px=150+Math.random()*(C.width-300);var py=100+Math.random()*(C.height*0.3);
-targets.push({x:px,y:py,r:15,type:'portal',hp:999,hit:false,opacity:1,scale:1,portalTarget:{x:C.width-px,y:py+100}});}
-if(lvl>=9){for(var m=0;m<Math.floor(lvl/4);m++){targets.push({x:100+Math.random()*(C.width-200),y:100+Math.random()*(C.height*0.4),r:20,type:'magnet',hp:999,hit:false,opacity:1,scale:1,strength:2+Math.random()*3,range:80+Math.random()*40});}}
+targets.push({x:px,y:py,r:15,type:'portal',hp:1,maxHp:1,alive:true,pulse:0,angle:0,speed:0,moveDir:1,ghostTimer:0,ghostVisible:true,bh_pull:0,portalTarget:{x:C.width-px,y:py+100}});}
+if(lvl>=9){for(var m=0;m<Math.floor(lvl/4);m++){targets.push({x:100+Math.random()*(C.width-200),y:100+Math.random()*(C.height*0.4),r:20,type:'magnet',hp:1,maxHp:1,alive:true,pulse:0,angle:0,speed:0,moveDir:1,ghostTimer:0,ghostVisible:true,bh_pull:0,strength:2+Math.random()*3,range:80+Math.random()*40});}}
 shotsLeft=Math.max(3,Math.min(shotsLeft+Math.floor(extra/3),8));totalShots=shotsLeft;}
 };
 
