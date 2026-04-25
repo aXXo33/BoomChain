@@ -1257,31 +1257,7 @@ if(!save.noMissWins)save.noMissWins=0;
 // ===== FIREBASE REMOVED v1.0.2 - leaderboard uses local fallback =====
 var fbDb=null,fbAnalytics=null;
 
-// ===== FIREBASE LEADERBOARD =====
-function submitScore(pName,sc,rm){if(!fbDb)return;try{fbDb.ref('leaderboard').push({name:pName||'Player',score:sc,room:rm||'endless',timestamp:Date.now()});}catch(e){}}
-var _origGenLB=typeof generateLeaderboard==='function'?generateLeaderboard:null;
-generateLeaderboard=function(){
-if(!fbDb){if(_origGenLB)return _origGenLB();return;}
-var ct=document.querySelector('#leaderboardS div:nth-child(2)');
-if(!ct){if(_origGenLB)return _origGenLB();return;}
-ct.innerHTML='<div style="color:#aaa;padding:20px">Loading...<\/div>';
-fbDb.ref('leaderboard').orderByChild('score').limitToLast(20).once('value').then(function(snap){
-var entries=[];snap.forEach(function(c){entries.push(c.val());});
-entries.sort(function(a,b){return b.score-a.score;});
-var html='';
-var sv=JSON.parse(localStorage.getItem('rl2_save')||'{}');
-var myBest=sv.highScore||0;
-entries.forEach(function(e,i){
-var medal=i<3?['\u{1F947}','\u{1F948}','\u{1F949}'][i]:'<span style="color:#f7c948;font-weight:700;width:28px;display:inline-block">'+(i+1)+'<\/span>';
-html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;margin:4px 0;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.1)">';
-html+='<span>'+medal+' <b>'+e.name+'<\/b><\/span><span style="color:#f7c948">'+e.score.toLocaleString()+'<\/span><\/div>';
-});
-if(myBest>0){
-html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;margin:4px 0;background:rgba(255,255,255,0.15);border-radius:8px;border:1px solid rgba(247,201,72,0.5)">';
-html+='<span>\u{1F3AF} <b>YOU<\/b><\/span><span style="color:#f7c948">'+myBest.toLocaleString()+'<\/span><\/div>';}
-ct.innerHTML=html||'<div style="color:#aaa;padding:20px">No scores yet!<\/div>';
-}).catch(function(){if(_origGenLB)_origGenLB();});
-};
+// ===== LEADERBOARD (Firebase removed - FIX 2 hotfix in openLeaderboard handles local fallback) =====
 
 // ===== 2x COINS AD =====
 var _lastLevelCoins=0;
