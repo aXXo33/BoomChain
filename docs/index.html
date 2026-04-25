@@ -1348,9 +1348,7 @@ levelComplete=function(){_origLC3.apply(this,arguments);addSeasonXP(50);
 var sv=JSON.parse(localStorage.getItem('rl2_save')||'{}');
 if(typeof submitScore==='function')submitScore('Player',sv.highScore||score,ROOMS[currentRoom]?ROOMS[currentRoom].name:'Unknown');};
 
-// ===== ENHANCED ANALYTICS =====
-var _origLog=logEvent;
-logEvent=function(n,d){_origLog.apply(this,arguments);if(fbAnalytics){try{fbAnalytics.logEvent(n,d||{});}catch(e){}}};
+// ===== ANALYTICS (Firebase removed - localStorage only via original logEvent) =====
 
 // ===== INIT NOTIFICATIONS IF ALREADY GRANTED =====
 if(typeof Notification!=='undefined'&&Notification.permission==='granted'){var nb=document.getElementById('notifBtn');if(nb)nb.textContent='\u{1F514} NOTIFICATIONS: ON';setupFallbackNotifs();}
