@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0">
 <title>Boom Chain</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -11,7 +11,7 @@ canvas{display:block}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100;background:rgba(5,5,20,0.95)}
 .overlay.active{display:flex!important}
 .title{font-size:2.8em;font-weight:900;background:linear-gradient(135deg,#ff6b35,#f7c948,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 40px rgba(255,107,53,0.3);margin-bottom:10px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}hh
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes popIn{0%{transform:scale(0);opacity:0}50%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -105,9 +105,6 @@ canvas{display:block}
 .daily-badge{position:absolute;top:-5px;left:-5px;background:#ff1744;color:#fff;font-size:0.5em;padding:2px 6px;border-radius:8px;font-weight:700;animation:pulse 1.5s infinite}
 </style>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
@@ -134,7 +131,7 @@ canvas{display:block}
 </div>
 
 <div id="tutorialS" class="overlay">
-<div style="background:rgba(0,0,0,0.85);border:2px solid #ff6b35;border-radius:16px;padding:20px;max-width:300px;text-align:center;color:#fff;animation:popIn 0.3s">
+<div style="background:rgba(0,0,0,0.85);border:2px solid #ff6b35;border-radius:16px;padding:20px;max-width:300px;text-align:center;color:#fff;animation:popIn 0.3s;position:relative"><button onclick="skipTutorial()" aria-label="Skip tutorial" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.1);color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:0.7em;cursor:pointer;font-weight:600">SKIP</button>
 <div id="tutIcon" style="font-size:2.5em;margin-bottom:5px"></div>
 <div id="tutTitle" style="font-size:1.1em;font-weight:700;color:#ff6b35"></div>
 <div id="tutText" style="font-size:0.9em;margin:10px 0;line-height:1.5"></div>
@@ -367,6 +364,7 @@ function shouldShowAd(){adCounter++;return adCounter%AD_FREQUENCY===0;}
                 window._adCallback=callback;
                 window.ReactNativeWebView.postMessage(JSON.stringify({type:'rewardedAd',callback:callback}));
         }else{
+                if(location.hostname.indexOf('github.io')!==-1){alert('Rewarded ads only work in the iOS app. Download from App Store!');return;}
                 window[callback]();
         }
   }
@@ -388,7 +386,7 @@ var bossTaunts=['Is that your best shot? \u{1F60F}','You will need more than luc
 var bossTauntsDefeat=['IMPOSSIBLE... HOW?! \u{1F631}','NO! This cannot be! \u{1F62D}','I will return stronger... \u{1F620}','You got lucky! \u{1F624}'];
 var impossibleBeaters=Math.floor(Math.random()*30)+5;
 
-function getDailySeed(){var d=new Date();return d.getFullYear()*10000+d.getMonth()*100+d.getDate();}
+function getDailySeed(){var d=new Date();return d.getUTCFullYear()*10000+d.getUTCMonth()*100+d.getUTCDate();}
 function seededRandom(seed){seed=(seed*9301+49297)%233280;return seed/233280;}
 
 // Impossible Level check
@@ -529,13 +527,20 @@ function loadSave(){
     }
     if(!s.totalShots)s.totalShots=0;if(!s.totalPerfects)s.totalPerfects=0;
     if(!s.totalBosses)s.totalBosses=0;if(!s.totalCombos)s.totalCombos=0;if(!s.bestChainCombo)s.bestChainCombo=0;
-    if(!s.coins)s.coins=0;h
+    if(!s.coins)s.coins=0;
     return s;
   }}catch(e){}
   return{bestLevel:0,highScore:0,roomProgress:[{unlocked:true,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]}],streak:0,lastPlay:'',coins:0,equippedSkin:'default',equippedTrail:'none',equippedEffect:'default',ownedSkins:['default'],ownedTrails:['none'],ownedEffects:['default'],achievements:[],dailySpinDate:'',tutorialDone:false,totalShots:0,totalPerfects:0,totalBosses:0,totalCombos:0};
 }
 function saveSave(){save.coins=coins;save.equippedSkin=equippedSkin;save.equippedTrail=equippedTrail;save.equippedEffect=equippedEffect;localStorage.setItem(SAVE_KEY,JSON.stringify(save));}
 function initFromSave(){coins=save.coins||0;equippedSkin=save.equippedSkin||'default';equippedTrail=save.equippedTrail||'none';equippedEffect=save.equippedEffect||'default';}
+
+// FIX v1.0.2: Auto-save progress on app background/close (was: only on user actions)
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden'){try{saveSave();}catch(e){}}
+  if(document.visibilityState==='visible'&&typeof audioCtx!=='undefined'&&audioCtx&&audioCtx.state==='suspended'){try{audioCtx.resume();}catch(e){}}
+});
+window.addEventListener('pagehide',function(){try{saveSave();}catch(e){}});
 
 var ROOMS=[
 {name:'Glass Lab',icon:SCOPE,desc:'Clean shots, glass targets.',color:'#1a3a5c',accent:'#4fc3f7',grid:'rgba(79,195,247,0.08)',targetTypes:['normal','hard','crystal'],bg1:'#0a1628',bg2:'#1a3a5c'},
@@ -637,6 +642,7 @@ function showTutorialStep(){
   showScreen('tutorialS');
 }
 function nextTutorial(){tutorialStep++;showTutorialStep();}
+function skipTutorial(){save.tutorialDone=true;saveSave();var ov=document.getElementById('tutorialS');if(ov)ov.classList.remove('active');startWorldMap();}
 function startWorldMap(){
   showScreen('worldMapS');document.getElementById('mapCoins').textContent=COIN+' '+coins;
   var grid=document.getElementById('roomGrid');grid.innerHTML='';
@@ -1053,11 +1059,12 @@ function draw(){
 }
 
 // ===== MUSIC TOGGLE =====
-var musicEnabled=false;
+var musicEnabled=(localStorage.getItem('music_on')==='true');
 function toggleMusic(){
   musicEnabled=!musicEnabled;
+  localStorage.setItem('music_on',String(musicEnabled));
   document.getElementById('musicToggle').innerHTML=musicEnabled?'&#x1F3B5; MUSIC: ON':'&#x1F3B5; MUSIC: OFF';
-  if(musicEnabled&&gameActive)startMusic();
+  if(musicEnabled&&gameActive){if(audioCtx&&audioCtx.state==='suspended'){try{audioCtx.resume();}catch(e){}}startMusic();}
   else stopMusic();
 }
 // Override startMusic to check toggle
@@ -1131,7 +1138,21 @@ gameLoop();
 
 function buyItem(productId){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'purchase',productId:productId}));   }else{     alert('In-app purchases only available in the mobile app!');   } }
 function restorePurchases(){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'restorePurchases'}));   } }
-window.onPurchaseComplete=function(result){   if(result.success){     window._isPremium=result.isPremium;     sndWin();     spawnConfetti(W/2,H/2,50);     alert(result.isPremium?'🎉 Ads removed! Enjoy Boom Chain ad-free!':'🪙 Coins added to your account!');     closeShop();   }else{     alert('Purchase failed. Please try again.');   } };
+window.onPurchaseComplete=function(result){
+  if(!result||!result.success){alert('Purchase failed. Please try again.');return;}
+  // FIX v1.0.2: Idempotency check to prevent double-grant
+  var txId=result.transactionId||result.orderId||(result.productId+'_'+Date.now());
+  var processedTx=[];
+  try{processedTx=JSON.parse(localStorage.getItem('processed_tx')||'[]');}catch(e){}
+  if(processedTx.indexOf(txId)!==-1){return;}
+  processedTx.push(txId);
+  if(processedTx.length>100)processedTx=processedTx.slice(-100);
+  try{localStorage.setItem('processed_tx',JSON.stringify(processedTx));}catch(e){}
+  window._isPremium=result.isPremium;
+  sndWin();spawnConfetti(W/2,H/2,50);
+  alert(result.isPremium?'🎉 Ads removed! Enjoy Boom Chain ad-free!':'🪙 Coins added to your account!');
+  closeShop();
+};
 window.onRestoreComplete=function(result){   if(result.success&&result.isPremium){     window._isPremium=true;     alert('✅ Purchases restored! Ads removed.');   }else{     alert('No purchases to restore.');   } };
 
 
@@ -1257,36 +1278,10 @@ if(!save.adsWatched)save.adsWatched=0;
 if(!save.noMissWins)save.noMissWins=0;
 
 
-// ===== FIREBASE INIT =====
-var firebaseConfig={apiKey:"AIzaSyBoomChainDemo2024",authDomain:"boomchain-game.firebaseapp.com",databaseURL:"https://boomchain-game-default-rtdb.firebaseio.com",projectId:"boomchain-game",storageBucket:"boomchain-game.appspot.com",messagingSenderId:"123456789",appId:"1:123456789:web:abcdef123456"};
-var fbApp=null,fbDb=null,fbAnalytics=null;
-try{if(typeof firebase!=='undefined'){fbApp=firebase.initializeApp(firebaseConfig);fbDb=firebase.database();fbAnalytics=firebase.analytics();}}catch(e){}
+// ===== FIREBASE REMOVED v1.0.2 - leaderboard uses local fallback =====
+var fbDb=null,fbAnalytics=null;
 
-// ===== FIREBASE LEADERBOARD =====
-function submitScore(pName,sc,rm){if(!fbDb)return;try{fbDb.ref('leaderboard').push({name:pName||'Player',score:sc,room:rm||'endless',timestamp:Date.now()});}catch(e){}}
-var _origGenLB=typeof generateLeaderboard==='function'?generateLeaderboard:null;
-generateLeaderboard=function(){
-if(!fbDb){if(_origGenLB)return _origGenLB();return;}
-var ct=document.querySelector('#leaderboardS div:nth-child(2)');
-if(!ct){if(_origGenLB)return _origGenLB();return;}
-ct.innerHTML='<div style="color:#aaa;padding:20px">Loading...<\/div>';
-fbDb.ref('leaderboard').orderByChild('score').limitToLast(20).once('value').then(function(snap){
-var entries=[];snap.forEach(function(c){entries.push(c.val());});
-entries.sort(function(a,b){return b.score-a.score;});
-var html='';
-var sv=JSON.parse(localStorage.getItem('rl2_save')||'{}');
-var myBest=sv.highScore||0;
-entries.forEach(function(e,i){
-var medal=i<3?['\u{1F947}','\u{1F948}','\u{1F949}'][i]:'<span style="color:#f7c948;font-weight:700;width:28px;display:inline-block">'+(i+1)+'<\/span>';
-html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;margin:4px 0;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.1)">';
-html+='<span>'+medal+' <b>'+e.name+'<\/b><\/span><span style="color:#f7c948">'+e.score.toLocaleString()+'<\/span><\/div>';
-});
-if(myBest>0){
-html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;margin:4px 0;background:rgba(255,255,255,0.15);border-radius:8px;border:1px solid rgba(247,201,72,0.5)">';
-html+='<span>\u{1F3AF} <b>YOU<\/b><\/span><span style="color:#f7c948">'+myBest.toLocaleString()+'<\/span><\/div>';}
-ct.innerHTML=html||'<div style="color:#aaa;padding:20px">No scores yet!<\/div>';
-}).catch(function(){if(_origGenLB)_origGenLB();});
-};
+// ===== LEADERBOARD (Firebase removed - FIX 2 hotfix in openLeaderboard handles local fallback) =====
 
 // ===== 2x COINS AD =====
 var _lastLevelCoins=0;
@@ -1377,9 +1372,7 @@ levelComplete=function(){_origLC3.apply(this,arguments);addSeasonXP(50);
 var sv=JSON.parse(localStorage.getItem('rl2_save')||'{}');
 if(typeof submitScore==='function')submitScore('Player',sv.highScore||score,ROOMS[currentRoom]?ROOMS[currentRoom].name:'Unknown');};
 
-// ===== ENHANCED ANALYTICS =====
-var _origLog=logEvent;
-logEvent=function(n,d){_origLog.apply(this,arguments);if(fbAnalytics){try{fbAnalytics.logEvent(n,d||{});}catch(e){}}};
+// ===== ANALYTICS (Firebase removed - localStorage only via original logEvent) =====
 
 // ===== INIT NOTIFICATIONS IF ALREADY GRANTED =====
 if(typeof Notification!=='undefined'&&Notification.permission==='granted'){var nb=document.getElementById('notifBtn');if(nb)nb.textContent='\u{1F514} NOTIFICATIONS: ON';setupFallbackNotifs();}
