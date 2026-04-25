@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0">
 <title>Boom Chain</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -131,7 +131,7 @@ canvas{display:block}
 </div>
 
 <div id="tutorialS" class="overlay">
-<div style="background:rgba(0,0,0,0.85);border:2px solid #ff6b35;border-radius:16px;padding:20px;max-width:300px;text-align:center;color:#fff;animation:popIn 0.3s">
+<div style="background:rgba(0,0,0,0.85);border:2px solid #ff6b35;border-radius:16px;padding:20px;max-width:300px;text-align:center;color:#fff;animation:popIn 0.3s;position:relative"><button onclick="skipTutorial()" aria-label="Skip tutorial" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.1);color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:0.7em;cursor:pointer;font-weight:600">SKIP</button>
 <div id="tutIcon" style="font-size:2.5em;margin-bottom:5px"></div>
 <div id="tutTitle" style="font-size:1.1em;font-weight:700;color:#ff6b35"></div>
 <div id="tutText" style="font-size:0.9em;margin:10px 0;line-height:1.5"></div>
@@ -364,6 +364,7 @@ function shouldShowAd(){adCounter++;return adCounter%AD_FREQUENCY===0;}
                 window._adCallback=callback;
                 window.ReactNativeWebView.postMessage(JSON.stringify({type:'rewardedAd',callback:callback}));
         }else{
+                if(location.hostname.indexOf('github.io')!==-1){alert('Rewarded ads only work in the iOS app. Download from App Store!');return;}
                 window[callback]();
         }
   }
@@ -385,7 +386,7 @@ var bossTaunts=['Is that your best shot? \u{1F60F}','You will need more than luc
 var bossTauntsDefeat=['IMPOSSIBLE... HOW?! \u{1F631}','NO! This cannot be! \u{1F62D}','I will return stronger... \u{1F620}','You got lucky! \u{1F624}'];
 var impossibleBeaters=Math.floor(Math.random()*30)+5;
 
-function getDailySeed(){var d=new Date();return d.getFullYear()*10000+d.getMonth()*100+d.getDate();}
+function getDailySeed(){var d=new Date();return d.getUTCFullYear()*10000+d.getUTCMonth()*100+d.getUTCDate();}
 function seededRandom(seed){seed=(seed*9301+49297)%233280;return seed/233280;}
 
 // Impossible Level check
@@ -641,6 +642,7 @@ function showTutorialStep(){
   showScreen('tutorialS');
 }
 function nextTutorial(){tutorialStep++;showTutorialStep();}
+function skipTutorial(){save.tutorialDone=true;saveSave();var ov=document.getElementById('tutorialS');if(ov)ov.classList.remove('active');startWorldMap();}
 function startWorldMap(){
   showScreen('worldMapS');document.getElementById('mapCoins').textContent=COIN+' '+coins;
   var grid=document.getElementById('roomGrid');grid.innerHTML='';
@@ -1136,7 +1138,21 @@ gameLoop();
 
 function buyItem(productId){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'purchase',productId:productId}));   }else{     alert('In-app purchases only available in the mobile app!');   } }
 function restorePurchases(){   if(window.ReactNativeWebView){     window.ReactNativeWebView.postMessage(JSON.stringify({type:'restorePurchases'}));   } }
-window.onPurchaseComplete=function(result){   if(result.success){     window._isPremium=result.isPremium;     sndWin();     spawnConfetti(W/2,H/2,50);     alert(result.isPremium?'🎉 Ads removed! Enjoy Boom Chain ad-free!':'🪙 Coins added to your account!');     closeShop();   }else{     alert('Purchase failed. Please try again.');   } };
+window.onPurchaseComplete=function(result){
+  if(!result||!result.success){alert('Purchase failed. Please try again.');return;}
+  // FIX v1.0.2: Idempotency check to prevent double-grant
+  var txId=result.transactionId||result.orderId||(result.productId+'_'+Date.now());
+  var processedTx=[];
+  try{processedTx=JSON.parse(localStorage.getItem('processed_tx')||'[]');}catch(e){}
+  if(processedTx.indexOf(txId)!==-1){return;}
+  processedTx.push(txId);
+  if(processedTx.length>100)processedTx=processedTx.slice(-100);
+  try{localStorage.setItem('processed_tx',JSON.stringify(processedTx));}catch(e){}
+  window._isPremium=result.isPremium;
+  sndWin();spawnConfetti(W/2,H/2,50);
+  alert(result.isPremium?'🎉 Ads removed! Enjoy Boom Chain ad-free!':'🪙 Coins added to your account!');
+  closeShop();
+};
 window.onRestoreComplete=function(result){   if(result.success&&result.isPremium){     window._isPremium=true;     alert('✅ Purchases restored! Ads removed.');   }else{     alert('No purchases to restore.');   } };
 
 
