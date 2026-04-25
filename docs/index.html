@@ -1254,10 +1254,8 @@ if(!save.adsWatched)save.adsWatched=0;
 if(!save.noMissWins)save.noMissWins=0;
 
 
-// ===== FIREBASE INIT =====
-var firebaseConfig={apiKey:"AIzaSyBoomChainDemo2024",authDomain:"boomchain-game.firebaseapp.com",databaseURL:"https://boomchain-game-default-rtdb.firebaseio.com",projectId:"boomchain-game",storageBucket:"boomchain-game.appspot.com",messagingSenderId:"123456789",appId:"1:123456789:web:abcdef123456"};
-var fbApp=null,fbDb=null,fbAnalytics=null;
-try{if(typeof firebase!=='undefined'){fbApp=firebase.initializeApp(firebaseConfig);fbDb=firebase.database();fbAnalytics=firebase.analytics();}}catch(e){}
+// ===== FIREBASE REMOVED v1.0.2 - leaderboard uses local fallback =====
+var fbDb=null,fbAnalytics=null;
 
 // ===== FIREBASE LEADERBOARD =====
 function submitScore(pName,sc,rm){if(!fbDb)return;try{fbDb.ref('leaderboard').push({name:pName||'Player',score:sc,room:rm||'endless',timestamp:Date.now()});}catch(e){}}
