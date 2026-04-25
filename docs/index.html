@@ -1050,11 +1050,12 @@ function draw(){
 }
 
 // ===== MUSIC TOGGLE =====
-var musicEnabled=false;
+var musicEnabled=(localStorage.getItem('music_on')==='true');
 function toggleMusic(){
   musicEnabled=!musicEnabled;
+  localStorage.setItem('music_on',String(musicEnabled));
   document.getElementById('musicToggle').innerHTML=musicEnabled?'&#x1F3B5; MUSIC: ON':'&#x1F3B5; MUSIC: OFF';
-  if(musicEnabled&&gameActive)startMusic();
+  if(musicEnabled&&gameActive){if(audioCtx&&audioCtx.state==='suspended'){try{audioCtx.resume();}catch(e){}}startMusic();}
   else stopMusic();
 }
 // Override startMusic to check toggle
