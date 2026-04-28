@@ -1055,7 +1055,7 @@ function gameOver(){
       reviveBtns[i].style.display=allowed?'block':'none';
       if(allowed){
         var s=getReviveStats();
-        var dailyText=' ('+s.count+'/5 today)';
+        var dailyText=s.count>0?' (Watched '+s.count+' today)':'';
         if(reviveBtns[i].textContent.indexOf('today')===-1)reviveBtns[i].innerHTML='\u{1F3AC} WATCH AD = +1 SHOT'+dailyText;
       }
     }
