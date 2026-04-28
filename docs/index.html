@@ -1072,13 +1072,13 @@ function gameOver(){
   triggerShake(6);addRage(35);
   var rageBtn=document.getElementById('rageBtn');if(rageBtn)rageBtn.style.display=rageLevel>=100?'block':'none';
   var reviveBtns=document.querySelectorAll('#gameOverS button');
-  for(var i=0;i<reviveBtns.length;i++){
+  var __sFresh=getReviveStats();window._lastReviveCount=__sFresh.count;for(var i=0;i<reviveBtns.length;i++){
     if(reviveBtns[i].onclick&&reviveBtns[i].onclick.toString().indexOf('watchAdExtraShot')!==-1){
       var allowed=canRevive();
       reviveBtns[i].style.display=allowed?'block':'none';
       if(allowed){
         var s=getReviveStats();
-        var dailyText=s.count>0?' (Watched '+s.count+' today)':'';
+        var dailyText=__sFresh.count>0?' (Watched '+__sFresh.count+' today)':'';
         if(reviveBtns[i].textContent.indexOf('today')===-1)reviveBtns[i].innerHTML='\u{1F3AC} WATCH AD = +1 SHOT'+dailyText;
       }
     }
