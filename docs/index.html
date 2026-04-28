@@ -1078,7 +1078,7 @@ function gameOver(){
       reviveBtns[i].style.display=allowed?'block':'none';
       if(allowed){
         var s=getReviveStats();
-        var dailyText=__sFresh.count>0?' (Watched '+__sFresh.count+' today)':'';
+        var dailyText='';
         if(reviveBtns[i].textContent.indexOf('today')===-1)reviveBtns[i].innerHTML='\u{1F3AC} WATCH AD = +1 SHOT'+dailyText;
       }
     }
