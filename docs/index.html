@@ -258,6 +258,7 @@ SCOPE=String.fromCodePoint(0x1F52C),SLOT=String.fromCodePoint(0x1F3B0);
 // HAPTIC BRIDGE (v1.0.3): if running inside React Native WebView, send haptic event to native (Taptic Engine on iOS).
 // Otherwise fall back to browser navigator.vibrate (works on Android browsers).
 function nativeHaptic(intensity){
+  if(!vibrationEnabled)return;
   try{
     if(window.ReactNativeWebView){
       window.ReactNativeWebView.postMessage(JSON.stringify({type:'haptic',intensity:intensity}));
@@ -265,12 +266,12 @@ function nativeHaptic(intensity){
   }catch(e){}
 }
 function vibrate(pattern){try{if(navigator.vibrate)navigator.vibrate(pattern);}catch(e){}}
-function hapticLight(){vibrate(10);nativeHaptic('light');}
-function hapticMedium(){vibrate(25);nativeHaptic('medium');}
-function hapticHeavy(){vibrate([30,20,50]);nativeHaptic('heavy');}
-function hapticExplosion(){vibrate([50,30,80,30,50]);nativeHaptic('heavy');}
-function hapticCombo(n){var p=[];for(var i=0;i<Math.min(n,5);i++){p.push(20+i*10);p.push(15);}vibrate(p);nativeHaptic(n>=4?'heavy':(n>=2?'medium':'light'));}
-function hapticBoss(){vibrate([100,50,100,50,200]);nativeHaptic('heavy');}
+function hapticLight(){if(!vibrationEnabled)return;vibrate(10);nativeHaptic('light');}
+function hapticMedium(){if(!vibrationEnabled)return;vibrate(25);nativeHaptic('medium');}
+function hapticHeavy(){if(!vibrationEnabled)return;vibrate([30,20,50]);nativeHaptic('heavy');}
+function hapticExplosion(){if(!vibrationEnabled)return;vibrate([50,30,80,30,50]);nativeHaptic('heavy');}
+function hapticCombo(n){if(!vibrationEnabled)return;var p=[];for(var i=0;i<Math.min(n,5);i++){p.push(20+i*10);p.push(15);}vibrate(p);nativeHaptic(n>=4?'heavy':(n>=2?'medium':'light'));}
+function hapticBoss(){if(!vibrationEnabled)return;vibrate([100,50,100,50,200]);nativeHaptic('heavy');}
 
 // ===== BACKGROUND MUSIC =====
 var musicPlaying=false,musicNodes=[];
@@ -392,6 +393,28 @@ var rageLevel=0,rageModeActive=false,rageModeTimer=0,rageModeShots=0;
 // ===== PADDLE (v1.0.3 Hardcore Mode) =====
 var PADDLE_W=37,PADDLE_H=12,PADDLE_Y_OFFSET=120;
 var paddleX=0,paddleActive=false;
+// ===== SETTINGS (v1.0.3) =====
+var SETTINGS_KEY='rl_settings_v1';
+var sfxEnabled=true,vibrationEnabled=true;
+function loadSettings(){
+  try{
+    var raw=localStorage.getItem(SETTINGS_KEY);
+    if(raw){
+      var s=JSON.parse(raw);
+      sfxEnabled=s.sfx!==false;
+      vibrationEnabled=s.vib!==false;
+      if(typeof s.music==='boolean')musicEnabled=s.music;
+    }
+  }catch(e){}
+}
+function saveSettings(){
+  try{
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify({
+      sfx:sfxEnabled,vib:vibrationEnabled,music:musicEnabled
+    }));
+  }catch(e){}
+}
+loadSettings();
 // ===== REWARDED REVIVE (v1.0.3) =====
 // Per-level: 1 revive max. Per-day: 5 revives max. Daily Impossible: no revive.
 var reviveUsedThisLevel=false;
@@ -624,7 +647,7 @@ function generateLeaderboard(){var lb=[];for(var i=0;i<15;i++)lb.push({name:FAKE
 
 var audioCtx;
 function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
-function playTone(f,t,d,v){try{var a=getAudio(),o=a.createOscillator(),g=a.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v||0.15,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}catch(e){}}
+function playTone(f,t,d,v){if(!sfxEnabled)return;try{var a=getAudio(),o=a.createOscillator(),g=a.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v||0.15,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}catch(e){}}
 function sndBounce(){hapticLight();playTone(800,'sine',0.05,0.08)}
 function sndHit(){hapticMedium();playTone(500,'square',0.1,0.12);playTone(700,'sine',0.15,0.08)}
 function sndExplode(){hapticExplosion();playTone(80,'sawtooth',0.4,0.18);playTone(150,'square',0.3,0.14);playTone(50,'triangle',0.5,0.1);setTimeout(function(){playTone(200,'sawtooth',0.15,0.08);playTone(100,'square',0.2,0.06)},80)}
@@ -1281,6 +1304,58 @@ function startDailyChallenge(){
 }
 
 function showMenu(){isDailyChallenge=false;initFromSave();showScreen('menuS');updateMenuInfo();updateFOMO();checkStreak();maybeShowPaddleHint();}
+function _stCreateRow(label,value,onChange){
+  var row=document.createElement('div');
+  row.style.display='flex';row.style.alignItems='center';row.style.justifyContent='space-between';
+  row.style.padding='12px 0';row.style.borderBottom='1px solid rgba(255,255,255,0.1)';
+  var l=document.createElement('div');l.textContent=label;l.style.color='#fff';l.style.fontSize='1em';
+  var btn=document.createElement('button');
+  btn.style.padding='6px 18px';btn.style.borderRadius='20px';btn.style.border='none';btn.style.cursor='pointer';
+  btn.style.fontWeight='700';btn.style.fontSize='0.85em';btn.style.minWidth='60px';
+  function refresh(){btn.textContent=value()?'ON':'OFF';btn.style.background=value()?'#4CAF50':'#555';btn.style.color='#fff';}
+  btn.onclick=function(){onChange();refresh();saveSettings();};refresh();
+  row.appendChild(l);row.appendChild(btn);return row;
+}
+function _stCreateLink(label,onClick,color){
+  var row=document.createElement('div');
+  row.style.display='flex';row.style.alignItems='center';row.style.justifyContent='space-between';
+  row.style.padding='12px 0';row.style.borderBottom='1px solid rgba(255,255,255,0.1)';
+  row.style.cursor='pointer';row.onclick=onClick;
+  var l=document.createElement('div');l.textContent=label;l.style.color=color||'#fff';l.style.fontSize='1em';
+  var arr=document.createElement('div');arr.textContent='\u203A';arr.style.color='#888';arr.style.fontSize='1.4em';
+  row.appendChild(l);row.appendChild(arr);return row;
+}
+function openSettings(){
+  closeSettings();
+  var ov=document.createElement('div');ov.id='settingsOverlay';
+  ov.style.position='fixed';ov.style.inset='0';ov.style.background='rgba(0,0,0,0.7)';ov.style.zIndex='400';
+  ov.style.display='flex';ov.style.alignItems='center';ov.style.justifyContent='center';
+  ov.onclick=function(e){if(e.target===ov)closeSettings();};
+  var pop=document.createElement('div');
+  pop.style.background='linear-gradient(135deg,#1a1a2e,#0a0a1a)';pop.style.border='2px solid #ff6b35';
+  pop.style.borderRadius='16px';pop.style.padding='24px';pop.style.width='320px';pop.style.maxWidth='90%';
+  pop.style.maxHeight='80vh';pop.style.overflowY='auto';pop.style.boxShadow='0 0 40px rgba(255,107,53,0.4)';
+  var title=document.createElement('div');title.textContent='SETTINGS';
+  title.style.fontSize='1.4em';title.style.fontWeight='800';title.style.color='#ff6b35';
+  title.style.textAlign='center';title.style.marginBottom='16px';title.style.letterSpacing='2px';
+  pop.appendChild(title);
+  pop.appendChild(_stCreateRow('\u{1F3B5} Music',function(){return musicEnabled;},function(){musicEnabled=!musicEnabled;if(musicEnabled){startMusic();}else{stopMusic();}}));
+  pop.appendChild(_stCreateRow('\u{1F50A} Sound Effects',function(){return sfxEnabled;},function(){sfxEnabled=!sfxEnabled;}));
+  pop.appendChild(_stCreateRow('\u{1F4F3} Vibration',function(){return vibrationEnabled;},function(){vibrationEnabled=!vibrationEnabled;}));
+  pop.appendChild(_stCreateLink('\u{1F6D2} Restore Purchases',function(){restorePurchases();closeSettings();}));
+  pop.appendChild(_stCreateLink('\u{1F4CB} Privacy Policy',function(){window.open('https://axxo33.github.io/BoomChain/privacy.html','_blank');}));
+  pop.appendChild(_stCreateLink('\u{1F4AC} Support',function(){window.open('https://axxo33.github.io/BoomChain/support.html','_blank');}));
+  pop.appendChild(_stCreateLink('\u{1F504} Reset Progress',function(){if(confirm('Are you sure? This will erase ALL your progress, coins, achievements and unlocks. This cannot be undone.')){try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem(SETTINGS_KEY);location.reload();}catch(e){alert('Reset failed.');}}},'#ff6b35'));
+  var ver=document.createElement('div');ver.textContent='v1.0.3 Neon Feel';
+  ver.style.textAlign='center';ver.style.marginTop='16px';ver.style.color='#666';ver.style.fontSize='0.75em';
+  pop.appendChild(ver);
+  var close=document.createElement('button');close.textContent='CLOSE';close.className='btn btn-secondary';
+  close.style.width='100%';close.style.marginTop='12px';close.style.padding='10px';
+  close.onclick=closeSettings;
+  pop.appendChild(close);
+  ov.appendChild(pop);document.body.appendChild(ov);
+}
+function closeSettings(){var ov=document.getElementById('settingsOverlay');if(ov)ov.remove();}
 function maybeShowPaddleHint(){
   if(!save._showPaddleHint)return;
   save._showPaddleHint=false;save.paddleHintShown=true;saveSave();
@@ -1299,7 +1374,8 @@ function maybeShowPaddleHint(){
   pop.appendChild(ic);pop.appendChild(ti);pop.appendChild(ds);pop.appendChild(sb);pop.appendChild(bt);
   document.body.appendChild(pop);
 }
-function gameLoop(){if(gameActive)update();draw();requestAnimationFrame(gameLoop);}
+function _updateGearVisibility(){var gb=document.getElementById('globalSettings');if(!gb)return;var hide=gameActive&&shooting;gb.style.display=hide?'none':'flex';}
+function gameLoop(){if(gameActive)update();draw();_updateGearVisibility();requestAnimationFrame(gameLoop);}
 initFromSave();
 try{var _rs=JSON.parse(localStorage.getItem(SAVE_KEY));if(_rs&&_rs.tutorialDone)save.tutorialDone=true;}catch(e){}if(!save.tutorialDone)startTutorial();else showMenu();
 gameLoop();
@@ -1718,5 +1794,5 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
 </div>
 <button class="btn btn-secondary" onclick="hideAll();showScreen('menuS')">&#x2190; BACK</button>
 </div>
-</body>
+<button id="globalSettings" onclick="openSettings()" aria-label="Settings" style="position:fixed;top:12px;right:12px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1.3em;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;padding:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">&#x2699;&#xFE0F;</button></body>
 </html>
