@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -255,13 +255,22 @@ SCOPE=String.fromCodePoint(0x1F52C),SLOT=String.fromCodePoint(0x1F3B0);
 
 
 // ===== HAPTIC FEEDBACK =====
+// HAPTIC BRIDGE (v1.0.3): if running inside React Native WebView, send haptic event to native (Taptic Engine on iOS).
+// Otherwise fall back to browser navigator.vibrate (works on Android browsers).
+function nativeHaptic(intensity){
+  try{
+    if(window.ReactNativeWebView){
+      window.ReactNativeWebView.postMessage(JSON.stringify({type:'haptic',intensity:intensity}));
+    }
+  }catch(e){}
+}
 function vibrate(pattern){try{if(navigator.vibrate)navigator.vibrate(pattern);}catch(e){}}
-function hapticLight(){vibrate(10);}
-function hapticMedium(){vibrate(25);}
-function hapticHeavy(){vibrate([30,20,50]);}
-function hapticExplosion(){vibrate([50,30,80,30,50]);}
-function hapticCombo(n){var p=[];for(var i=0;i<Math.min(n,5);i++){p.push(20+i*10);p.push(15);}vibrate(p);}
-function hapticBoss(){vibrate([100,50,100,50,200]);}
+function hapticLight(){vibrate(10);nativeHaptic('light');}
+function hapticMedium(){vibrate(25);nativeHaptic('medium');}
+function hapticHeavy(){vibrate([30,20,50]);nativeHaptic('heavy');}
+function hapticExplosion(){vibrate([50,30,80,30,50]);nativeHaptic('heavy');}
+function hapticCombo(n){var p=[];for(var i=0;i<Math.min(n,5);i++){p.push(20+i*10);p.push(15);}vibrate(p);nativeHaptic(n>=4?'heavy':(n>=2?'medium':'light'));}
+function hapticBoss(){vibrate([100,50,100,50,200]);nativeHaptic('heavy');}
 
 // ===== BACKGROUND MUSIC =====
 var musicPlaying=false,musicNodes=[];
@@ -380,6 +389,32 @@ var coins=0,equippedSkin='default',equippedTrail='none',equippedEffect='default'
 
 // ===== VIRAL FEATURES =====
 var rageLevel=0,rageModeActive=false,rageModeTimer=0,rageModeShots=0;
+// ===== PADDLE (v1.0.3 Hardcore Mode) =====
+var PADDLE_W=37,PADDLE_H=12,PADDLE_Y_OFFSET=25;
+var paddleX=0,paddleActive=false;
+// ===== REWARDED REVIVE (v1.0.3) =====
+// Per-level: 1 revive max. Per-day: 5 revives max. Daily Impossible: no revive.
+var reviveUsedThisLevel=false;
+var REVIVE_DAILY_LIMIT=5;
+function getReviveStats(){
+  var today=new Date().toDateString();
+  var stored=localStorage.getItem('rl_revive_count');
+  if(!stored)return{date:today,count:0};
+  try{var s=JSON.parse(stored);if(s.date!==today)return{date:today,count:0};return s;}catch(e){return{date:today,count:0};}
+}
+function incReviveCount(){
+  var s=getReviveStats();
+  s.count=(s.count||0)+1;
+  try{localStorage.setItem('rl_revive_count',JSON.stringify(s));}catch(e){}
+}
+function canRevive(){
+  // v1.0.3 (player-friendly): unlimited revives per level/day, except Daily Impossible.
+  // Session safety net: cap at 30 to avoid AdMob spam algorithm flag.
+  if(isDailyChallenge)return false;
+  if(!window._sessionRevives)window._sessionRevives=0;
+  if(window._sessionRevives>=30)return false;
+  return true;
+}
 var bestChainCombo=0,isImpossibleLevel=false,nearMissDistance=0;
 var dailySeed=0,isDailyChallenge=false,dailyBestLevel=0;
 var bossTaunts=['Is that your best shot? \u{1F60F}','You will need more than luck.','Too slow! \u{1F602}','My grandma shoots better!','Getting tired yet? \u{1F634}','Pathetic attempt! \u{1F480}'];
@@ -495,7 +530,7 @@ function generateShareText(){
 // Impossible level generation modifier
 function applyImpossibleModifier(li,gl){
   isImpossibleLevel=true;
-  shotsLeft=totalShots=2;
+  shotsLeft=totalShots=5;
   var numExtra=Math.min(Math.floor(gl/10),8);
   for(var i=0;i<numExtra;i++){
     var margin=50,topMargin=80,playW=W-margin*2,playH=H-topMargin-margin;
@@ -516,6 +551,11 @@ function loadSave(){
   if(s){
     if(!s.ownedSkins)s.ownedSkins=['default'];
     if(!s.ownedTrails)s.ownedTrails=['none'];
+    // v1.0.3 migration: fire_trail is now free for everyone (premium feel out of the box)
+    if(s.ownedTrails.indexOf('fire_trail')===-1)s.ownedTrails.push('fire_trail');
+    if(s.equippedTrail==='none'||!s.equippedTrail)s.equippedTrail='fire_trail';
+    // v1.0.3: show one-time paddle hint to existing v1.0.2 users (tutorialDone=true but no flag yet)
+    if(s.tutorialDone&&!s.paddleHintShown)s._showPaddleHint=true;
     if(!s.ownedEffects)s.ownedEffects=['default'];
     if(!s.achievements)s.achievements=[];
     if(!s.roomProgress||s.roomProgress.length<6){
@@ -530,7 +570,7 @@ function loadSave(){
     if(!s.coins)s.coins=0;
     return s;
   }}catch(e){}
-  return{bestLevel:0,highScore:0,roomProgress:[{unlocked:true,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]}],streak:0,lastPlay:'',coins:0,equippedSkin:'default',equippedTrail:'none',equippedEffect:'default',ownedSkins:['default'],ownedTrails:['none'],ownedEffects:['default'],achievements:[],dailySpinDate:'',tutorialDone:false,totalShots:0,totalPerfects:0,totalBosses:0,totalCombos:0};
+  return{bestLevel:0,highScore:0,roomProgress:[{unlocked:true,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]},{unlocked:false,cleared:false,levels:[0,0,0,0,0,0,0,0,0,0,0,0]}],streak:0,lastPlay:'',coins:0,equippedSkin:'default',equippedTrail:'fire_trail',equippedEffect:'default',ownedSkins:['default'],ownedTrails:['none','fire_trail'],ownedEffects:['default'],achievements:[],dailySpinDate:'',tutorialDone:false,totalShots:0,totalPerfects:0,totalBosses:0,totalCombos:0};
 }
 function saveSave(){save.coins=coins;save.equippedSkin=equippedSkin;save.equippedTrail=equippedTrail;save.equippedEffect=equippedEffect;localStorage.setItem(SAVE_KEY,JSON.stringify(save));}
 function initFromSave(){coins=save.coins||0;equippedSkin=save.equippedSkin||'default';equippedTrail=save.equippedTrail||'none';equippedEffect=save.equippedEffect||'default';if(musicEnabled){var _mt=document.getElementById('musicToggle');if(_mt)_mt.innerHTML='&#x1F3B5; MUSIC: ON';}}
@@ -587,23 +627,35 @@ function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkit
 function playTone(f,t,d,v){try{var a=getAudio(),o=a.createOscillator(),g=a.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v||0.15,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}catch(e){}}
 function sndBounce(){hapticLight();playTone(800,'sine',0.05,0.08)}
 function sndHit(){hapticMedium();playTone(500,'square',0.1,0.12);playTone(700,'sine',0.15,0.08)}
-function sndExplode(){hapticExplosion();playTone(150,'sawtooth',0.3,0.15);playTone(80,'square',0.4,0.1)}
+function sndExplode(){hapticExplosion();playTone(80,'sawtooth',0.4,0.18);playTone(150,'square',0.3,0.14);playTone(50,'triangle',0.5,0.1);setTimeout(function(){playTone(200,'sawtooth',0.15,0.08);playTone(100,'square',0.2,0.06)},80)}
 function sndCombo(n){for(var i=0;i<Math.min(n,8);i++)(function(j){setTimeout(function(){playTone(400+j*70,'sine',0.12,0.1)},j*50)})(i)}
 function sndPerfect(){for(var i=0;i<6;i++)(function(j){setTimeout(function(){playTone(500+j*100,'sine',0.15,0.1)},j*70)})(i)}
 function sndShatter(){playTone(200,'sawtooth',0.2,0.12);playTone(350,'square',0.15,0.08)}
-function sndFail(){playTone(300,'sine',0.15,0.12);playTone(200,'sine',0.2,0.1)}
-function sndShoot(){hapticLight();playTone(600,'triangle',0.08,0.1)}
-function sndBoss(){hapticBoss();playTone(100,'sawtooth',0.5,0.15)}
+function sndFail(){playTone(400,'sine',0.15,0.12);setTimeout(function(){playTone(300,'sine',0.18,0.1)},100);setTimeout(function(){playTone(200,'sine',0.25,0.09)},220);setTimeout(function(){playTone(150,'triangle',0.3,0.07)},380)}
+function sndShoot(){hapticLight();playTone(600,'triangle',0.08,0.12);playTone(900,'sine',0.06,0.08);playTone(300,'square',0.04,0.06)}
+function sndBoss(){hapticBoss();playTone(60,'sawtooth',0.6,0.2);playTone(120,'square',0.5,0.15);setTimeout(function(){playTone(180,'sawtooth',0.3,0.12);playTone(90,'square',0.4,0.1)},150);setTimeout(function(){playTone(50,'triangle',0.5,0.15)},300)}
 function sndCoin(){playTone(1200,'sine',0.08,0.08);playTone(1500,'sine',0.06,0.06)}
 function sndSpin(){playTone(800,'triangle',0.05,0.06)}
 function sndWin(){for(var i=0;i<8;i++)(function(j){setTimeout(function(){playTone(400+j*80,'sine',0.2,0.12)},j*80)})(i)}
 function sndAchieve(){playTone(800,'sine',0.15,0.1);setTimeout(function(){playTone(1000,'sine',0.15,0.1)},100);setTimeout(function(){playTone(1200,'sine',0.2,0.12)},200)}
+// NEW v1.0.3 SFX: paddle hit, UI tap, chain stinger
+function sndPaddleHit(){hapticMedium();playTone(550,'sine',0.08,0.18);playTone(800,'triangle',0.1,0.12);playTone(1100,'sine',0.06,0.08)}
+function sndTap(){playTone(900,'sine',0.04,0.08);playTone(1200,'triangle',0.03,0.06)}
+function sndChainStinger(n){var base=400+n*80;playTone(base,'sawtooth',0.1,0.12);playTone(base*2,'sine',0.08,0.08);if(n>=4)playTone(base*3,'square',0.06,0.06)}
 
 function resize(){W=C.width=CC.width=window.innerWidth;H=C.height=CC.height=window.innerHeight;}
 window.addEventListener('resize',resize);resize();
 function hideAll(){document.querySelectorAll('.overlay').forEach(function(o){o.classList.remove('active');o.style.display='none'});document.getElementById('hud').style.display='none';}
 function showScreen(id){hideAll();var el=document.getElementById(id);el.style.display='flex';el.classList.add('active');}
-function showMenu(){isDailyChallenge=false;initFromSave();showScreen('menuS');updateMenuInfo();updateFOMO();checkStreak();}
+function grantExtraShot(){
+  // v1.0.3 unlimited revive: just increment session counter, no per-level lock.
+  if(!window._sessionRevives)window._sessionRevives=0;
+  window._sessionRevives++;
+  incReviveCount();
+  shotsLeft++;totalShots++;shooting=false;gameActive=true;
+  hideAll();document.getElementById('hud').style.display='flex';
+  startMusic();updateHUD();logEvent('rewarded_extra_shot',{level:level});
+}
 function updateMenuInfo(){
   document.getElementById('menuCoins').textContent=COIN+' '+coins;
   var si=document.getElementById('streakInfo');
@@ -627,8 +679,9 @@ var TUTORIAL_STEPS=[
 {icon:TARGET,title:'Welcome!',text:'Shoot the ball to destroy all targets. Aim by dragging!'},
 {icon:BOOM,title:'Chain Reactions',text:'Hit explosive targets to create chain reactions!'},
 {icon:STAR,title:'Stars & Coins',text:'Save shots for more stars. Earn coins for the shop!'},
-{icon:GOLD,title:'Boss Rooms',text:'Every 5th level is a Boss Room. 2 shots only!'},
-{icon:ROCKET,title:'Ready?',text:'Tap to aim, release to shoot!'}
+{icon:SHIELD,title:'NEW: Paddle!',text:'Slide finger at bottom while ball is flying. Catches falling shots! (No paddle in Daily Impossible)'},
+{icon:GOLD,title:'Boss Rooms',text:'Every 12th level is a Boss. Toughest target!'},
+{icon:ROCKET,title:'Ready?',text:'Tap to aim, release to shoot. Slide to catch!'}
 ];
 var tutorialStep=-1;
 function startTutorial(){tutorialStep=0;showTutorialStep();}
@@ -698,7 +751,7 @@ function startRoomLevel(ri,li){
   document.getElementById('hud').style.display='flex';
   document.getElementById('hudRoom').textContent=room.name;
   if(isDailyChallenge)document.getElementById('hudRoom').textContent='DAILY IMPOSSIBLE';
-  gameActive=true;score=0;combo=0;maxCombo=0;rageLevel=0;updateRageUI();updateHUD();startMusic();
+  gameActive=true;score=0;combo=0;maxCombo=0;rageLevel=0;reviveUsedThisLevel=false;paddleX=W/2-PADDLE_W/2;paddleActive=false;updateRageUI();updateHUD();startMusic();
   if(isBossRoom)setTimeout(showBossTaunt,800);
   logEvent('level_start',{level:level,room:currentRoom,roomLevel:currentRoomLevel});
 }
@@ -765,7 +818,7 @@ function generateLevel(room,li,gl){
     });
   }else{
     // Procedural generation
-    if(isBossRoom){shotsLeft=totalShots=3;}else if(currentRoom===5){totalShots=Math.max(2,5-Math.floor(Math.min(li,8)/2));shotsLeft=totalShots;}else{totalShots=Math.max(2,5-Math.floor(li/2));shotsLeft=totalShots;}
+    if(isBossRoom){shotsLeft=totalShots=5;}else if(currentRoom===5){totalShots=5;shotsLeft=totalShots;}else{totalShots=5;shotsLeft=totalShots;}
     var numT=isBossRoom?1:Math.min(3+li+Math.floor(gl/3),15);
     var types=room.targetTypes;
     for(var i=0;i<numT;i++){
@@ -792,22 +845,55 @@ function shoot(dx,dy){
   if(!gameActive||shooting||shotsLeft<=0)return;
   var dist=Math.sqrt(dx*dx+dy*dy);if(dist<10)return;
   shooting=true;if(!rageModeActive)shotsLeft--;else rageModeShots++;save.totalShots=(save.totalShots||0)+1;
-  var speed=10,vx=(dx/dist)*speed,vy=(dy/dist)*speed;
+  var speed=12,vx=(dx/dist)*speed,vy=(dy/dist)*speed;
   balls.push({x:launchX,y:launchY,vx:vx,vy:vy,r:8,active:true,bounces:0,trail:[]});
   sndShoot();updateHUD();
 }
 C.addEventListener('mousedown',function(e){if(!gameActive||shooting)return;aiming=true;aimX=e.clientX;aimY=e.clientY;});
-C.addEventListener('mousemove',function(e){if(aiming){aimX=e.clientX;aimY=e.clientY;}});
+C.addEventListener('mousemove',function(e){if(aiming){aimX=e.clientX;aimY=e.clientY;}else if(shooting&&!isDailyChallenge){paddleX=e.clientX-PADDLE_W/2;if(paddleX<0)paddleX=0;if(paddleX>W-PADDLE_W)paddleX=W-PADDLE_W;paddleActive=true;}});
 C.addEventListener('mouseup',function(e){if(!aiming)return;aiming=false;shoot(aimX-launchX,aimY-launchY);});
 C.addEventListener('touchstart',function(e){if(!gameActive||shooting)return;e.preventDefault();aiming=true;aimX=e.touches[0].clientX;aimY=e.touches[0].clientY;},{passive:false});
-C.addEventListener('touchmove',function(e){if(aiming){e.preventDefault();aimX=e.touches[0].clientX;aimY=e.touches[0].clientY;}},{passive:false});
+C.addEventListener('touchmove',function(e){if(aiming){e.preventDefault();aimX=e.touches[0].clientX;aimY=e.touches[0].clientY;}else if(shooting&&!isDailyChallenge){e.preventDefault();paddleX=e.touches[0].clientX-PADDLE_W/2;if(paddleX<0)paddleX=0;if(paddleX>W-PADDLE_W)paddleX=W-PADDLE_W;paddleActive=true;}},{passive:false});
 C.addEventListener('touchend',function(e){if(!aiming)return;aiming=false;e.preventDefault();shoot(aimX-launchX,aimY-launchY);},{passive:false});
 
 function spawnParticles(x,y,color,count,speed,size){for(var i=0;i<count;i++){var a=Math.random()*Math.PI*2,s=Math.random()*(speed||5)+1;particles.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:Math.random()*(size||4)+1,color:color,life:1,decay:0.015+Math.random()*0.02,gravity:0.05+Math.random()*0.05});}}
 function spawnShockwave(x,y,color){shockwaves.push({x:x,y:y,r:5,maxR:80,color:color,life:1});}
 function spawnConfetti(x,y,count){var colors=['#ff6b35','#f7c948','#4CAF50','#2196F3','#e91e63','#9c27b0','#00bcd4'];for(var i=0;i<count;i++)confetti.push({x:x+Math.random()*100-50,y:y,vx:Math.random()*8-4,vy:Math.random()*-12-2,r:Math.random()*6+2,color:colors[Math.floor(Math.random()*colors.length)],rotation:Math.random()*360,rotSpeed:Math.random()*10-5,life:1,decay:0.008+Math.random()*0.005,gravity:0.15});}
 function spawnTrailParticle(x,y){if(equippedTrail==='none')return;var trail=TRAILS.find(function(t){return t.id===equippedTrail});if(!trail)return;var color=trail.color==='rainbow'?'hsl('+(Date.now()*0.5%360)+',100%,60%)':trail.color;trailParticles.push({x:x+Math.random()*4-2,y:y+Math.random()*4-2,r:Math.random()*4+2,color:color,life:1,decay:0.03});}
-function showComboText(n){var texts=['','DOUBLE!','TRIPLE!','QUAD!','PENTA!','INSANE!','GODLIKE!','UNSTOPPABLE!'];var colors=['','#4CAF50','#2196F3','#9c27b0','#ff6b35','#f7c948','#e91e63','#ff1744'];var idx=Math.min(n,texts.length-1);if(idx<2)return;var el=document.createElement('div');el.className='combo-text';el.textContent=texts[idx];el.style.color=colors[idx];el.style.left=(W/2-80)+'px';el.style.top=(H/2-50+Math.random()*40)+'px';el.style.fontSize=(2+idx*0.3)+'em';document.body.appendChild(el);setTimeout(function(){el.remove()},1000);sndCombo(idx);hapticCombo(idx);}
+function showComboText(n){
+  // COMBO TIERS (v1.0.3): branded with 'BOOM CHAIN!' as the top moment - viral / shareable.
+  var texts=['','DOUBLE!','TRIPLE!','MEGA CHAIN!','ULTRA CHAIN!','BOOM CHAIN!','BOOM CHAIN!','BOOM CHAIN!!'];
+  var colors=['','#4CAF50','#2196F3','#9c27b0','#ff6b35','#f7c948','#ffd700','#ff1744'];
+  var idx=Math.min(n,texts.length-1);
+  if(idx<2)return;
+  var el=document.createElement('div');
+  el.className='combo-text';
+  el.textContent=texts[idx];
+  el.style.color=colors[idx];
+  el.style.left=(W/2-100)+'px';
+  el.style.top=(H/2-50+Math.random()*40)+'px';
+  el.style.fontSize=(2+idx*0.35)+'em';
+  el.style.textShadow='0 0 25px '+colors[idx];
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove()},1100);
+  sndCombo(idx);hapticCombo(idx);
+  // BOOM CHAIN brand moment: combo >= 5 triggers gold flash + extra shake + special haptic
+  if(n>=5){
+    triggerShake(12);
+    nativeHaptic('success');
+    var goldFlash=document.createElement('div');
+    goldFlash.style.cssText='position:fixed;inset:0;background:radial-gradient(circle,rgba(247,201,72,0.4),transparent);z-index:200;pointer-events:none;animation:boomChainFlash 0.6s ease-out forwards';
+    if(!document.getElementById('boomChainFlashStyle')){
+      var bcStyle=document.createElement('style');
+      bcStyle.setAttribute('id','boomChainFlashStyle');
+      bcStyle.textContent='@keyframes boomChainFlash{0%{opacity:1;transform:scale(0.8)}50%{opacity:0.8;transform:scale(1.1)}100%{opacity:0;transform:scale(1.3)}}';
+      document.head.appendChild(bcStyle);
+    }
+    document.body.appendChild(goldFlash);
+    setTimeout(function(){goldFlash.remove()},600);
+    setTimeout(function(){playTone(800,'sawtooth',0.15,0.18);playTone(1200,'sine',0.12,0.12);playTone(400,'square',0.2,0.1)},50);
+  }
+}
 function showScoreFly(x,y,amount){var el=document.createElement('div');el.className='score-fly';el.textContent='+'+amount;el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);setTimeout(function(){el.remove()},800);}
 function showCoinFly(x,y,amount){var el=document.createElement('div');el.className='score-fly';el.textContent=COIN+' +'+amount;el.style.left=x+'px';el.style.top=y+'px';el.style.color='#f7c948';document.body.appendChild(el);setTimeout(function(){el.remove()},800);sndCoin();}
 function triggerShake(intensity){screenShake=Math.max(screenShake,intensity);}
@@ -833,6 +919,24 @@ function update(){
     if(b.x<b.r){b.x=b.r;b.vx=Math.abs(b.vx);b.bounces++;sndBounce();triggerShake(2);}
     if(b.x>W-b.r){b.x=W-b.r;b.vx=-Math.abs(b.vx);b.bounces++;sndBounce();triggerShake(2);}
     if(b.y<b.r){b.y=b.r;b.vy=Math.abs(b.vy);b.bounces++;sndBounce();triggerShake(2);}
+    // PADDLE COLLISION: if ball is going down and hits paddle, bounce up.
+    // Hit-position controls the angle (classic Breakout): center=straight, edges=angled.
+    if(!isDailyChallenge && b.vy>0){
+      var paddleY=H-PADDLE_Y_OFFSET;
+      if(b.y+b.r>=paddleY && b.y+b.r<=paddleY+PADDLE_H+8 && b.x>=paddleX-b.r && b.x<=paddleX+PADDLE_W+b.r){
+        b.y=paddleY-b.r-1;
+        var hitPos=(b.x-(paddleX+PADDLE_W/2))/(PADDLE_W/2);
+        if(hitPos<-1)hitPos=-1;if(hitPos>1)hitPos=1;
+        var angle=hitPos*1.0;
+        var spd=Math.sqrt(b.vx*b.vx+b.vy*b.vy);
+        if(spd<10)spd=10;
+        b.vx=Math.sin(angle)*spd;
+        b.vy=-Math.cos(angle)*spd;
+        b.bounces++;
+        sndPaddleHit();
+        spawnParticles(b.x,paddleY,'#ffaa66',6,3,3);
+      }
+    }
     if(b.y>H+50){b.active=false;return;}
     walls.forEach(function(w){if(b.x+b.r>w.x&&b.x-b.r<w.x+w.w&&b.y+b.r>w.y&&b.y-b.r<w.y+w.h){
       var oL=(b.x+b.r)-w.x,oR=(w.x+w.w)-(b.x-b.r),oT=(b.y+b.r)-w.y,oB=(w.y+w.h)-(b.y-b.r);
@@ -847,6 +951,10 @@ function update(){
           var coinAmt=Math.floor(pts/20)+(combo>2?combo:0);coins+=coinAmt;showCoinFly(t.x+20,t.y,coinAmt);
           var ec=t.type==='explosive'?'#ff5722':(t.type==='crystal'?'#81d4fa':ROOMS[currentRoom].accent);
           spawnParticles(t.x,t.y,ec,20+combo*5,6,5);spawnShockwave(t.x,t.y,ec);
+          // EXPLOSION 3-LAYER (v1.0.3): white flash core + extra shake on combo for satisfaction.
+          spawnParticles(t.x,t.y,'#ffffff',8,8,3);
+          spawnShockwave(t.x,t.y,'#ffffff');
+          if(combo>=2)triggerShake(3+Math.min(combo,8));
           if(t.type==='explosive'){sndExplode();triggerShake(10);
             targets.forEach(function(t2){if(t2.alive&&t2!==t){var d2=Math.sqrt(Math.pow(t2.x-t.x,2)+Math.pow(t2.y-t.y,2));
             if(d2<100){t2.hp-=2;if(t2.hp<=0){t2.alive=false;targetsLeft--;combo++;if(combo>maxCombo)maxCombo=combo;
@@ -884,9 +992,16 @@ function updateHUD(){
 function levelComplete(){
   gameActive=false;stopMusic();logEvent('level_complete',{level:level,score:score,stars:0,perfect:false});var starsEarned=shotsLeft>=2?3:(shotsLeft>=1?2:1);
   var isPerfect=(totalShots-shotsLeft<=1)&&targetsLeft<=0&&targets.length>1;
-  if(isPerfect){save.totalPerfects=(save.totalPerfects||0)+1;sndPerfect();logEvent('perfect_shot',{level:level});triggerSlowMo(1000);spawnConfetti(W/2,H/2,80);}
+  if(isPerfect){save.totalPerfects=(save.totalPerfects||0)+1;sndPerfect();logEvent('perfect_shot',{level:level});triggerSlowMo(1000);spawnConfetti(W/2,H/2,80);
+    // PERFECT CHAIN flash: white screen burst + extra haptic + bonus stinger
+    var flash=document.createElement('div');flash.style.cssText='position:fixed;inset:0;background:#fff;z-index:300;pointer-events:none;animation:perfectFlash 0.4s ease-out forwards';
+    if(!document.getElementById('perfectFlashStyle')){var st=document.createElement('style');st.id='perfectFlashStyle';st.textContent='@keyframes perfectFlash{0%{opacity:0.85}100%{opacity:0}}';document.head.appendChild(st);}
+    document.body.appendChild(flash);setTimeout(function(){flash.remove()},400);
+    nativeHaptic('success');setTimeout(function(){playTone(1500,'sine',0.2,0.15);playTone(1800,'triangle',0.15,0.1)},200);}
   else{sndWin();spawnConfetti(W/2,H/3,40);}
-  var coinBonus=starsEarned*5+(isPerfect?25:0)+(maxCombo>2?maxCombo*3:0);coins+=coinBonus;
+  var coinBonus=starsEarned*5+(isPerfect?35:0)+(maxCombo>2?maxCombo*3:0);coins+=coinBonus;
+  // PERFECT CHAIN COUNTER (v1.0.3): track total perfect-chains for skin unlocks later
+  if(isPerfect){save.totalPerfectChains=(save.totalPerfectChains||0)+1;}
   if(save.roomProgress[currentRoom]&&currentRoomLevel<save.roomProgress[currentRoom].levels.length){var old=save.roomProgress[currentRoom].levels[currentRoomLevel];
   if(starsEarned>old)save.roomProgress[currentRoom].levels[currentRoomLevel]=starsEarned;}
   if(currentRoom===5){if(!save.endlessHighLevel||level>save.endlessHighLevel)save.endlessHighLevel=level;}
@@ -933,11 +1048,31 @@ function gameOver(){
     document.getElementById('goSubtitle').textContent=leftCount+'/'+total+' targets left';document.getElementById('goTargetLeft').textContent='You can do this!';}
   triggerShake(6);addRage(35);
   var rageBtn=document.getElementById('rageBtn');if(rageBtn)rageBtn.style.display=rageLevel>=100?'block':'none';
+  var reviveBtns=document.querySelectorAll('#gameOverS button');
+  for(var i=0;i<reviveBtns.length;i++){
+    if(reviveBtns[i].onclick&&reviveBtns[i].onclick.toString().indexOf('watchAdExtraShot')!==-1){
+      var allowed=canRevive();
+      reviveBtns[i].style.display=allowed?'block':'none';
+      if(allowed){
+        var s=getReviveStats();
+        var dailyText=' ('+s.count+'/5 today)';
+        if(reviveBtns[i].textContent.indexOf('today')===-1)reviveBtns[i].innerHTML='\u{1F3AC} WATCH AD = +1 SHOT'+dailyText;
+      }
+    }
+  }
   showScreen('gameOverS');
 }
 function retryLevel(){startRoomLevel(currentRoom,currentRoomLevel);}
 function watchAdExtraShot(){showRewardedAd('grantExtraShot');}
-function grantExtraShot(){shotsLeft++;totalShots++;shooting=false;gameActive=true;hideAll();document.getElementById('hud').style.display='flex';startMusic();updateHUD();logEvent('rewarded_extra_shot',{level:level});}
+function grantExtraShot(){
+  // v1.0.3 unlimited revive: just increment session counter, no per-level lock.
+  if(!window._sessionRevives)window._sessionRevives=0;
+  window._sessionRevives++;
+  incReviveCount();
+  shotsLeft++;totalShots++;shooting=false;gameActive=true;
+  hideAll();document.getElementById('hud').style.display='flex';
+  startMusic();updateHUD();logEvent('rewarded_extra_shot',{level:level});
+}
 
 function activateRageModeFromGameOver(){
   if(rageLevel<100)return;
@@ -1045,7 +1180,8 @@ function draw(){
     ctx.restore();ctx.globalAlpha=1;});
   trailParticles.forEach(function(tp){ctx.beginPath();ctx.arc(tp.x,tp.y,tp.r*tp.life,0,Math.PI*2);ctx.fillStyle=tp.color;ctx.globalAlpha=tp.life*0.5;ctx.fill();ctx.globalAlpha=1;});
   balls.forEach(function(b){if(!b.active)return;
-    b.trail.forEach(function(tp){if(tp.life<=0)return;ctx.beginPath();ctx.arc(tp.x,tp.y,b.r*tp.life*0.6,0,Math.PI*2);ctx.fillStyle=getBallColor();ctx.globalAlpha=tp.life*0.3;ctx.fill();ctx.globalAlpha=1;});
+    // Built-in trail (v1.0.3 enhanced): brighter, slightly larger, soft glow - ensures the ball never looks bare even with no equipped trail.
+    b.trail.forEach(function(tp){if(tp.life<=0)return;ctx.save();ctx.shadowColor=getBallColor();ctx.shadowBlur=8*tp.life;ctx.beginPath();ctx.arc(tp.x,tp.y,b.r*tp.life*0.85,0,Math.PI*2);ctx.fillStyle=getBallColor();ctx.globalAlpha=tp.life*0.55;ctx.fill();ctx.restore();ctx.globalAlpha=1;});
     ctx.beginPath();ctx.arc(b.x,b.y,b.r+8,0,Math.PI*2);ctx.fillStyle=getBallColor();ctx.globalAlpha=0.2;ctx.fill();ctx.globalAlpha=1;
     ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);var bg=ctx.createRadialGradient(b.x-2,b.y-2,0,b.x,b.y,b.r);bg.addColorStop(0,'#fff');bg.addColorStop(0.4,getBallColor());bg.addColorStop(1,getBallColor());ctx.fillStyle=bg;ctx.fill();});
   particles.forEach(function(p){ctx.save();if(p.isShard){ctx.translate(p.x,p.y);ctx.rotate(p.rotation*Math.PI/180);ctx.fillStyle=p.color;ctx.globalAlpha=p.life;ctx.fillRect(-p.r,-p.r/3,p.r*2,p.r*0.6);}else{ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);ctx.fillStyle=p.color;ctx.globalAlpha=p.life;ctx.fill();}ctx.restore();ctx.globalAlpha=1;});
@@ -1055,6 +1191,19 @@ function draw(){
     ctx.beginPath();ctx.arc(launchX,launchY,6,0,Math.PI*2);ctx.fillStyle=getBallColor();ctx.fill();}
   ctx.restore();
   cctx.clearRect(0,0,W,H);confetti.forEach(function(c){cctx.save();cctx.translate(c.x,c.y);cctx.rotate(c.rotation*Math.PI/180);cctx.fillStyle=c.color;cctx.globalAlpha=c.life;cctx.fillRect(-c.r,-c.r/2,c.r*2,c.r);cctx.restore();});
+  // PADDLE: render only when game is active and not Daily Impossible.
+  if(gameActive && !isDailyChallenge){
+    var paddleY=H-PADDLE_Y_OFFSET;
+    var pColor=shooting?'#ff6b35':'#aa5530';
+    ctx.save();
+    ctx.shadowColor='#ff6b35';ctx.shadowBlur=shooting?14:8;
+    ctx.fillStyle=pColor;
+    ctx.fillRect(paddleX,paddleY,PADDLE_W,PADDLE_H);
+    ctx.shadowBlur=0;
+    ctx.fillStyle=shooting?'#ffaa66':'#cc7755';
+    ctx.fillRect(paddleX+2,paddleY+2,PADDLE_W-4,2);
+    ctx.restore();
+  }
   if(slowMo<1){ctx.fillStyle='rgba(255,107,53,0.15)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff6b35';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.globalAlpha=0.6;ctx.fillText(TIMER+' SLOW MOTION',W/2,H-25);ctx.globalAlpha=1;}
 }
 
@@ -1105,7 +1254,7 @@ function startDailyChallenge(){
   screenShake=0;slowMo=1;slowMoTimer=0;
   var margin=50,topMargin=80,playW=W-margin*2,playH=H-topMargin-margin;
   launchX=W/2;launchY=H-60;
-  shotsLeft=totalShots=2;
+  shotsLeft=totalShots=5;
   var seed=dailySeed;var types=room.targetTypes;
   var numT=12;
   for(var i=0;i<numT;i++){
@@ -1126,11 +1275,30 @@ function startDailyChallenge(){
   isImpossibleLevel=true;
   hideAll();document.getElementById('hud').style.display='flex';
   document.getElementById('hudRoom').textContent='DAILY IMPOSSIBLE';
-  gameActive=true;score=0;combo=0;maxCombo=0;rageLevel=0;updateRageUI();updateHUD();startMusic();
+  gameActive=true;score=0;combo=0;maxCombo=0;rageLevel=0;reviveUsedThisLevel=false;paddleX=W/2-PADDLE_W/2;paddleActive=false;updateRageUI();updateHUD();startMusic();
   setTimeout(showImpossibleWarning,300);
   logEvent('daily_challenge_start',{seed:dailySeed});
 }
 
+function showMenu(){isDailyChallenge=false;initFromSave();showScreen('menuS');updateMenuInfo();updateFOMO();checkStreak();maybeShowPaddleHint();}
+function maybeShowPaddleHint(){
+  if(!save._showPaddleHint)return;
+  save._showPaddleHint=false;save.paddleHintShown=true;saveSave();
+  var pop=document.createElement('div');
+  pop.style.position='fixed';pop.style.top='50%';pop.style.left='50%';pop.style.transform='translate(-50%,-50%)';
+  pop.style.background='linear-gradient(135deg,#1a1a2e,#0a0a1a)';pop.style.border='2px solid #ff6b35';
+  pop.style.borderRadius='16px';pop.style.padding='24px';pop.style.maxWidth='300px';
+  pop.style.textAlign='center';pop.style.color='#fff';pop.style.zIndex='500';
+  pop.style.boxShadow='0 0 40px rgba(255,107,53,0.4)';
+  var ic=document.createElement('div');ic.style.fontSize='2.5em';ic.style.marginBottom='8px';ic.textContent='\u{1F6E1}';
+  var ti=document.createElement('div');ti.style.fontSize='1.2em';ti.style.fontWeight='800';ti.style.color='#ff6b35';ti.style.marginBottom='8px';ti.textContent='NEW: PADDLE!';
+  var ds=document.createElement('div');ds.style.fontSize='0.9em';ds.style.lineHeight='1.5';ds.style.marginBottom='16px';ds.textContent='Slide your finger at the bottom while the ball is flying. Catch falling shots and bounce them back up!';
+  var sb=document.createElement('div');sb.style.fontSize='0.75em';sb.style.color='#aaa';sb.style.marginBottom='16px';sb.textContent='v1.0.3 Update - Now with 5 lives + Paddle';
+  var bt=document.createElement('button');bt.className='btn btn-primary';bt.style.padding='10px 30px';bt.style.fontSize='1em';bt.textContent='GOT IT \u2192';
+  bt.onclick=function(){pop.remove();};
+  pop.appendChild(ic);pop.appendChild(ti);pop.appendChild(ds);pop.appendChild(sb);pop.appendChild(bt);
+  document.body.appendChild(pop);
+}
 function gameLoop(){if(gameActive)update();draw();requestAnimationFrame(gameLoop);}
 initFromSave();
 try{var _rs=JSON.parse(localStorage.getItem(SAVE_KEY));if(_rs&&_rs.tutorialDone)save.tutorialDone=true;}catch(e){}if(!save.tutorialDone)startTutorial();else showMenu();
