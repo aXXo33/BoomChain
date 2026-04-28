@@ -895,7 +895,7 @@ function showComboText(n){
   }
 }
 function showScoreFly(x,y,amount){var el=document.createElement('div');el.className='score-fly';el.textContent='+'+amount;el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);setTimeout(function(){el.remove()},800);}
-function showCoinFly(x,y,amount){var el=document.createElement('div');el.className='score-fly';el.textContent=COIN+' +'+amount;el.style.left=x+'px';el.style.top=y+'px';el.style.color='#f7c948';document.body.appendChild(el);setTimeout(function(){el.remove()},800);sndCoin();}
+function showCoinFly(x,y,amount){if(amount===undefined||amount===null){console.warn('[showCoinFly] called with undefined amount');return;}var el=document.createElement('div');el.className='score-fly';el.textContent=COIN+' +'+amount;el.style.left=x+'px';el.style.top=y+'px';el.style.color='#f7c948';document.body.appendChild(el);setTimeout(function(){el.remove()},800);sndCoin();}
 function triggerShake(intensity){screenShake=Math.max(screenShake,intensity);}
 function triggerSlowMo(duration){slowMo=0.3;slowMoTimer=duration;}
 
@@ -1456,7 +1456,7 @@ var _lastLevelCoins=0;
 var _origLC=levelComplete;
 levelComplete=function(){_lastLevelCoins=100+(level*10);_origLC.apply(this,arguments);var btn=document.getElementById('doubleCoinsBtn');if(btn)btn.style.display='block';};
 function watchAdDoubleCoins(){showRewardedAd('grantDoubleCoins');}
-function grantDoubleCoins(){var earned=_lastLevelCoins||100;coins+=earned;showCoinFly(earned);var btn=document.getElementById('doubleCoinsBtn');if(btn)btn.style.display='none';saveSave();logEvent('double_coins_ad',{earned:earned*2});}
+function grantDoubleCoins(){var earned=_lastLevelCoins||100;coins+=earned;showCoinFly(W/2,H/2,earned);var btn=document.getElementById('doubleCoinsBtn');if(btn)btn.style.display='none';saveSave();logEvent('double_coins_ad',{earned:earned*2});}
 
 // ===== PUSH NOTIFICATIONS =====
 function requestNotificationPermission(){
@@ -1502,7 +1502,7 @@ if(ok&&!got)html+='<button class="btn btn-gold btn-small" onclick="claimSPReward
 else if(got)html+='<span style="color:#2ecc71">\u{2705}<\/span>';else html+='<span style="color:#666">\u{1F512}<\/span>';
 html+='<\/div>';});
 document.getElementById('spRewards').innerHTML=html;logEvent('season_pass_opened');}
-function claimSPReward(idx){var d=getSPData();var t=SEASON_PASS_DATA.tiers[idx];if(d.xp<t.xp||d.claimed.indexOf(idx)!==-1)return;d.claimed.push(idx);var r=d.prem?t.premium:t.free;var m=r.match(/(\d+)\s*Coins/i);if(m){coins+=parseInt(m[1]);showCoinFly(parseInt(m[1]));}saveSPData(d);saveSave();openSeasonPass();logEvent('sp_reward_claimed',{tier:idx});}
+function claimSPReward(idx){var d=getSPData();var t=SEASON_PASS_DATA.tiers[idx];if(d.xp<t.xp||d.claimed.indexOf(idx)!==-1)return;d.claimed.push(idx);var r=d.prem?t.premium:t.free;var m=r.match(/(\d+)\s*Coins/i);if(m){coins+=parseInt(m[1]);showCoinFly(W/2,H/2,parseInt(m[1]));}saveSPData(d);saveSave();openSeasonPass();logEvent('sp_reward_claimed',{tier:idx});}
 function buySeasonPass(){var d=getSPData();if(d.prem)return;if(typeof webkit!=='undefined'&&webkit.messageHandlers&&webkit.messageHandlers.iap){webkit.messageHandlers.iap.postMessage({action:'purchase',productId:'season_pass_s1'});}else{d.prem=true;saveSPData(d);openSeasonPass();logEvent('season_pass_bought');}}
 
 // ===== ENHANCED LEVEL GEN (10+ levels, new mechanics) =====
