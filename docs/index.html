@@ -963,7 +963,7 @@ function update(){
     if(b.y>H+50){b.active=false;return;}
     walls.forEach(function(w){if(b.x+b.r>w.x&&b.x-b.r<w.x+w.w&&b.y+b.r>w.y&&b.y-b.r<w.y+w.h){
       var oL=(b.x+b.r)-w.x,oR=(w.x+w.w)-(b.x-b.r),oT=(b.y+b.r)-w.y,oB=(w.y+w.h)-(b.y-b.r);
-      var m=Math.min(oL,oR,oT,oB);if(m===oL||m===oR)b.vx*=-1;else b.vy*=-1;
+      var m=Math.min(oL,oR,oT,oB);b.stuckCnt=(b.stuckCnt||0)+1;if(b.stuckCnt>300){if(m===oL){b.x=w.x-b.r-1;}else if(m===oR){b.x=w.x+w.w+b.r+1;}else if(m===oT){b.y=w.y-b.r-1;}else{b.y=w.y+w.h+b.r+1;}b.stuckCnt=0;}if(m===oL||m===oR)b.vx*=-1;else b.vy*=-1;
       b.bounces++;sndBounce();triggerShake(2);spawnParticles(b.x,b.y,'#888',3,2,2);}});
     targets.forEach(function(t){if(!t.alive)return;if(t.type==='ghost'&&!t.ghostVisible)return;
       var dx=b.x-t.x,dy=b.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
