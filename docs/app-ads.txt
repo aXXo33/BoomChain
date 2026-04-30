@@ -1,1 +1,2 @@
-google.com, pub-2623212649320264, DIRECT, f08c47fec0942fa0
+﻿google.com, pub-2623212649320264, DIRECT, f08c47fec0942fa0
+unityads.unity3d.com, 5774040291247, DIRECT
