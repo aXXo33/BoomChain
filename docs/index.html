@@ -1904,5 +1904,94 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   }
 })();
 </script>
+<script>
+/* ===== AUDIO ENHANCEMENT v1.0.4.7 (non-invasive) =====
+   Wraps sndBounce/sndHit with combo-aware pitch escalation.
+   Mevcut tum ses sistemine dokunmuyor, ustune ekliyor.
+   - Her bounce'da yarim nota yukari (chromatic)
+   - 3+/5+/8+ combo'da chain stinger devrede
+   - 2sn combo decay
+   - Mevcut sfxEnabled toggle'a saygili
+*/
+(function(){
+  var bounceCount=0;
+  var lastBounceTime=0;
+  var lastHitLayerTime=0;
+  var COMBO_DECAY_MS=2000;
+  var SEMITONE=Math.pow(2,1/12);
+  var BASE_BOUNCE_FREQ=600;
+
+  function getCombo(){
+    return (typeof combo!=='undefined' && combo>0) ? combo : 0;
+  }
+
+  function pitchedBounce(){
+    if(typeof sfxEnabled==='undefined' || !sfxEnabled) return;
+    var now=Date.now();
+
+    if(now-lastBounceTime > COMBO_DECAY_MS) bounceCount=0;
+    lastBounceTime=now;
+    bounceCount=Math.min(bounceCount+1, 24);
+
+    var freq = BASE_BOUNCE_FREQ * Math.pow(SEMITONE, bounceCount);
+
+    if(typeof playTone==='function'){
+      try{
+        playTone(freq,'sine',0.055,0.075);
+        if(bounceCount>=3){
+          playTone(freq*2,'triangle',0.035,0.035);
+        }
+      }catch(e){}
+    }
+  }
+
+  function comboBrickHit(){
+    if(typeof sfxEnabled==='undefined' || !sfxEnabled) return;
+
+    var now=Date.now();
+    if(now-lastHitLayerTime < 90) return;
+    lastHitLayerTime=now;
+
+    var c=getCombo();
+    if(typeof playTone!=='function') return;
+
+    try{
+      if(c>=8){
+        playTone(660,'sawtooth',0.10,0.10);
+        playTone(990,'sine',0.08,0.065);
+        playTone(1320,'square',0.06,0.045);
+        if(typeof sndChainStinger==='function') sndChainStinger(Math.min(c,8));
+      } else if(c>=5){
+        playTone(550,'sine',0.09,0.085);
+        playTone(825,'triangle',0.07,0.06);
+        playTone(1100,'sine',0.05,0.04);
+      } else if(c>=3){
+        playTone(700,'triangle',0.07,0.075);
+        playTone(1050,'sine',0.05,0.05);
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.sndBounce==='function'){
+    var _origBounce=window.sndBounce;
+    window.sndBounce=function(){
+      try{ pitchedBounce(); }catch(e){}
+      if(typeof hapticLight==='function'){ try{hapticLight();}catch(e){} }
+    };
+  }
+
+  if(typeof window.sndHit==='function'){
+    var _origHit=window.sndHit;
+    window.sndHit=function(){
+      try{ _origHit.apply(this,arguments); }catch(e){}
+      try{ comboBrickHit(); }catch(e){}
+    };
+  }
+
+  try{
+    if(typeof console!=='undefined') console.log('[AUDIO v1.0.4.7] Pitch escalation + combo stingers active');
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
