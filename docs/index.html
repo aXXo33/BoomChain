@@ -2119,5 +2119,234 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   }catch(e){}
 })();
 </script>
+<script>
+/* ===== AUDIO RESUME GUARD v1.0.4.9 (gesture-locked + inline) =====
+   Onceki v1.0.4.8 yetersizdi - iOS callback'leri user gesture saymadi.
+   Bu surum: shoot() ve playTone() icine INLINE resume + silent buffer hack.
+*/
+(function(){
+  var lastResumeAttempt=0;
+  var RESUME_THROTTLE_MS=150;
+  var lastCtxState='unknown';
+  var silentNode=null;
+
+  function getCtx(){
+    if(typeof audioCtx!=='undefined' && audioCtx) return audioCtx;
+    if(typeof getAudio==='function'){
+      try{ return getAudio(); }catch(e){}
+    }
+    return null;
+  }
+
+  // ---- Silent buffer hack: iOS'a 'audio actively playing' sinyali ver ----
+  function startSilentKeepalive(){
+    var ctx=getCtx();
+    if(!ctx) return;
+    if(silentNode) return; // zaten var
+    try{
+      var buf=ctx.createBuffer(1,1,ctx.sampleRate);
+      silentNode=ctx.createBufferSource();
+      silentNode.buffer=buf;
+      silentNode.loop=true;
+      var g=ctx.createGain();
+      g.gain.value=0.0001; // pratik olarak sessiz
+      silentNode.connect(g);
+      g.connect(ctx.destination);
+      silentNode.start(0);
+    }catch(e){}
+  }
+
+  function attemptResume(reason,opts){
+    opts=opts||{};
+    var now=Date.now();
+    if(!opts.force && now-lastResumeAttempt < RESUME_THROTTLE_MS) return;
+    lastResumeAttempt=now;
+
+    var ctx=getCtx();
+    if(!ctx) return;
+    try{ lastCtxState=ctx.state; }catch(e){}
+
+    if(ctx.state==='suspended'){
+      try{
+        var p=ctx.resume();
+        if(p && p.then){
+          p.then(function(){
+            try{ lastCtxState=ctx.state; }catch(e){}
+            try{
+              if(typeof console!=='undefined') console.log('[AUDIO-RESUME v1.0.4.9] '+reason+' -> '+ctx.state);
+              if(typeof logAd==='function') logAd('audio_resume_ok',{reason:reason,state:ctx.state});
+            }catch(e){}
+            // Silent keepalive baslat (idempotent)
+            startSilentKeepalive();
+            // Muzik restart fallback - promise gecikse de calissin
+            scheduleMusicRestart();
+          }).catch(function(err){
+            try{
+              if(typeof console!=='undefined') console.log('[AUDIO-RESUME v1.0.4.9] resume failed: '+err);
+              if(typeof logAd==='function') logAd('audio_resume_fail',{reason:reason,err:String(err)});
+            }catch(e){}
+          });
+        }
+      }catch(e){}
+    } else if(ctx.state==='running'){
+      // Suspended degil ama yine de keepalive ve music check yap
+      startSilentKeepalive();
+      if(opts.checkMusic) scheduleMusicRestart();
+    }
+  }
+
+  function scheduleMusicRestart(){
+    // Iki kademede dene - sync + 200ms async
+    doMusicRestart();
+    setTimeout(doMusicRestart,200);
+  }
+
+  function doMusicRestart(){
+    try{
+      if(typeof musicEnabled==='undefined' || !musicEnabled) return;
+      if(typeof gameActive==='undefined' || !gameActive) return;
+      if(typeof startMusic!=='function') return;
+      // musicPlaying flag'i kilitleyebilir, zorla sifirla
+      if(typeof musicPlaying!=='undefined') musicPlaying=false;
+      if(typeof musicNodes!=='undefined' && musicNodes.length){
+        musicNodes.forEach(function(n){try{n.stop();}catch(e){}});
+        musicNodes.length=0;
+      }
+      startMusic();
+      try{ if(typeof logAd==='function') logAd('music_restart',{}); }catch(e){}
+    }catch(e){}
+  }
+
+  // ====== HOOK 1: shoot() - en kritik, gercek user gesture ======
+  if(typeof window.shoot==='function'){
+    var _origShoot=window.shoot;
+    window.shoot=function(){
+      // Resume FIRST - bu cagri user gesture stack'inde, iOS kabul eder
+      try{ attemptResume('shoot-gesture',{force:true,checkMusic:true}); }catch(e){}
+      return _origShoot.apply(this,arguments);
+    };
+  }
+
+  // ====== HOOK 2: playTone() - her ses cagrisinda inline check ======
+  if(typeof window.playTone==='function'){
+    var _origPlayTone=window.playTone;
+    window.playTone=function(){
+      // Suspended ise once resume dene (gecmisteki bounce/hit'leri kurtarir)
+      try{
+        var ctx=getCtx();
+        if(ctx && ctx.state==='suspended'){
+          attemptResume('playTone-inline');
+        }
+      }catch(e){}
+      return _origPlayTone.apply(this,arguments);
+    };
+  }
+
+  // ====== HOOK 3: Reklam callback'leri (4 zaman: 100/500/1000/1500) ======
+  function wrapAdCallback(name){
+    if(typeof window[name]!=='function') return;
+    if(window['__resumewrapped49_'+name]) return;
+    window['__resumewrapped49_'+name]=true;
+    var orig=window[name];
+    window[name]=function(){
+      var result;
+      try{ result=orig.apply(this,arguments); }catch(e){}
+      attemptResume('ad-cb-immediate:'+name);
+      setTimeout(function(){attemptResume('ad-cb-100:'+name);},100);
+      setTimeout(function(){attemptResume('ad-cb-500:'+name,{checkMusic:true});},500);
+      setTimeout(function(){attemptResume('ad-cb-1000:'+name,{checkMusic:true});},1000);
+      setTimeout(function(){attemptResume('ad-cb-1500:'+name,{checkMusic:true});},1500);
+      return result;
+    };
+  }
+  var adCallbacks=['nextLevelReal','grantExtraShot','grantDoubleCoins'];
+  function wrapAllAdCallbacks(){ adCallbacks.forEach(wrapAdCallback); }
+  wrapAllAdCallbacks();
+  setTimeout(wrapAllAdCallbacks,500);
+  setTimeout(wrapAllAdCallbacks,2000);
+
+  // ====== HOOK 4: Multi-trigger listeners (touchstart/end + pointerdown/up + click) ======
+  var triggers=['touchstart','touchend','pointerdown','pointerup','mouseup','click','focus','pageshow'];
+  triggers.forEach(function(ev){
+    try{
+      window.addEventListener(ev,function(){attemptResume('event:'+ev);},{passive:true,capture:true});
+    }catch(e){
+      try{ window.addEventListener(ev,function(){attemptResume('event:'+ev);},true); }catch(_){}
+    }
+  });
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') attemptResume('visibilitychange',{checkMusic:true});
+  });
+
+  // ====== Watchdog (1sn'de bir state check) ======
+  setInterval(function(){
+    var ctx=getCtx();
+    if(!ctx) return;
+    try{
+      var s=ctx.state;
+      if(s !== lastCtxState){
+        lastCtxState=s;
+        try{
+          if(typeof console!=='undefined') console.log('[AUDIO-WATCHDOG v1.0.4.9] state -> '+s);
+          if(typeof logAd==='function') logAd('audio_watchdog',{state:s});
+        }catch(e){}
+      }
+      if(s==='suspended') attemptResume('watchdog');
+    }catch(e){}
+  },1000);
+
+  // ====== AD DEBUG panele AudioCtx state monitor ekle ======
+  // Mevcut openAdDebugPanel'i sarmala
+  if(typeof window.openAdDebugPanel==='function'){
+    var _origPanel=window.openAdDebugPanel;
+    window.openAdDebugPanel=function(){
+      _origPanel.apply(this,arguments);
+      setTimeout(function(){
+        var ov=document.getElementById('adDebugOverlay');
+        if(!ov) return;
+        if(document.getElementById('audioStateBox')) return; // zaten var
+        var box=document.createElement('div');
+        box.id='audioStateBox';
+        box.style.cssText='background:#001100;border:1px solid #0ff;padding:6px;margin-bottom:6px;color:#0ff;font-size:11px;flex-shrink:0;';
+        ov.insertBefore(box, ov.children[2] || null);
+        function updateBox(){
+          var ctx=getCtx();
+          var s=ctx?ctx.state:'no-ctx';
+          var color=s==='running'?'#0f0':(s==='suspended'?'#f55':'#ff0');
+          box.innerHTML='<span style="color:'+color+';font-weight:800;">AUDIO CTX: '+s+'</span>'+
+            ' | musicPlaying: '+(typeof musicPlaying!=='undefined'?musicPlaying:'?')+
+            ' | musicEnabled: '+(typeof musicEnabled!=='undefined'?musicEnabled:'?')+
+            ' | gameActive: '+(typeof gameActive!=='undefined'?gameActive:'?')+
+            '<br><button id="manualResumeBtn" style="background:#0ff;color:#000;border:0;padding:4px 8px;font-size:10px;font-weight:800;cursor:pointer;margin-top:4px;">FORCE RESUME</button>'+
+            ' <button id="manualMusicBtn" style="background:#ff0;color:#000;border:0;padding:4px 8px;font-size:10px;font-weight:800;cursor:pointer;margin-top:4px;">RESTART MUSIC</button>';
+          var b1=document.getElementById('manualResumeBtn');
+          if(b1) b1.onclick=function(){attemptResume('manual-button',{force:true,checkMusic:true});};
+          var b2=document.getElementById('manualMusicBtn');
+          if(b2) b2.onclick=function(){doMusicRestart();};
+        }
+        updateBox();
+        var poll=setInterval(function(){
+          if(!document.getElementById('adDebugOverlay')){clearInterval(poll);return;}
+          updateBox();
+        },800);
+      },100);
+    };
+  }
+
+  // ====== Public API ======
+  window.__forceAudioResume=function(){ attemptResume('manual-api',{force:true,checkMusic:true}); };
+  window.__getAudioState=function(){ var c=getCtx(); return c?c.state:'no-ctx'; };
+
+  // Boot log
+  try{
+    if(typeof console!=='undefined') console.log('[AUDIO RESUME GUARD v1.0.4.9] active - shoot+playTone hooks + silent keepalive + AD DEBUG monitor');
+    if(typeof logAd==='function') logAd('audio_guard_v1049_loaded',{});
+  }catch(e){}
+
+  // Ilk resume + keepalive baslat (initial user interaction sonrasi)
+  setTimeout(function(){ attemptResume('initial-boot'); },1000);
+})();
+</script>
 </body>
 </html>
