@@ -1,5 +1,5 @@
 ﻿// Boom Chain Service Worker for Push Notifications
-const CACHE_NAME = 'boomchain-v3';
+const CACHE_NAME = 'boomchain-v4-debug';
 
 self.addEventListener('install', function(event) {
   self.skipWaiting();

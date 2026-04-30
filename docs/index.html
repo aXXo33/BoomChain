@@ -1794,5 +1794,115 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
 </div>
 <button class="btn btn-secondary" onclick="hideAll();showScreen('menuS')">&#x2190; BACK</button>
 </div>
-<button id="globalSettings" onclick="openSettings()" aria-label="Settings" style="position:fixed;top:12px;right:12px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1.3em;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;padding:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">&#x2699;&#xFE0F;</button></body>
+<button id="globalSettings" onclick="openSettings()" aria-label="Settings" style="position:fixed;top:12px;right:12px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1.3em;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;padding:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">&#x2699;&#xFE0F;</button><script>
+/* ===== AD DIAGNOSTIC LOGGER v1.0.4.6 (non-invasive) ===== */
+(function(){
+  var LOG_KEY='bc_ad_debug_log_v1';
+  var MAX_EVENTS=80;
+  function ts(){var d=new Date();return d.toISOString().slice(11,19);}
+  function readLog(){try{return JSON.parse(localStorage.getItem(LOG_KEY))||[];}catch(e){return[];}}
+  function writeLog(arr){try{localStorage.setItem(LOG_KEY,JSON.stringify(arr.slice(-MAX_EVENTS)));}catch(e){}}
+  function logAd(evt,data){var arr=readLog();arr.push({t:ts(),evt:evt,data:data||{}});writeLog(arr);try{console.log('[AD]',evt,data||'');}catch(e){}}
+  if(typeof window.showInterstitialAd==='function'){
+    var _origInt=window.showInterstitialAd;
+    window.showInterstitialAd=function(cb){
+      logAd('interstitial_request',{cb:cb,bridge:!!window.ReactNativeWebView});
+      var t0=Date.now();
+      if(window.ReactNativeWebView && cb){
+        var origCb=window[cb];
+        if(typeof origCb==='function' && !window['__wrapped_'+cb]){
+          window['__wrapped_'+cb]=true;
+          window[cb]=function(){logAd('interstitial_callback_fired',{cb:cb,elapsedMs:Date.now()-t0});try{return origCb.apply(this,arguments);}catch(e){logAd('callback_error',{cb:cb,err:String(e)});}};
+        }
+      }
+      return _origInt.apply(this,arguments);
+    };
+  }
+  if(typeof window.showRewardedAd==='function'){
+    var _origRew=window.showRewardedAd;
+    window.showRewardedAd=function(cb){
+      logAd('rewarded_request',{cb:cb,bridge:!!window.ReactNativeWebView});
+      var t0=Date.now();
+      if(window.ReactNativeWebView && cb){
+        var origCb=window[cb];
+        if(typeof origCb==='function' && !window['__wrapped_'+cb]){
+          window['__wrapped_'+cb]=true;
+          window[cb]=function(){logAd('rewarded_callback_fired',{cb:cb,elapsedMs:Date.now()-t0});try{return origCb.apply(this,arguments);}catch(e){logAd('callback_error',{cb:cb,err:String(e)});}};
+        }
+      }
+      return _origRew.apply(this,arguments);
+    };
+  }
+  function handleNativeMsg(raw){try{var d=typeof raw==='string'?JSON.parse(raw):raw;if(d && d.type){if(/^ad_/.test(d.type)||/Ad(Loaded|Failed|Closed|Reward|Impression)/i.test(d.type)){logAd('native_event:'+d.type,d);}}}catch(e){}}
+  window.addEventListener('message',function(e){handleNativeMsg(e.data);});
+  document.addEventListener('message',function(e){handleNativeMsg(e.data);});
+  function requestAdapterStatus(){if(window.ReactNativeWebView){try{window.ReactNativeWebView.postMessage(JSON.stringify({type:'getAdapterStatus'}));logAd('adapter_status_requested',{});}catch(e){}}}
+  setTimeout(requestAdapterStatus,3000);
+  logAd('boot',{ua:navigator.userAgent.slice(0,120),bridge:!!window.ReactNativeWebView,href:location.href.slice(0,80),online:navigator.onLine});
+  function openAdDebugPanel(){
+    var existing=document.getElementById('adDebugOverlay');
+    if(existing){existing.remove();return;}
+    var ov=document.createElement('div');
+    ov.id='adDebugOverlay';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;color:#0f0;font-family:monospace;font-size:11px;padding:10px;box-sizing:border-box;';
+    var head=document.createElement('div');
+    head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0;';
+    head.innerHTML='<span style="color:#ff6b35;font-weight:800;font-size:14px;">AD DEBUG v1.0.4.6</span>';
+    var btnClose=document.createElement('button');
+    btnClose.textContent='X';
+    btnClose.style.cssText='background:#ff6b35;color:#fff;border:0;width:32px;height:32px;font-size:16px;font-weight:800;cursor:pointer;border-radius:4px;';
+    btnClose.onclick=function(){ov.remove();};
+    head.appendChild(btnClose);
+    ov.appendChild(head);
+    var info=document.createElement('div');
+    info.style.cssText='background:#111;padding:6px;margin-bottom:6px;border:1px solid #0f0;flex-shrink:0;';
+    info.innerHTML='Bridge: '+(window.ReactNativeWebView?'<span style="color:#0f0">YES</span>':'<span style="color:#f00">NO</span>')+'<br>Online: '+(navigator.onLine?'YES':'NO')+'<br>UA: '+navigator.userAgent.slice(0,80)+'...<br>Wrapped: int='+(typeof window.showInterstitialAd==='function')+' rew='+(typeof window.showRewardedAd==='function');
+    ov.appendChild(info);
+    var btnRow=document.createElement('div');
+    btnRow.style.cssText='display:flex;gap:6px;margin-bottom:6px;flex-shrink:0;flex-wrap:wrap;';
+    function mkBtn(label,fn){var b=document.createElement('button');b.textContent=label;b.style.cssText='background:#222;color:#0f0;border:1px solid #0f0;padding:6px 10px;font-size:11px;cursor:pointer;';b.onclick=fn;return b;}
+    btnRow.appendChild(mkBtn('TEST INT',function(){logAd('manual_test_interstitial',{});try{window.showInterstitialAd('__noop_cb');}catch(e){logAd('test_int_error',{err:String(e)});}setTimeout(refresh,500);}));
+    btnRow.appendChild(mkBtn('TEST REW',function(){logAd('manual_test_rewarded',{});try{window.showRewardedAd('__noop_cb');}catch(e){logAd('test_rew_error',{err:String(e)});}setTimeout(refresh,500);}));
+    btnRow.appendChild(mkBtn('ASK ADAPTERS',function(){requestAdapterStatus();setTimeout(refresh,500);}));
+    btnRow.appendChild(mkBtn('CLEAR',function(){writeLog([]);refresh();}));
+    btnRow.appendChild(mkBtn('COPY',function(){var txt=JSON.stringify(readLog(),null,2);try{if(navigator.clipboard){navigator.clipboard.writeText(txt);alert('Copied '+readLog().length+' events.');}else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Copied (legacy).');}}catch(e){alert('Copy failed: '+e);}}));
+    ov.appendChild(btnRow);
+    var logBox=document.createElement('div');
+    logBox.id='adDebugLogBox';
+    logBox.style.cssText='flex:1;overflow-y:auto;background:#000;padding:6px;border:1px solid #0f0;white-space:pre-wrap;word-break:break-all;';
+    ov.appendChild(logBox);
+    function refresh(){var arr=readLog();var html=arr.slice().reverse().map(function(e){var color='#0f0';if(/error|fail/i.test(e.evt))color='#f55';else if(/callback_fired|reward_earned/i.test(e.evt))color='#5ff';else if(/native_event/i.test(e.evt))color='#ff5';return '<div style="color:'+color+';margin-bottom:3px;">['+e.t+'] '+e.evt+' '+JSON.stringify(e.data)+'</div>';}).join('');logBox.innerHTML=html||'<div style="color:#888">(empty)</div>';}
+    refresh();
+    var poll=setInterval(function(){if(!document.getElementById('adDebugOverlay')){clearInterval(poll);return;}refresh();},1500);
+    document.body.appendChild(ov);
+  }
+  window.openAdDebugPanel=openAdDebugPanel;
+  var tapCount=0,tapTimer=null;
+  function attachTapHandler(){
+    var gear=document.getElementById('globalSettings');
+    if(!gear){setTimeout(attachTapHandler,500);return;}
+    gear.addEventListener('click',function(){tapCount++;if(tapTimer)clearTimeout(tapTimer);tapTimer=setTimeout(function(){tapCount=0;},2000);if(tapCount>=5){tapCount=0;setTimeout(openAdDebugPanel,100);}},true);
+  }
+  attachTapHandler();
+  if(typeof window.openSettings==='function'){
+    var _origOS=window.openSettings;
+    window.openSettings=function(){
+      _origOS.apply(this,arguments);
+      setTimeout(function(){
+        var ov=document.getElementById('settingsOverlay');
+        if(!ov)return;
+        var verNodes=ov.querySelectorAll('div');
+        verNodes.forEach(function(n){
+          if(/^v1\.0\./i.test((n.textContent||'').trim())){
+            var vTaps=0,vTimer=null;
+            n.style.cursor='pointer';
+            n.addEventListener('click',function(){vTaps++;if(vTimer)clearTimeout(vTimer);vTimer=setTimeout(function(){vTaps=0;},2000);if(vTaps>=5){vTaps=0;openAdDebugPanel();}});
+          }
+        });
+      },50);
+    };
+  }
+})();
+</script>
+</body>
 </html>
