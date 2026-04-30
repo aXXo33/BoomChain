@@ -1993,5 +1993,131 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   }catch(e){}
 })();
 </script>
+<script>
+/* ===== AUDIO RESUME GUARD v1.0.4.8 (non-invasive) =====
+   iOS WebView'da reklam sonrasi AudioContext suspended kaliyor.
+   resume() + music restart agresif tetikleyici.
+*/
+(function(){
+  var lastResumeAttempt=0;
+  var pendingResume=false;
+  var RESUME_THROTTLE_MS=200;
+  var lastCtxState='unknown';
+
+  function attemptResume(reason){
+    var now=Date.now();
+    if(now-lastResumeAttempt < RESUME_THROTTLE_MS) return;
+    lastResumeAttempt=now;
+
+    if(typeof audioCtx==='undefined' || !audioCtx) return;
+    try{ lastCtxState=audioCtx.state; }catch(e){}
+
+    if(audioCtx.state==='suspended'){
+      try{
+        var p=audioCtx.resume();
+        if(p && p.then){
+          p.then(function(){
+            try{ lastCtxState=audioCtx.state; }catch(e){}
+            try{
+              if(typeof console!=='undefined') console.log('[AUDIO-RESUME] '+reason+' -> '+audioCtx.state);
+            }catch(e){}
+            // Muzik kapali degilse ve oyun aktifse restart dene
+            if(typeof musicEnabled!=='undefined' && musicEnabled
+               && typeof gameActive!=='undefined' && gameActive
+               && typeof startMusic==='function'){
+              try{
+                // musicPlaying flag'ini sifirla zorla restart icin
+                if(typeof musicPlaying!=='undefined') musicPlaying=false;
+                if(typeof musicNodes!=='undefined' && musicNodes.length){
+                  musicNodes.forEach(function(n){try{n.stop();}catch(e){}});
+                  musicNodes.length=0;
+                }
+                startMusic();
+              }catch(e){}
+            }
+          }).catch(function(err){
+            try{
+              if(typeof console!=='undefined') console.log('[AUDIO-RESUME] resume failed: '+err);
+            }catch(e){}
+          });
+        }
+      }catch(e){}
+    }
+  }
+
+  // ---- Multi-trigger listeners ----
+  var triggers=['touchstart','touchend','pointerdown','click','focus','pageshow'];
+  triggers.forEach(function(ev){
+    try{
+      window.addEventListener(ev,function(){attemptResume('event:'+ev);},{passive:true,capture:true});
+    }catch(e){
+      try{ window.addEventListener(ev,function(){attemptResume('event:'+ev);},true); }catch(_){}
+    }
+  });
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') attemptResume('visibilitychange');
+  });
+
+  // ---- Watchdog: her 1sn state check, suspended ise iflas etmis demek ----
+  setInterval(function(){
+    if(typeof audioCtx==='undefined' || !audioCtx) return;
+    try{
+      var s=audioCtx.state;
+      if(s !== lastCtxState){
+        lastCtxState=s;
+        try{ if(typeof console!=='undefined') console.log('[AUDIO-WATCHDOG] state changed -> '+s); }catch(e){}
+      }
+      if(s==='suspended'){
+        pendingResume=true;
+        // Watchdog kendi resume'unu da dener (bazi iOS surumlerinde calisir)
+        attemptResume('watchdog');
+      }
+    }catch(e){}
+  },1000);
+
+  // ---- Reklam callback wrap: ad bittikten sonra agresif resume ----
+  function wrapAdCallback(name){
+    if(typeof window[name]!=='function') return;
+    if(window['__resumewrapped_'+name]) return;
+    window['__resumewrapped_'+name]=true;
+    var orig=window[name];
+    window[name]=function(){
+      // Once orijinal callback'i cagir
+      var result;
+      try{ result=orig.apply(this,arguments); }catch(e){
+        try{ console.log('[AUDIO-RESUME] cb error '+name+': '+e); }catch(_){}
+      }
+      // Sonra 3 farkli zamanda resume dene (iOS bazen gecikmeli uyaniyor)
+      attemptResume('ad-cb-immediate:'+name);
+      setTimeout(function(){attemptResume('ad-cb-100ms:'+name);},100);
+      setTimeout(function(){attemptResume('ad-cb-500ms:'+name);},500);
+      setTimeout(function(){attemptResume('ad-cb-1500ms:'+name);},1500);
+      return result;
+    };
+  }
+
+  // Bilinen reklam callback'leri
+  var adCallbacks=['nextLevelReal','grantExtraShot','grantDoubleCoins'];
+  function wrapAllAdCallbacks(){
+    adCallbacks.forEach(wrapAdCallback);
+  }
+  // Hemen dene + DOM ready sonrasi tekrar (lazy define edilmis olabilir)
+  wrapAllAdCallbacks();
+  setTimeout(wrapAllAdCallbacks,500);
+  setTimeout(wrapAllAdCallbacks,2000);
+
+  // ---- Public API for AD DEBUG panel ----
+  window.__getAudioCtxState=function(){
+    if(typeof audioCtx==='undefined' || !audioCtx) return 'no-ctx';
+    try{ return audioCtx.state; }catch(e){ return 'error'; }
+  };
+  window.__forceAudioResume=function(){ attemptResume('manual'); };
+
+  try{
+    if(typeof console!=='undefined') console.log('[AUDIO RESUME GUARD v1.0.4.8] active - 6 listeners + watchdog + ad-cb wrap');
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
