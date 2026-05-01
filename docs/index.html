@@ -817,30 +817,33 @@ var HANDCRAFTED={
     {x:0.35,y:0.40,type:'crystal'},{x:0.65,y:0.40,type:'crystal'},
     {x:0.50,y:0.52,type:'explosive'}
   ],walls:[{x:0.22,y:0.62,w:0.56,h:0.01}]},
-  // Room 1 (Gravity Lab), Level 0: Moving target intro - safe and clear
+  // Room 1 (Gravity Lab), Level 0: Moving Gate intro - visible room change
   '1_0':{shots:5,targets:[
-    {x:0.28,y:0.22,type:'moving'},
-    {x:0.50,y:0.30,type:'normal'},
-    {x:0.72,y:0.22,type:'moving'},
-    {x:0.50,y:0.44,type:'crystal'}
-  ],walls:[]},
-  // Room 1, Level 1: Corridor bounce reward
+    {x:0.24,y:0.20,type:'moving'},
+    {x:0.76,y:0.20,type:'moving'},
+    {x:0.50,y:0.30,type:'explosive'},
+    {x:0.38,y:0.42,type:'crystal'},{x:0.62,y:0.42,type:'crystal'},
+    {x:0.50,y:0.54,type:'normal'}
+  ],walls:[{x:0.30,y:0.34,w:0.16,h:0.01},{x:0.54,y:0.34,w:0.16,h:0.01}]},
+  // Room 1, Level 1: Neon corridor jackpot
   '1_1':{shots:5,targets:[
-    {x:0.50,y:0.16,type:'normal'},
-    {x:0.50,y:0.28,type:'crystal'},
-    {x:0.50,y:0.40,type:'normal'},
-    {x:0.50,y:0.52,type:'explosive'},
-    {x:0.36,y:0.46,type:'crystal'},{x:0.64,y:0.46,type:'crystal'}
-  ],walls:[{x:0.28,y:0.12,w:0.01,h:0.42},{x:0.72,y:0.12,w:0.01,h:0.42}]},
-  // Room 1, Level 2: Zigzag chain setup
+    {x:0.50,y:0.14,type:'normal'},
+    {x:0.50,y:0.26,type:'crystal'},
+    {x:0.50,y:0.38,type:'normal'},
+    {x:0.50,y:0.50,type:'explosive'},
+    {x:0.36,y:0.44,type:'crystal'},{x:0.64,y:0.44,type:'crystal'},
+    {x:0.50,y:0.62,type:'normal'}
+  ],walls:[{x:0.30,y:0.12,w:0.01,h:0.52},{x:0.70,y:0.12,w:0.01,h:0.52}]},
+  // Room 1, Level 2: Zigzag pinball chain
   '1_2':{shots:5,targets:[
-    {x:0.24,y:0.18,type:'normal'},
-    {x:0.76,y:0.26,type:'crystal'},
+    {x:0.24,y:0.18,type:'crystal'},
+    {x:0.76,y:0.26,type:'normal'},
     {x:0.24,y:0.36,type:'explosive'},
-    {x:0.76,y:0.48,type:'normal'},
+    {x:0.76,y:0.46,type:'crystal'},
     {x:0.50,y:0.32,type:'moving'},
-    {x:0.50,y:0.54,type:'crystal'}
-  ],walls:[{x:0.36,y:0.24,w:0.22,h:0.01},{x:0.42,y:0.44,w:0.22,h:0.01}]}
+    {x:0.50,y:0.56,type:'normal'},
+    {x:0.38,y:0.62,type:'crystal'}
+  ],walls:[{x:0.34,y:0.24,w:0.24,h:0.01},{x:0.42,y:0.42,w:0.24,h:0.01},{x:0.28,y:0.56,w:0.20,h:0.01}]}
 };
 function generateLevel(room,li,gl){
   balls=[];targets=[];walls=[];obstacles=[];particles=[];shockwaves=[];textPops=[];confetti=[];trailParticles=[];
