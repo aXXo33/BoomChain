@@ -2847,5 +2847,68 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   try{ console.log('[TRUE PREMIUM END OVERLAY v1.0.4.20] active'); }catch(e){}
 })();
 </script>
+<script>
+/* ===== END OVERLAY CLEANUP v1.0.4.21 =====
+   Cleans duplicate RUN COMPLETE tag from v1.0.4.19 + v1.0.4.20 interaction.
+   Sanitizes coin reward row so it shows one clean coin icon.
+*/
+(function(){
+  function cleanupEndOverlay(id){
+    try{
+      var screen=document.getElementById(id);
+      if(!screen) return;
+
+      // Remove older v1.0.4.19 tag if v1.0.4.20 premium tag exists
+      var premiumTag=screen.querySelector('.premium-end-tag');
+      var oldTags=screen.querySelectorAll('.end-polish-tag');
+      if(premiumTag && oldTags && oldTags.length){
+        oldTags.forEach(function(t){ try{ t.remove(); }catch(e){} });
+      }
+
+      // Win overlay coin cleanup
+      if(id==='levelCompleteS'){
+        var coins=document.getElementById('lcCoins');
+        if(coins){
+          var raw=(coins.textContent || '').replace(/\s+/g,' ').trim();
+
+          // Extract the final +number from strings like "🪙 🪙 🪙 +30"
+          var m=raw.match(/\+?\d+\s*$/);
+          var amount=m ? m[0].trim() : raw.replace(/[^\d+]/g,'');
+
+          if(amount){
+            coins.innerHTML='🪙 ' + amount;
+          }
+        }
+
+        var title=document.getElementById('lcTitle');
+        if(title){
+          title.textContent='CHAIN COMPLETE!';
+        }
+      }
+
+      // Lose overlay title cleanup
+      if(id==='gameOverS'){
+        var goTitle=document.getElementById('goTitle');
+        if(goTitle){
+          goTitle.textContent='CHAIN BROKEN';
+        }
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen==='function'){
+    var _showScreenCleanup=window.showScreen;
+    window.showScreen=function(id){
+      var r=_showScreenCleanup.apply(this,arguments);
+      setTimeout(function(){
+        if(id==='levelCompleteS' || id==='gameOverS') cleanupEndOverlay(id);
+      },120);
+      return r;
+    };
+  }
+
+  try{ console.log('[END OVERLAY CLEANUP v1.0.4.21] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
