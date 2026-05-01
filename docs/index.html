@@ -2534,5 +2534,318 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   try{ console.log('[WIN LOSE OVERLAY POLISH v1.0.4.19] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== TRUE PREMIUM END OVERLAY v1.0.4.20 ===== */
+.premium-end-shell{
+  width:min(88vw, 380px);
+  margin:0 auto;
+  border-radius:28px;
+  padding:22px 18px 18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)),
+    radial-gradient(circle at top, rgba(255,255,255,0.05), transparent 60%),
+    rgba(10,10,24,0.88);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45),
+    0 0 30px rgba(255,107,53,0.10);
+  backdrop-filter: blur(10px);
+  text-align:center;
+  position:relative;
+}
+
+.premium-end-shell.win{
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45),
+    0 0 35px rgba(247,201,72,0.16),
+    0 0 18px rgba(255,107,53,0.10);
+}
+
+.premium-end-shell.lose{
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45),
+    0 0 35px rgba(255,23,68,0.16),
+    0 0 18px rgba(255,107,53,0.10);
+}
+
+.premium-end-tag{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:0.68em;
+  font-weight:900;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.premium-end-tag.win{
+  color:#f7c948;
+  background:rgba(247,201,72,0.12);
+  border:1px solid rgba(247,201,72,0.28);
+}
+
+.premium-end-tag.lose{
+  color:#ff8a65;
+  background:rgba(255,107,53,0.10);
+  border:1px solid rgba(255,107,53,0.25);
+}
+
+.premium-pill{
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  margin:6px auto;
+  min-width:110px;
+}
+
+.premium-score{
+  display:inline-block;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(247,201,72,0.12);
+  border:1px solid rgba(247,201,72,0.32);
+  box-shadow:0 0 18px rgba(247,201,72,0.12);
+}
+
+.premium-perfect{
+  display:inline-block;
+  padding:10px 16px;
+  border-radius:16px;
+  background:linear-gradient(135deg, rgba(255,107,53,0.18), rgba(247,201,72,0.10));
+  border:1px solid rgba(247,201,72,0.30);
+  box-shadow:0 0 18px rgba(255,107,53,0.16);
+}
+
+.premium-btn-primary{
+  min-width:220px !important;
+  border-radius:18px !important;
+  background:linear-gradient(135deg,#ff8a5b,#ff6b35) !important;
+  color:#fff !important;
+  font-weight:900 !important;
+  letter-spacing:1px !important;
+  box-shadow:0 12px 28px rgba(255,107,53,0.28), 0 0 18px rgba(255,107,53,0.15) !important;
+}
+
+.premium-btn-secondary{
+  min-width:190px !important;
+  border-radius:15px !important;
+  background:rgba(255,255,255,0.06) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,0.10) !important;
+  box-shadow:0 10px 20px rgba(0,0,0,0.20) !important;
+}
+
+.premium-btn-small{
+  font-size:0.88em !important;
+  padding:10px 14px !important;
+}
+
+.premium-title-win{
+  color:#7ee36c !important;
+  text-shadow:0 0 22px rgba(126,227,108,0.26);
+}
+
+.premium-title-lose{
+  color:#ff6b6b !important;
+  text-shadow:0 0 22px rgba(255,107,107,0.26);
+}
+</style>
+
+<script>
+/* ===== TRUE PREMIUM END OVERLAY v1.0.4.20 ===== */
+(function(){
+  function styleCommonOverlay(screen, isWin){
+    if(!screen) return;
+    screen.style.background = isWin
+      ? 'radial-gradient(circle at 50% 18%, rgba(247,201,72,0.16), transparent 30%), radial-gradient(circle at 50% 55%, rgba(255,107,53,0.10), transparent 45%), rgba(4,4,16,0.96)'
+      : 'radial-gradient(circle at 50% 18%, rgba(255,23,68,0.15), transparent 30%), radial-gradient(circle at 50% 55%, rgba(255,107,53,0.10), transparent 45%), rgba(4,4,16,0.96)';
+    screen.style.padding = '24px 14px';
+    screen.style.boxSizing = 'border-box';
+  }
+
+  function buildShell(screenId, type){
+    var screen = document.getElementById(screenId);
+    if(!screen) return null;
+
+    styleCommonOverlay(screen, type === 'win');
+
+    if(screen.querySelector('.premium-end-shell')){
+      return screen.querySelector('.premium-end-shell');
+    }
+
+    var nodes = Array.from(screen.childNodes);
+    var shell = document.createElement('div');
+    shell.className = 'premium-end-shell ' + (type === 'win' ? 'win' : 'lose');
+
+    var tag = document.createElement('div');
+    tag.className = 'premium-end-tag ' + (type === 'win' ? 'win' : 'lose');
+    tag.textContent = type === 'win' ? 'RUN COMPLETE' : 'CHAIN BROKEN';
+
+    shell.appendChild(tag);
+
+    nodes.forEach(function(node){
+      shell.appendChild(node);
+    });
+
+    screen.innerHTML = '';
+    screen.appendChild(shell);
+    return shell;
+  }
+
+  function premiumizeWin(){
+    var shell = buildShell('levelCompleteS', 'win');
+    if(!shell) return;
+
+    var emoji = document.getElementById('lcEmoji');
+    var title = document.getElementById('lcTitle');
+    var stars = document.getElementById('lcStars');
+    var score = document.getElementById('lcScore');
+    var coins = document.getElementById('lcCoins');
+    var perfect = document.getElementById('lcPerfect');
+
+    if(emoji){
+      emoji.style.fontSize = '3.6em';
+      emoji.style.marginBottom = '8px';
+      emoji.style.filter = 'drop-shadow(0 0 16px rgba(247,201,72,0.35))';
+    }
+
+    if(title){
+      title.textContent = 'CHAIN COMPLETE!';
+      title.classList.add('premium-title-win');
+      title.style.fontSize = '1.95em';
+      title.style.fontWeight = '950';
+      title.style.letterSpacing = '1px';
+      title.style.margin = '6px 0 10px';
+    }
+
+    if(stars){
+      stars.style.fontSize = '1.75em';
+      stars.style.letterSpacing = '6px';
+      stars.style.margin = '10px 0 12px';
+      stars.style.textShadow = '0 0 18px rgba(247,201,72,0.65)';
+    }
+
+    if(score){
+      score.classList.add('premium-score');
+      score.style.fontSize = '1.45em';
+      score.style.fontWeight = '900';
+      score.style.margin = '8px auto 10px';
+    }
+
+    if(coins){
+      coins.classList.add('premium-pill');
+      coins.style.fontSize = '1.05em';
+      coins.style.color = '#f7c948';
+      coins.style.margin = '8px auto 14px';
+      coins.innerHTML = '🪙 ' + coins.textContent.replace(/\s+/g,' ').trim();
+    }
+
+    if(perfect && perfect.style.display !== 'none'){
+      perfect.classList.add('premium-perfect');
+      perfect.textContent = '💥 PERFECT CHAIN BONUS';
+      perfect.style.margin = '8px auto 14px';
+      var tag = shell.querySelector('.premium-end-tag');
+      if(tag){
+        tag.textContent = 'PERFECT CHAIN';
+        tag.className = 'premium-end-tag win';
+        tag.style.color = '#ff8a65';
+      }
+    }
+
+    var buttons = shell.querySelectorAll('button');
+    buttons.forEach(function(btn){
+      var txt = (btn.textContent || '').trim().toUpperCase();
+
+      if(txt.indexOf('NEXT') !== -1 || txt.indexOf('CONTINUE') !== -1){
+        btn.classList.add('premium-btn-primary');
+        btn.innerHTML = 'CONTINUE →';
+        btn.style.marginTop = '10px';
+        btn.style.marginBottom = '10px';
+      } else if(txt.indexOf('WATCH AD') !== -1 || txt.indexOf('DOUBLE') !== -1){
+        btn.classList.add('premium-btn-secondary','premium-btn-small');
+        btn.innerHTML = '🎬 DOUBLE REWARD';
+        btn.style.display = 'block';
+        btn.style.margin = '0 auto 10px';
+      } else if(txt.indexOf('SHARE') !== -1){
+        btn.classList.add('premium-btn-secondary','premium-btn-small');
+        btn.innerHTML = '📤 SHARE RESULT';
+        btn.style.display = 'block';
+        btn.style.margin = '0 auto';
+      }
+    });
+  }
+
+  function premiumizeLose(){
+    var shell = buildShell('gameOverS', 'lose');
+    if(!shell) return;
+
+    var emoji = document.getElementById('goEmoji');
+    var title = document.getElementById('goTitle');
+    var subtitle = document.getElementById('goSubtitle');
+    var targetLeft = document.getElementById('goTargetLeft');
+
+    if(emoji){
+      emoji.style.fontSize = '3.4em';
+      emoji.style.marginBottom = '8px';
+      emoji.style.filter = 'drop-shadow(0 0 16px rgba(255,23,68,0.35))';
+    }
+
+    if(title){
+      title.textContent = 'CHAIN BROKEN';
+      title.classList.add('premium-title-lose');
+      title.style.fontSize = '1.9em';
+      title.style.fontWeight = '950';
+      title.style.letterSpacing = '1px';
+      title.style.margin = '6px 0 10px';
+    }
+
+    if(subtitle){
+      subtitle.classList.add('premium-pill');
+      subtitle.style.display = 'inline-block';
+      subtitle.style.margin = '8px auto';
+    }
+
+    if(targetLeft){
+      targetLeft.classList.add('premium-pill');
+      targetLeft.style.display = 'inline-block';
+      targetLeft.style.margin = '8px auto 14px';
+    }
+
+    var buttons = shell.querySelectorAll('button');
+    buttons.forEach(function(btn){
+      var txt = (btn.textContent || '').trim().toUpperCase();
+
+      if(txt.indexOf('RETRY') !== -1){
+        btn.classList.add('premium-btn-primary');
+        btn.innerHTML = '↻ RETRY RUN';
+        btn.style.marginTop = '10px';
+        btn.style.marginBottom = '10px';
+      } else if(txt.indexOf('EXTRA SHOT') !== -1 || txt.indexOf('WATCH AD') !== -1){
+        btn.classList.add('premium-btn-secondary','premium-btn-small');
+        btn.innerHTML = '🎬 EXTRA SHOT';
+        btn.style.display = 'block';
+        btn.style.margin = '0 auto 10px';
+      }
+    });
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen = window.showScreen;
+    window.showScreen = function(id){
+      var res = _origShowScreen.apply(this, arguments);
+      setTimeout(function(){
+        if(id === 'levelCompleteS') premiumizeWin();
+        if(id === 'gameOverS') premiumizeLose();
+      }, 50);
+      return res;
+    };
+  }
+
+  try{ console.log('[TRUE PREMIUM END OVERLAY v1.0.4.20] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
