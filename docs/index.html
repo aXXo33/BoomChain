@@ -3680,5 +3680,190 @@ button[onclick="openSettings()"] *{
   }
 }
 </style>
+<style>
+/* ===== HUD PREMIUM SPLIT v1.0.4.21 ===== */
+#hud{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  gap:8px !important;
+  top:10px !important;
+  left:10px !important;
+  right:auto !important;
+  width:auto !important;
+  padding:0 !important;
+  background:none !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+#hud .hud-top-row{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+  padding-right:86px; /* gear icin bos alan */
+}
+
+#hud .hud-mini-row{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+
+#hud .hud-prem-card{
+  background:linear-gradient(180deg, rgba(20,22,42,0.86), rgba(10,12,28,0.78));
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:18px;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+
+#hud .hud-run-card{
+  min-width:142px;
+  padding:10px 14px;
+}
+
+#hud .hud-run-card .hud-item:first-child{
+  font-size:0.78em !important;
+  line-height:1.05;
+  letter-spacing:1.2px;
+}
+#hud .hud-run-card #hudLevel{
+  font-size:1.35em;
+  font-weight:900;
+}
+#hud .hud-run-card #hudRoom{
+  margin-top:3px;
+  font-size:0.72em !important;
+  letter-spacing:1.1px;
+  color:#d4d7e6 !important;
+  text-transform:uppercase;
+}
+
+#hud .hud-coin-card{
+  min-width:118px;
+  padding:10px 14px;
+}
+#hud .hud-coin-card #hudCoins{
+  font-size:0.92em !important;
+  font-weight:900;
+}
+
+#hud .hud-mini-card{
+  min-height:44px;
+  padding:8px 12px;
+}
+
+#hud .hud-targets-card{
+  min-width:128px;
+}
+#hud .hud-targets-card #hudTargets{
+  font-size:0.82em !important;
+  line-height:1.2;
+}
+
+#hud .hud-shots-card{
+  min-width:112px;
+  text-align:left !important;
+}
+#hud .hud-shots-card > div{
+  text-align:left !important;
+}
+#hud .hud-shots-card .hud-item{
+  font-size:0.76em !important;
+  line-height:1.1;
+}
+#hud .hud-shots-card #hudScore{
+  margin-top:4px;
+  color:#f7c948 !important;
+  font-size:0.72em !important;
+  font-weight:800 !important;
+}
+
+@media (max-width: 420px){
+  #hud .hud-top-row{ gap:8px; padding-right:82px; }
+  #hud .hud-mini-row{ gap:8px; }
+  #hud .hud-run-card{ min-width:132px; padding:9px 12px; }
+  #hud .hud-coin-card{ min-width:108px; padding:9px 12px; }
+  #hud .hud-targets-card{ min-width:120px; }
+  #hud .hud-shots-card{ min-width:104px; }
+}
+</style>
+
+<script>
+/* ===== HUD PREMIUM SPLIT v1.0.4.21 ===== */
+(function(){
+  if(window.__HUD_PREMIUM_SPLIT_V10421) return;
+  window.__HUD_PREMIUM_SPLIT_V10421 = true;
+
+  function applyHudSplit(){
+    try{
+      var hud = document.getElementById('hud');
+      if(!hud) return;
+      if(hud.dataset.premiumSplit === '1') return;
+
+      var kids = Array.prototype.slice.call(hud.children);
+      if(kids.length < 4) return;
+
+      var runCard    = kids[0];
+      var coinCard   = kids[1];
+      var targetsCard= kids[2];
+      var shotsCard  = kids[3];
+
+      var topRow = document.createElement('div');
+      topRow.className = 'hud-top-row';
+
+      var miniRow = document.createElement('div');
+      miniRow.className = 'hud-mini-row';
+
+      runCard.classList.add('hud-prem-card','hud-run-card');
+      coinCard.classList.add('hud-prem-card','hud-coin-card');
+      targetsCard.classList.add('hud-prem-card','hud-mini-card','hud-targets-card');
+      shotsCard.classList.add('hud-prem-card','hud-mini-card','hud-shots-card');
+
+      topRow.appendChild(runCard);
+      topRow.appendChild(coinCard);
+
+      miniRow.appendChild(targetsCard);
+      miniRow.appendChild(shotsCard);
+
+      hud.innerHTML = '';
+      hud.appendChild(topRow);
+      hud.appendChild(miniRow);
+
+      hud.dataset.premiumSplit = '1';
+    }catch(e){}
+  }
+
+  function reapplyAfterStart(){
+    setTimeout(applyHudSplit, 40);
+    setTimeout(applyHudSplit, 220);
+  }
+
+  if(typeof window.startRoomLevel === 'function'){
+    var _startRoomLevel = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      var r = _startRoomLevel.apply(this, arguments);
+      reapplyAfterStart();
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      reapplyAfterStart();
+    });
+  } else {
+    reapplyAfterStart();
+  }
+
+  setTimeout(applyHudSplit, 800);
+
+  try{ console.log('[HUD PREMIUM SPLIT v1.0.4.21] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
