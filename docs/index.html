@@ -2347,5 +2347,192 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   try{ console.log('[MUSIC MP3 LOOP v1.0.4.13] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== WIN LOSE OVERLAY POLISH v1.0.4.19 ===== */
+#levelCompleteS.active{
+  background:
+    radial-gradient(circle at 50% 22%, rgba(247,201,72,0.18), transparent 32%),
+    radial-gradient(circle at 50% 62%, rgba(255,107,53,0.12), transparent 40%),
+    rgba(4,4,16,0.96) !important;
+}
+#gameOverS.active{
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255,23,68,0.16), transparent 34%),
+    radial-gradient(circle at 50% 62%, rgba(255,107,53,0.10), transparent 42%),
+    rgba(4,4,16,0.96) !important;
+}
+#levelCompleteS::before,
+#gameOverS::before{
+  content:"";
+  position:absolute;
+  width:290px;
+  height:290px;
+  border-radius:50%;
+  top:14%;
+  left:50%;
+  transform:translateX(-50%);
+  pointer-events:none;
+  filter:blur(6px);
+  opacity:0.75;
+}
+#levelCompleteS::before{
+  background:radial-gradient(circle, rgba(247,201,72,0.18), transparent 68%);
+}
+#gameOverS::before{
+  background:radial-gradient(circle, rgba(255,23,68,0.15), transparent 68%);
+}
+#levelCompleteS > *,
+#gameOverS > *{
+  position:relative;
+  z-index:2;
+}
+#levelCompleteS #lcEmoji,
+#gameOverS #goEmoji{
+  font-size:3.4em !important;
+  margin-bottom:8px !important;
+  filter:drop-shadow(0 0 20px rgba(247,201,72,0.45));
+  animation:popIn 0.32s ease-out;
+}
+#gameOverS #goEmoji{
+  filter:drop-shadow(0 0 20px rgba(255,23,68,0.45));
+}
+#levelCompleteS #lcTitle,
+#gameOverS #goTitle{
+  font-size:1.9em !important;
+  font-weight:950 !important;
+  letter-spacing:1.5px !important;
+  text-shadow:0 0 24px currentColor;
+}
+#levelCompleteS #lcStars{
+  font-size:1.65em !important;
+  letter-spacing:5px !important;
+  margin:12px 0 8px !important;
+  text-shadow:0 0 18px rgba(247,201,72,0.75);
+}
+#levelCompleteS #lcScore{
+  padding:9px 18px;
+  border-radius:999px;
+  background:rgba(247,201,72,0.12);
+  border:1px solid rgba(247,201,72,0.35);
+  box-shadow:0 0 22px rgba(247,201,72,0.14);
+  margin-top:8px;
+}
+#levelCompleteS #lcCoins{
+  padding:7px 15px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  margin:10px 0 12px !important;
+}
+#levelCompleteS #lcPerfect{
+  padding:10px 18px;
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,107,53,0.20),rgba(247,201,72,0.12));
+  border:1px solid rgba(247,201,72,0.35);
+  box-shadow:0 0 24px rgba(255,107,53,0.20);
+  margin-bottom:12px;
+}
+#gameOverS #goSubtitle,
+#gameOverS #goTargetLeft{
+  padding:8px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.10);
+}
+#levelCompleteS .btn,
+#gameOverS .btn{
+  min-width:190px;
+  border-radius:16px !important;
+  box-shadow:0 8px 24px rgba(0,0,0,0.28);
+}
+#levelCompleteS .btn-primary{
+  background:linear-gradient(135deg,#f7c948,#ff6b35) !important;
+  color:#161622 !important;
+  text-shadow:none !important;
+}
+#gameOverS .btn-primary{
+  background:linear-gradient(135deg,#ff6b35,#ff1744) !important;
+  color:#fff !important;
+}
+#gameOverS #rageBtn{
+  box-shadow:0 0 28px rgba(255,23,68,0.35) !important;
+}
+.end-polish-tag{
+  color:#8f93a3;
+  font-size:0.68em;
+  font-weight:800;
+  letter-spacing:2px;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+</style>
+<script>
+/* ===== WIN LOSE OVERLAY POLISH v1.0.4.19 ===== */
+(function(){
+  function ensureTag(id, text, color){
+    try{
+      var screen=document.getElementById(id);
+      if(!screen || screen.querySelector('.end-polish-tag')) return;
+      var tag=document.createElement('div');
+      tag.className='end-polish-tag';
+      tag.textContent=text;
+      if(color) tag.style.color=color;
+      screen.insertBefore(tag, screen.firstChild);
+    }catch(e){}
+  }
+
+  function polishEndOverlay(id){
+    try{
+      if(id==='levelCompleteS'){
+        ensureTag('levelCompleteS','RUN COMPLETE','#f7c948');
+
+        var title=document.getElementById('lcTitle');
+        var perfect=document.getElementById('lcPerfect');
+        var nextBtn=document.querySelector('#levelCompleteS .btn-primary');
+
+        if(title && title.textContent && title.textContent.indexOf('PERFECT')!==-1){
+          ensureTag('levelCompleteS','PERFECT CHAIN','#ff6b35');
+          if(perfect) perfect.textContent='💥 PERFECT CHAIN BONUS';
+        }
+
+        if(nextBtn){
+          nextBtn.innerHTML='CONTINUE →';
+        }
+
+        var doubleBtn=document.getElementById('doubleCoinsBtn');
+        if(doubleBtn){
+          doubleBtn.innerHTML='🎬 DOUBLE REWARD';
+        }
+      }
+
+      if(id==='gameOverS'){
+        ensureTag('gameOverS','CHAIN BROKEN','#ff6b35');
+
+        var retry=document.querySelector('#gameOverS button[onclick="retryLevel()"]');
+        if(retry){
+          retry.innerHTML='↻ RETRY RUN';
+          retry.style.animation='none';
+        }
+
+        var extra=document.querySelector('#gameOverS button[onclick="watchAdExtraShot()"]');
+        if(extra){
+          extra.innerHTML='🎬 EXTRA SHOT';
+        }
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen==='function'){
+    var _showScreen=window.showScreen;
+    window.showScreen=function(id){
+      var r=_showScreen.apply(this,arguments);
+      setTimeout(function(){ polishEndOverlay(id); },30);
+      return r;
+    };
+  }
+
+  try{ console.log('[WIN LOSE OVERLAY POLISH v1.0.4.19] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
