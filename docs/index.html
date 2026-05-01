@@ -3386,5 +3386,94 @@ body.end-overlay-no-confetti #confettiCanvas{
   try{ console.log('[HUD PREMIUM POLISH v1.0.4.25] active'); }catch(e){}
 })();
 </script>
+<script>
+/* ===== REAL DOUBLE REWARD FIX v1.0.4.26 =====
+   Makes DOUBLE REWARD use the actual displayed level coin bonus,
+   not the old fake formula 100 + level*10.
+*/
+(function(){
+  window._realLastLevelCoinBonus = 0;
+  window._doubleRewardClaimedThisLevel = false;
+
+  function captureDisplayedCoinBonus(){
+    try{
+      var el=document.getElementById('lcCoins');
+      if(!el) return 0;
+
+      var raw=(el.textContent || '').replace(/\s+/g,' ').trim();
+      var m=raw.match(/\+?\d+\s*$/);
+      var amount=m ? parseInt(m[0].replace('+',''),10) : 0;
+
+      if(!isNaN(amount) && amount>0){
+        window._realLastLevelCoinBonus = amount;
+        window._doubleRewardClaimedThisLevel = false;
+      }
+
+      return window._realLastLevelCoinBonus || 0;
+    }catch(e){
+      return 0;
+    }
+  }
+
+  // Capture after level complete screen is shown and premium overlay cleanup has run
+  if(typeof window.showScreen==='function'){
+    var _showScreenDoubleFix=window.showScreen;
+    window.showScreen=function(id){
+      var r=_showScreenDoubleFix.apply(this,arguments);
+
+      if(id==='levelCompleteS'){
+        setTimeout(captureDisplayedCoinBonus,60);
+        setTimeout(captureDisplayedCoinBonus,180);
+        setTimeout(captureDisplayedCoinBonus,320);
+      }
+
+      return r;
+    };
+  }
+
+  // Override old fake grantDoubleCoins
+  window.grantDoubleCoins=function(){
+    try{
+      var earned = captureDisplayedCoinBonus();
+
+      if(!earned || earned<=0){
+        earned = window._realLastLevelCoinBonus || 0;
+      }
+
+      if(!earned || earned<=0){
+        console.warn('[REAL DOUBLE REWARD] No valid coin bonus found. No coins granted.');
+        return;
+      }
+
+      if(window._doubleRewardClaimedThisLevel){
+        console.warn('[REAL DOUBLE REWARD] Already claimed for this level.');
+        return;
+      }
+
+      window._doubleRewardClaimedThisLevel = true;
+
+      coins += earned;
+
+      if(typeof showCoinFly==='function'){
+        showCoinFly(W/2,H/2,earned);
+      }
+
+      var btn=document.getElementById('doubleCoinsBtn');
+      if(btn){
+        btn.style.display='none';
+      }
+
+      if(typeof saveSave==='function') saveSave();
+      if(typeof logEvent==='function') logEvent('double_coins_ad',{earned:earned,source:'actual_level_coin_bonus'});
+
+      console.log('[REAL DOUBLE REWARD] granted extra coins:', earned);
+    }catch(e){
+      console.warn('[REAL DOUBLE REWARD] failed', e);
+    }
+  };
+
+  try{ console.log('[REAL DOUBLE REWARD FIX v1.0.4.26] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
