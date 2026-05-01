@@ -2190,5 +2190,92 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   }catch(e){}
 })();
 </script>
+<script>
+/* ===== MUSIC MP3 LOOP v1.0.4.13 =====
+   Replaces busy generated background music with a subtle MP3 loop.
+   SFX / bounce / hit / combo sounds stay Web Audio.
+*/
+(function(){
+  var MUSIC_SRC = 'audio/under_the_tall_grass.mp3';
+  var musicAudio = null;
+  var musicWanted = false;
+
+  function stopOldSynthMusic(){
+    try{
+      if(typeof musicNodes !== 'undefined' && musicNodes && musicNodes.length){
+        musicNodes.forEach(function(n){ try{ n.stop(); }catch(e){} });
+        musicNodes = [];
+      }
+      if(window._arpInterval) clearInterval(window._arpInterval);
+      if(window._chordInterval) clearInterval(window._chordInterval);
+      if(window._melInterval) clearInterval(window._melInterval);
+    }catch(e){}
+  }
+
+  function getMusicAudio(){
+    if(!musicAudio){
+      musicAudio = new Audio(MUSIC_SRC);
+      musicAudio.loop = true;
+      musicAudio.preload = 'auto';
+      musicAudio.volume = 0.15;
+    }
+    return musicAudio;
+  }
+
+  window.startMusic = function(){
+    try{
+      if(typeof musicEnabled !== 'undefined' && !musicEnabled) return;
+      musicWanted = true;
+      stopOldSynthMusic();
+
+      var a = getMusicAudio();
+      if(!a.paused){
+        musicPlaying = true;
+        return;
+      }
+
+      a.volume = 0.15;
+      var p = a.play();
+      if(p && typeof p.then === 'function'){
+        p.then(function(){
+          musicPlaying = true;
+          try{ console.log('[MUSIC v1.0.4.13] MP3 loop playing'); }catch(e){}
+        }).catch(function(){
+          musicPlaying = false;
+          try{ console.log('[MUSIC v1.0.4.13] play blocked until user gesture'); }catch(e){}
+        });
+      } else {
+        musicPlaying = true;
+      }
+    }catch(e){}
+  };
+
+  window.stopMusic = function(){
+    try{
+      musicWanted = false;
+      stopOldSynthMusic();
+
+      if(musicAudio){
+        musicAudio.pause();
+        musicAudio.currentTime = 0;
+      }
+      musicPlaying = false;
+    }catch(e){}
+  };
+
+  ['pointerdown','touchstart','mousedown','click'].forEach(function(ev){
+    document.addEventListener(ev, function(){
+      try{
+        if(musicWanted && typeof musicEnabled !== 'undefined' && musicEnabled && typeof gameActive !== 'undefined' && gameActive){
+          var a = getMusicAudio();
+          if(a.paused) a.play().then(function(){ musicPlaying=true; }).catch(function(){});
+        }
+      }catch(e){}
+    }, {passive:true});
+  });
+
+  try{ console.log('[MUSIC MP3 LOOP v1.0.4.13] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
