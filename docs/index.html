@@ -781,20 +781,29 @@ function startRoomLevel(ri,li){
 
 // ===== HANDCRAFTED LEVELS =====
 var HANDCRAFTED={
-  // Room 0 (Glass Lab), Level 0: Tutorial-like, 3 targets in a line
+  // Room 0 (Glass Lab), Level 0: First-shot BOOM CHAIN hook
   '0_0':{shots:5,targets:[
-    {x:0.5,y:0.25,type:'normal'},{x:0.3,y:0.35,type:'normal'},{x:0.7,y:0.35,type:'normal'}
+    {x:0.50,y:0.22,type:'explosive'},
+    {x:0.36,y:0.28,type:'normal'},{x:0.64,y:0.28,type:'normal'},
+    {x:0.43,y:0.38,type:'crystal'},{x:0.57,y:0.38,type:'crystal'},
+    {x:0.50,y:0.48,type:'normal'}
   ],walls:[]},
-  // Room 0, Level 1: Crystal cluster - satisfying shatter
-  '0_1':{shots:4,targets:[
-    {x:0.5,y:0.2,type:'crystal'},{x:0.4,y:0.3,type:'crystal'},{x:0.6,y:0.3,type:'crystal'},
-    {x:0.5,y:0.4,type:'normal'}
-  ],walls:[{x:0.2,y:0.5,w:0.6,h:0.01}]},
-  // Room 0, Level 2: Explosive chain - domino effect!
-  '0_2':{shots:3,targets:[
-    {x:0.3,y:0.2,type:'normal'},{x:0.45,y:0.25,type:'explosive'},{x:0.6,y:0.2,type:'normal'},
-    {x:0.75,y:0.25,type:'normal'},{x:0.5,y:0.4,type:'crystal'}
-  ],walls:[]},
+  // Room 0, Level 1: Wall bounce reward
+  '0_1':{shots:5,targets:[
+    {x:0.78,y:0.18,type:'crystal'},
+    {x:0.70,y:0.28,type:'normal'},
+    {x:0.62,y:0.38,type:'crystal'},
+    {x:0.46,y:0.34,type:'explosive'},
+    {x:0.32,y:0.44,type:'normal'}
+  ],walls:[{x:0.18,y:0.22,w:0.01,h:0.34}]},
+  // Room 0, Level 2: Perfect chain moment
+  '0_2':{shots:5,targets:[
+    {x:0.50,y:0.18,type:'crystal'},
+    {x:0.38,y:0.28,type:'normal'},{x:0.62,y:0.28,type:'normal'},
+    {x:0.50,y:0.38,type:'explosive'},
+    {x:0.34,y:0.48,type:'crystal'},{x:0.66,y:0.48,type:'crystal'},
+    {x:0.50,y:0.58,type:'normal'}
+  ],walls:[{x:0.25,y:0.62,w:0.50,h:0.01}]},
   // Room 0, Level 3: Shield gauntlet
   '0_3':{shots:4,targets:[
     {x:0.3,y:0.15,type:'hard'},{x:0.5,y:0.25,type:'explosive'},{x:0.7,y:0.15,type:'hard'},
