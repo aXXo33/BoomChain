@@ -3107,5 +3107,77 @@ body.end-overlay-active #levelCompleteS .premium-end-shell *{
   try{ console.log('[CONFETTI BEHIND PREMIUM OVERLAY v1.0.4.23] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== DISABLE END OVERLAY CONFETTI v1.0.4.24 ===== */
+body.end-overlay-no-confetti #confettiCanvas{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+</style>
+
+<script>
+/* ===== DISABLE END OVERLAY CONFETTI v1.0.4.24 =====
+   Final decision: no confetti over premium win/lose panels.
+   Premium card is stronger without visual noise across reward rows.
+*/
+(function(){
+  function setNoConfettiMode(on){
+    try{
+      var cc=document.getElementById('confettiCanvas');
+
+      if(on){
+        document.body.classList.add('end-overlay-no-confetti');
+
+        if(cc){
+          cc.style.display='none';
+          cc.style.opacity='0';
+          cc.style.visibility='hidden';
+        }
+
+        // Clear existing confetti particles if global array exists
+        if(typeof confetti!=='undefined' && Array.isArray(confetti)){
+          confetti.length=0;
+        }
+      } else {
+        document.body.classList.remove('end-overlay-no-confetti');
+
+        if(cc){
+          cc.style.display='';
+          cc.style.opacity='';
+          cc.style.visibility='';
+        }
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen==='function'){
+    var _showScreenNoConfetti=window.showScreen;
+    window.showScreen=function(id){
+      var r=_showScreenNoConfetti.apply(this,arguments);
+
+      if(id==='levelCompleteS' || id==='gameOverS'){
+        setTimeout(function(){ setNoConfettiMode(true); },10);
+        setTimeout(function(){ setNoConfettiMode(true); },80);
+        setTimeout(function(){ setNoConfettiMode(true); },200);
+      } else {
+        setNoConfettiMode(false);
+      }
+
+      return r;
+    };
+  }
+
+  if(typeof window.hideAll==='function'){
+    var _hideAllNoConfetti=window.hideAll;
+    window.hideAll=function(){
+      setNoConfettiMode(false);
+      return _hideAllNoConfetti.apply(this,arguments);
+    };
+  }
+
+  try{ console.log('[DISABLE END OVERLAY CONFETTI v1.0.4.24] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
