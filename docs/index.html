@@ -3179,5 +3179,212 @@ body.end-overlay-no-confetti #confettiCanvas{
   try{ console.log('[DISABLE END OVERLAY CONFETTI v1.0.4.24] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== HUD PREMIUM POLISH v1.0.4.25 ===== */
+#hud.premium-hud{
+  position:fixed !important;
+  top:10px !important;
+  left:10px !important;
+  right:10px !important;
+  display:grid !important;
+  grid-template-columns:1.15fr 0.9fr 0.95fr 1.1fr;
+  gap:8px;
+  padding:0 !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  z-index:120;
+  pointer-events:none;
+}
+
+#hud.premium-hud > div.hud-card{
+  position:relative;
+  min-height:58px;
+  padding:16px 12px 10px;
+  border-radius:18px;
+  background:
+    linear-gradient(180deg, rgba(34,38,66,0.90), rgba(14,16,30,0.88));
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 18px rgba(255,107,53,0.06);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;
+}
+
+#hud.premium-hud > div.hud-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:
+    linear-gradient(135deg, rgba(255,107,53,0.08), transparent 45%, rgba(247,201,72,0.04));
+  pointer-events:none;
+}
+
+#hud.premium-hud > div.hud-card::after{
+  position:absolute;
+  top:6px;
+  left:12px;
+  font-size:0.54em;
+  font-weight:900;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+  color:#8f96aa;
+  pointer-events:none;
+}
+
+#hud.premium-hud .hud-card-level::after{content:"Run";}
+#hud.premium-hud .hud-card-coins::after{content:"Coins";}
+#hud.premium-hud .hud-card-targets::after{content:"Targets";}
+#hud.premium-hud .hud-card-stats::after{content:"Shots / Score";}
+
+#hud.premium-hud .hud-card-level{align-items:flex-start;}
+#hud.premium-hud .hud-card-coins{align-items:center; text-align:center;}
+#hud.premium-hud .hud-card-targets{align-items:center; text-align:center;}
+#hud.premium-hud .hud-card-stats{align-items:flex-end; text-align:right;}
+
+#hud.premium-hud .hud-item{
+  background:none !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  margin:0 !important;
+  color:#ffffff !important;
+  font-weight:850 !important;
+  letter-spacing:0.3px;
+  line-height:1.15;
+  position:relative;
+  z-index:2;
+}
+
+#hud.premium-hud .hud-card-level .hud-item:first-child{
+  font-size:0.96em !important;
+  color:#ffffff !important;
+  text-shadow:0 0 10px rgba(255,255,255,0.06);
+}
+
+#hud.premium-hud #hudRoom{
+  position:relative;
+  z-index:2;
+  margin-top:4px;
+  color:#aeb4c6 !important;
+  font-size:0.66em !important;
+  font-weight:850 !important;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+
+#hud.premium-hud #hudCoins{
+  color:#f7c948 !important;
+  font-size:1.02em !important;
+  font-weight:950 !important;
+  text-shadow:0 0 14px rgba(247,201,72,0.18);
+}
+
+#hud.premium-hud #hudTargets{
+  color:#8dff96 !important;
+  font-size:0.98em !important;
+  font-weight:950 !important;
+  text-shadow:0 0 14px rgba(124,255,138,0.15);
+}
+
+#hud.premium-hud .hud-card-stats .hud-item:first-child{
+  font-size:0.90em !important;
+  color:#ffffff !important;
+}
+
+#hud.premium-hud #hudScore{
+  margin-top:3px !important;
+  color:#f7c948 !important;
+  font-size:0.74em !important;
+  font-weight:900 !important;
+  letter-spacing:0.7px;
+  text-shadow:0 0 10px rgba(247,201,72,0.15);
+}
+
+@media (max-width: 420px){
+  #hud.premium-hud{
+    gap:6px;
+    grid-template-columns:1.08fr 0.82fr 0.88fr 1.02fr;
+  }
+
+  #hud.premium-hud > div.hud-card{
+    min-height:54px;
+    padding:15px 10px 9px;
+    border-radius:16px;
+  }
+
+  #hud.premium-hud > div.hud-card::after{
+    top:5px;
+    left:10px;
+    font-size:0.50em;
+    letter-spacing:1.5px;
+  }
+
+  #hud.premium-hud .hud-card-level .hud-item:first-child{
+    font-size:0.90em !important;
+  }
+
+  #hud.premium-hud #hudCoins,
+  #hud.premium-hud #hudTargets{
+    font-size:0.92em !important;
+  }
+
+  #hud.premium-hud #hudScore{
+    font-size:0.68em !important;
+  }
+
+  #hud.premium-hud #hudRoom{
+    font-size:0.60em !important;
+  }
+}
+</style>
+
+<script>
+/* ===== HUD PREMIUM POLISH v1.0.4.25 ===== */
+(function(){
+  function applyPremiumHud(){
+    try{
+      var hud = document.getElementById('hud');
+      if(!hud) return;
+
+      hud.classList.add('premium-hud');
+
+      var cards = hud.children;
+      if(cards.length >= 4){
+        cards[0].classList.add('hud-card','hud-card-level');
+        cards[1].classList.add('hud-card','hud-card-coins');
+        cards[2].classList.add('hud-card','hud-card-targets');
+        cards[3].classList.add('hud-card','hud-card-stats');
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.updateHUD === 'function'){
+    var _updateHUD = window.updateHUD;
+    window.updateHUD = function(){
+      var r = _updateHUD.apply(this, arguments);
+      setTimeout(applyPremiumHud, 0);
+      return r;
+    };
+  }
+
+  var _setTimeout = window.setTimeout;
+  _setTimeout(function(){ applyPremiumHud(); }, 200);
+  window.addEventListener('load', function(){ _setTimeout(applyPremiumHud, 100); });
+
+  try{ console.log('[HUD PREMIUM POLISH v1.0.4.25] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
