@@ -3475,5 +3475,95 @@ body.end-overlay-no-confetti #confettiCanvas{
   try{ console.log('[REAL DOUBLE REWARD FIX v1.0.4.26] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== HUD FIT FIX v1.0.4.28 ===== */
+#hud.premium-hud{
+  left:7px !important;
+  right:7px !important;
+  top:8px !important;
+  gap:5px !important;
+  grid-template-columns:1.08fr 0.86fr 0.88fr 0.96fr !important;
+}
+
+#hud.premium-hud > div.hud-card{
+  min-height:52px !important;
+  padding:14px 8px 8px !important;
+  border-radius:15px !important;
+}
+
+#hud.premium-hud > div.hud-card::after{
+  top:5px !important;
+  left:8px !important;
+  font-size:0.47em !important;
+  letter-spacing:1.3px !important;
+}
+
+#hud.premium-hud .hud-card-level .hud-item:first-child{
+  font-size:0.86em !important;
+}
+
+#hud.premium-hud #hudRoom{
+  font-size:0.56em !important;
+  letter-spacing:0.9px !important;
+}
+
+#hud.premium-hud #hudCoins{
+  font-size:0.88em !important;
+}
+
+#hud.premium-hud #hudTargets{
+  font-size:0.86em !important;
+  letter-spacing:-0.5px !important;
+}
+
+#hud.premium-hud .hud-card-stats .hud-item:first-child{
+  font-size:0.78em !important;
+  white-space:nowrap !important;
+}
+
+#hud.premium-hud #hudScore{
+  font-size:0.64em !important;
+}
+
+#settingsBtn,
+.settings-btn,
+button[onclick="openSettings()"]{
+  z-index:180 !important;
+  transform:scale(0.88) !important;
+  transform-origin:top right !important;
+}
+
+@media (max-width:390px){
+  #hud.premium-hud{
+    left:6px !important;
+    right:6px !important;
+    gap:4px !important;
+    grid-template-columns:1.04fr 0.82fr 0.84fr 0.92fr !important;
+  }
+
+  #hud.premium-hud > div.hud-card{
+    padding:14px 6px 8px !important;
+    border-radius:14px !important;
+  }
+
+  #hud.premium-hud > div.hud-card::after{
+    font-size:0.44em !important;
+    letter-spacing:1.1px !important;
+  }
+
+  #hud.premium-hud #hudCoins,
+  #hud.premium-hud #hudTargets{
+    font-size:0.80em !important;
+  }
+
+  #hud.premium-hud .hud-card-stats .hud-item:first-child{
+    font-size:0.72em !important;
+  }
+
+  #hud.premium-hud #hudRoom{
+    font-size:0.52em !important;
+  }
+}
+</style>
 </body>
 </html>
