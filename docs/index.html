@@ -2910,5 +2910,132 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   try{ console.log('[END OVERLAY CLEANUP v1.0.4.21] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== FINAL END OVERLAY CLEANUP v1.0.4.22 ===== */
+#levelCompleteS .premium-end-shell,
+#gameOverS .premium-end-shell{
+  z-index:500 !important;
+  position:relative !important;
+}
+
+#levelCompleteS .end-polish-tag,
+#gameOverS .end-polish-tag{
+  display:none !important;
+}
+
+#levelCompleteS #lcScore,
+#levelCompleteS #lcCoins{
+  position:relative !important;
+  z-index:520 !important;
+}
+
+#levelCompleteS .premium-score,
+#levelCompleteS .premium-pill{
+  overflow:hidden;
+}
+
+#levelCompleteS #lcEmoji{
+  position:relative !important;
+  z-index:510 !important;
+}
+</style>
+
+<script>
+/* ===== FINAL END OVERLAY CLEANUP v1.0.4.22 =====
+   Removes old duplicate tag, cleans coin row, and keeps confetti behind premium panel content.
+*/
+(function(){
+  function finalCleanEndOverlay(id){
+    try{
+      var screen=document.getElementById(id);
+      if(!screen) return;
+
+      // Remove all old v1.0.4.19 tags completely
+      var oldTags=screen.querySelectorAll('.end-polish-tag');
+      oldTags.forEach(function(t){
+        try{ t.remove(); }catch(e){}
+      });
+
+      // Remove any loose duplicate RUN COMPLETE text element inside premium card
+      var shell=screen.querySelector('.premium-end-shell');
+      if(shell){
+        Array.from(shell.children).forEach(function(el){
+          try{
+            if(
+              !el.classList.contains('premium-end-tag') &&
+              el.textContent &&
+              el.textContent.trim()==='RUN COMPLETE'
+            ){
+              el.remove();
+            }
+          }catch(e){}
+        });
+      }
+
+      if(id==='levelCompleteS'){
+        var premiumTag=screen.querySelector('.premium-end-tag');
+        var perfect=document.getElementById('lcPerfect');
+        var title=document.getElementById('lcTitle');
+        var score=document.getElementById('lcScore');
+        var coins=document.getElementById('lcCoins');
+
+        if(title){
+          title.textContent='CHAIN COMPLETE!';
+        }
+
+        if(perfect && perfect.style.display !== 'none' && premiumTag){
+          premiumTag.textContent='PERFECT CHAIN';
+          premiumTag.style.color='#ff8a65';
+        } else if(premiumTag){
+          premiumTag.textContent='RUN COMPLETE';
+          premiumTag.style.color='#f7c948';
+        }
+
+        if(score){
+          var scoreRaw=(score.textContent || '').replace(/\s+/g,' ').trim();
+          var sm=scoreRaw.match(/\+?\d+\s*$/);
+          if(sm) score.textContent=sm[0].trim();
+        }
+
+        if(coins){
+          var raw=(coins.textContent || '').replace(/\s+/g,' ').trim();
+          var m=raw.match(/\+?\d+\s*$/);
+          var amount=m ? m[0].trim() : raw.replace(/[^\d+]/g,'');
+          if(amount){
+            coins.innerHTML='🪙 ' + amount;
+          }
+        }
+
+        // Push content above confetti canvas layer
+        if(shell){
+          shell.style.zIndex='500';
+          shell.style.position='relative';
+        }
+      }
+
+      if(id==='gameOverS'){
+        var goTag=screen.querySelector('.premium-end-tag');
+        var goTitle=document.getElementById('goTitle');
+        if(goTag) goTag.textContent='CHAIN BROKEN';
+        if(goTitle) goTitle.textContent='CHAIN BROKEN';
+      }
+
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen==='function'){
+    var _showScreenFinalClean=window.showScreen;
+    window.showScreen=function(id){
+      var r=_showScreenFinalClean.apply(this,arguments);
+      setTimeout(function(){
+        if(id==='levelCompleteS' || id==='gameOverS') finalCleanEndOverlay(id);
+      },180);
+      return r;
+    };
+  }
+
+  try{ console.log('[FINAL END OVERLAY CLEANUP v1.0.4.22] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
