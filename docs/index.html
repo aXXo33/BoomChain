@@ -1667,7 +1667,7 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
 
 // ===== HOTFIX: Bug fixes =====
 
-// FIX 1: openRoomIntro - show all LEVELS_PER_ROOM levels instead of hardcoded 5
+// FIX 1: openRoomIntro - premium room intro with all LEVELS_PER_ROOM levels
 (function(){
   let _origOpenRoomIntro = openRoomIntro;
   openRoomIntro = function(ri) {
@@ -1676,33 +1676,84 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
     let rp = save.roomProgress[ri];
     let lvls = rp.levels;
     let maxU = 0;
+
     for(let i=0;i<lvls.length;i++){
       if(lvls[i]>0) maxU=i+1;
     }
-    let h = '<div style="text-align:center;padding:40px 20px">';
-    h += '<div style="font-size:3em">'+r.icon+'</div>';
-    h += '<h2 style="color:'+r.color+'">'+r.name+'</h2>';
-    h += '<p style="color:#888">'+r.desc+'</p>';
-    h += '<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0">';
-    for(let i=0;i<LEVELS_PER_ROOM;i++){
-      let stars = lvls[i]||0;
-      let unlocked = (i<=maxU);
-      let isBoss = (i===LEVELS_PER_ROOM-1);
-      if(isBoss){
-        let bossColor = unlocked?'#e74c3c':'#555';
-        h += '<button onclick="startRoomLevel('+ri+','+i+')" style="width:44px;height:44px;border-radius:50%;border:2px solid '+bossColor+';background:rgba(231,76,60,0.15);color:'+bossColor+';font-size:1.2em;cursor:'+(unlocked?'pointer':'default')+';opacity:'+(unlocked?'1':'0.4')+'" '+(unlocked?'':'disabled')+'>';
-        h += isBoss?'\u{1F480}':'';
-        h += '</button>';
-      } else if(unlocked){
-        let col = stars>0?'#2ecc71':'#3498db';
-        h += '<button onclick="startRoomLevel('+ri+','+i+')" style="width:44px;height:44px;border-radius:50%;border:2px solid '+col+';background:rgba(46,204,113,0.1);color:'+col+';font-weight:700;cursor:pointer">'+(i+1)+'</button>';
-      } else {
-        h += '<button disabled style="width:44px;height:44px;border-radius:50%;border:2px solid #444;background:rgba(255,255,255,0.03);color:#555;font-weight:700;cursor:default;opacity:0.5">\u{1F512}</button>';
+
+    let cleared = lvls.filter(function(v){ return v>0; }).length;
+    let totalStars = lvls.reduce(function(a,b){ return a+b; },0);
+    let maxStars = lvls.length * 3;
+    let pct = Math.round((cleared / lvls.length) * 100);
+
+    let accent = r.accent || '#ff6b35';
+    let roomIndexText = ri===5 ? 'ENDLESS SECTOR' : 'SECTOR ' + String(ri+1).padStart(2,'0');
+    let bossUnlocked = maxU >= LEVELS_PER_ROOM-1;
+
+    let h = '';
+    h += '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px;background:radial-gradient(circle at top,'+accent+'22,rgba(5,5,20,0.96) 42%,rgba(3,3,12,0.98));">';
+    h += '<div style="width:100%;max-width:430px;text-align:center;animation:popIn 0.35s ease-out;">';
+
+    h += '<div style="display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:28px;background:linear-gradient(135deg,'+accent+'33,rgba(255,255,255,0.06));border:2px solid '+accent+'aa;box-shadow:0 0 38px '+accent+'66, inset 0 0 22px rgba(255,255,255,0.06);font-size:3.4em;margin-bottom:12px;">'+r.icon+'</div>';
+
+    h += '<div style="color:'+accent+';font-size:0.72em;font-weight:900;letter-spacing:3px;margin-bottom:6px;text-transform:uppercase;">'+roomIndexText+'</div>';
+    h += '<div style="font-size:2em;font-weight:950;color:#fff;letter-spacing:1px;text-shadow:0 0 22px '+accent+'88;margin-bottom:6px;">'+r.name+'</div>';
+    h += '<div style="color:#b9b9c8;font-size:0.9em;line-height:1.45;max-width:330px;margin:0 auto 12px;">'+r.desc+'</div>';
+
+    if(ri!==5){
+      h += '<div style="display:flex;gap:8px;justify-content:center;align-items:center;margin:12px auto 16px;flex-wrap:wrap;">';
+      h += '<div style="padding:7px 12px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.75em;font-weight:800;">'+cleared+'/'+lvls.length+' LEVELS</div>';
+      h += '<div style="padding:7px 12px;border-radius:999px;background:rgba(247,201,72,0.12);border:1px solid rgba(247,201,72,0.30);color:#f7c948;font-size:0.75em;font-weight:800;">⭐ '+totalStars+'/'+maxStars+'</div>';
+      h += '<div style="padding:7px 12px;border-radius:999px;background:'+accent+'22;border:1px solid '+accent+'55;color:'+accent+';font-size:0.75em;font-weight:800;">'+pct+'% CLEAR</div>';
+      h += '</div>';
+
+      h += '<div style="width:84%;height:6px;background:rgba(255,255,255,0.09);border-radius:999px;margin:0 auto 18px;overflow:hidden;">';
+      h += '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,'+accent+',#f7c948);border-radius:999px;box-shadow:0 0 14px '+accent+';"></div>';
+      h += '</div>';
+    }
+
+    h += '<div style="display:grid;grid-template-columns:repeat(4,52px);gap:12px;justify-content:center;margin:18px 0 18px;">';
+
+    if(ri===5){
+      let endlessLevel = save.endlessHighLevel ? save.endlessHighLevel-25 : 1;
+      h += '<button onclick="startRoomLevel('+ri+',0)" style="grid-column:span 4;height:58px;border-radius:18px;border:2px solid '+accent+';background:linear-gradient(135deg,'+accent+'33,rgba(255,255,255,0.05));color:#fff;font-weight:950;font-size:1em;box-shadow:0 0 22px '+accent+'55;cursor:pointer;">∞ START ENDLESS · BEST '+endlessLevel+'</button>';
+    } else {
+      for(let i=0;i<LEVELS_PER_ROOM;i++){
+        let stars = lvls[i] || 0;
+        let unlocked = (i<=maxU);
+        let isBoss = (i===LEVELS_PER_ROOM-1);
+        let isCurrent = unlocked && stars===0 && i===maxU;
+        let label = isBoss ? '☠' : (i+1);
+        let starTxt = stars>0 ? '⭐'.repeat(stars) : '';
+
+        if(isBoss){
+          let bossColor = unlocked ? '#ff1744' : '#555';
+          let bg = unlocked ? 'linear-gradient(135deg,rgba(255,23,68,0.30),rgba(247,201,72,0.10))' : 'rgba(255,255,255,0.03)';
+          h += '<button '+(unlocked?'onclick="startRoomLevel('+ri+','+i+')"':'disabled')+' style="position:relative;width:52px;height:52px;border-radius:18px;border:2px solid '+bossColor+';background:'+bg+';color:'+(unlocked?'#fff':'#666')+';font-size:1.25em;font-weight:950;cursor:'+(unlocked?'pointer':'default')+';opacity:'+(unlocked?'1':'0.45')+';box-shadow:'+(unlocked?'0 0 22px rgba(255,23,68,0.45)':'none')+';">'+label+'<span style="position:absolute;left:0;right:0;bottom:3px;font-size:0.42em;color:#f7c948;letter-spacing:-2px;">'+starTxt+'</span></button>';
+        } else if(unlocked){
+          let border = isCurrent ? '#f7c948' : (stars>0 ? '#2ecc71' : accent);
+          let bg = isCurrent ? 'linear-gradient(135deg,rgba(247,201,72,0.26),'+accent+'22)' : (stars>0 ? 'rgba(46,204,113,0.15)' : accent+'18');
+          let shadow = isCurrent ? '0 0 22px rgba(247,201,72,0.55)' : (stars>0 ? '0 0 14px rgba(46,204,113,0.25)' : '0 0 12px '+accent+'33');
+          h += '<button onclick="startRoomLevel('+ri+','+i+')" style="position:relative;width:52px;height:52px;border-radius:16px;border:2px solid '+border+';background:'+bg+';color:#fff;font-weight:950;cursor:pointer;box-shadow:'+shadow+';">'+label+'<span style="position:absolute;left:0;right:0;bottom:3px;font-size:0.42em;color:#f7c948;letter-spacing:-2px;">'+starTxt+'</span></button>';
+        } else {
+          h += '<button disabled style="width:52px;height:52px;border-radius:16px;border:2px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.025);color:#555;font-weight:900;cursor:default;opacity:0.55;">🔒</button>';
+        }
       }
     }
+
     h += '</div>';
-    h += '<button class="btn btn-secondary" onclick="showScreen(\'worldMapS\')">\u2190 MAP</button>';
-    h += '</div>';
+
+    if(ri!==5){
+      h += '<div style="color:#7f8392;font-size:0.72em;letter-spacing:1px;margin-bottom:14px;">';
+      h += bossUnlocked ? 'BOSS NODE AVAILABLE' : 'CLEAR LEVELS TO REACH THE BOSS NODE';
+      h += '</div>';
+    }
+
+    h += '<button class="btn btn-primary" onclick="startRoomLevel('+ri+','+Math.min(maxU,LEVELS_PER_ROOM-1)+')" style="min-width:190px;margin-bottom:8px;">▶ CONTINUE</button><br>';
+    h += '<button class="btn btn-secondary btn-small" onclick="startWorldMap()">← WORLD MAP</button>';
+
+    h += '</div></div>';
+
     document.getElementById('roomIntroS').innerHTML = h;
     showScreen('roomIntroS');
   };
