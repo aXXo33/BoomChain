@@ -3037,5 +3037,75 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   try{ console.log('[FINAL END OVERLAY CLEANUP v1.0.4.22] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== CONFETTI BEHIND PREMIUM OVERLAY v1.0.4.23 ===== */
+body.end-overlay-active #confettiCanvas{
+  z-index:40 !important;
+  opacity:0.28 !important;
+}
+
+body.end-overlay-active #levelCompleteS,
+body.end-overlay-active #gameOverS{
+  z-index:400 !important;
+}
+
+body.end-overlay-active #levelCompleteS .premium-end-shell,
+body.end-overlay-active #gameOverS .premium-end-shell{
+  z-index:900 !important;
+  position:relative !important;
+}
+
+body.end-overlay-active #levelCompleteS .premium-end-shell *{
+  position:relative;
+  z-index:910;
+}
+</style>
+
+<script>
+/* ===== CONFETTI BEHIND PREMIUM OVERLAY v1.0.4.23 =====
+   Keeps celebration atmosphere but prevents confetti canvas from crossing reward/coin rows.
+*/
+(function(){
+  function setEndOverlayMode(on){
+    try{
+      if(on){
+        document.body.classList.add('end-overlay-active');
+      } else {
+        document.body.classList.remove('end-overlay-active');
+        var cc=document.getElementById('confettiCanvas');
+        if(cc){
+          cc.style.opacity='';
+          cc.style.zIndex='';
+        }
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen==='function'){
+    var _showScreenConfetti=window.showScreen;
+    window.showScreen=function(id){
+      var r=_showScreenConfetti.apply(this,arguments);
+
+      if(id==='levelCompleteS' || id==='gameOverS' || id==='bossClearS'){
+        setTimeout(function(){ setEndOverlayMode(true); },20);
+      } else {
+        setEndOverlayMode(false);
+      }
+
+      return r;
+    };
+  }
+
+  var _hideAllConfetti = window.hideAll;
+  if(typeof _hideAllConfetti==='function'){
+    window.hideAll=function(){
+      setEndOverlayMode(false);
+      return _hideAllConfetti.apply(this,arguments);
+    };
+  }
+
+  try{ console.log('[CONFETTI BEHIND PREMIUM OVERLAY v1.0.4.23] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
