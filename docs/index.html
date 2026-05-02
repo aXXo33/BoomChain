@@ -5555,5 +5555,234 @@ body.living-map-mode #globalSettings{
   }
 }
 </style>
+<style>
+/* ===== LIVING MAP FORCE FIT SIX v1.0.4.38.3 =====
+   Hard compact layout: 6 sector cards must fit above ad banner without depending on scroll.
+*/
+
+#worldMapS.active{
+  overflow:hidden !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+}
+
+.lm381-shell{
+  width:100% !important;
+  height:calc(100vh - 92px) !important;
+  min-height:0 !important;
+  padding:10px 10px 8px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+  overflow:hidden !important;
+}
+
+.lm381-top{
+  margin:0 auto 5px !important;
+  flex:0 0 auto !important;
+}
+
+.lm381-kicker{
+  font-size:0.50em !important;
+  padding:4px 8px !important;
+  margin-bottom:3px !important;
+  letter-spacing:2px !important;
+}
+
+.lm381-title{
+  font-size:1.12em !important;
+  line-height:1 !important;
+  margin:0 !important;
+}
+
+.lm381-sub{
+  display:none !important;
+}
+
+.lm381-core{
+  max-width:390px !important;
+  width:100% !important;
+  margin:4px auto 7px !important;
+  padding:7px 9px !important;
+  border-radius:15px !important;
+  flex:0 0 auto !important;
+}
+
+.lm381-core-row{
+  gap:8px !important;
+}
+
+.lm381-core-orb{
+  width:34px !important;
+  height:34px !important;
+  font-size:0.95em !important;
+}
+
+.lm381-core-label{
+  font-size:0.48em !important;
+  letter-spacing:1.5px !important;
+}
+
+.lm381-core-main{
+  font-size:0.72em !important;
+  margin-top:1px !important;
+}
+
+.lm381-core-bar{
+  height:4px !important;
+  margin-top:4px !important;
+}
+
+.lm381-grid{
+  width:100% !important;
+  max-width:420px !important;
+  margin:0 auto !important;
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  grid-template-rows:repeat(3, 1fr) !important;
+  gap:7px !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+.lm381-card{
+  min-height:0 !important;
+  height:auto !important;
+  border-radius:15px !important;
+  padding:7px 6px 6px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+}
+
+.lm381-card::after{
+  width:62px !important;
+  height:62px !important;
+  right:-24px !important;
+  top:-24px !important;
+}
+
+.lm381-main{
+  gap:2px !important;
+}
+
+.lm381-icon{
+  width:31px !important;
+  height:31px !important;
+  border-radius:11px !important;
+  font-size:1.14em !important;
+  margin-bottom:1px !important;
+}
+
+.lm381-state{
+  font-size:0.40em !important;
+  letter-spacing:1px !important;
+  line-height:1 !important;
+}
+
+.lm381-name{
+  font-size:0.68em !important;
+  line-height:1.05 !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+.lm381-desc{
+  display:none !important;
+}
+
+.lm381-meta{
+  margin-top:5px !important;
+}
+
+.lm381-progress{
+  height:4px !important;
+}
+
+.lm381-stars{
+  font-size:0.52em !important;
+  margin-top:3px !important;
+  line-height:1 !important;
+}
+
+.lm381-unstable{
+  margin-top:5px !important;
+  font-size:0.39em !important;
+  letter-spacing:0.7px !important;
+  line-height:1.1 !important;
+}
+
+.lm381-back{
+  margin-top:6px !important;
+  flex:0 0 auto !important;
+}
+
+.lm381-back .btn{
+  padding:6px 20px !important;
+  font-size:0.72em !important;
+  border-radius:12px !important;
+  margin:2px !important;
+}
+
+/* Very small iPhone / WebView safe fallback */
+@media(max-height:700px){
+  .lm381-shell{
+    height:calc(100vh - 86px) !important;
+    padding-top:7px !important;
+  }
+
+  .lm381-core{
+    padding:6px 8px !important;
+    margin-bottom:5px !important;
+  }
+
+  .lm381-core-orb{
+    width:30px !important;
+    height:30px !important;
+  }
+
+  .lm381-grid{
+    gap:6px !important;
+  }
+
+  .lm381-icon{
+    width:28px !important;
+    height:28px !important;
+    font-size:1em !important;
+  }
+
+  .lm381-name{
+    font-size:0.62em !important;
+  }
+
+  .lm381-stars{
+    font-size:0.48em !important;
+  }
+
+  .lm381-back{
+    margin-top:4px !important;
+  }
+}
+
+/* If ad banner is not present / taller screen, allow a bit more breathing room */
+@media(min-height:820px){
+  .lm381-card{
+    padding:9px 7px !important;
+  }
+
+  .lm381-icon{
+    width:36px !important;
+    height:36px !important;
+    font-size:1.3em !important;
+  }
+
+  .lm381-name{
+    font-size:0.74em !important;
+  }
+}
+</style>
 </body>
 </html>
