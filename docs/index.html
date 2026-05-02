@@ -9917,5 +9917,129 @@ body.non-game-screen-active #hud{
   try{ console.log('[PERFORMANCE BONUS v1.0.4.48] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== PERFORMANCE BADGE FIX v1.0.4.48.1 ===== */
+
+.lc-perf-badge-10448{
+  display:block !important;
+  margin:14px auto 8px !important;
+  padding:9px 18px !important;
+  border-radius:999px !important;
+  font-size:0.78em !important;
+  font-weight:950 !important;
+  letter-spacing:1.4px !important;
+  border:1.5px solid;
+  text-transform:uppercase !important;
+  white-space:nowrap !important;
+  width:fit-content !important;
+  max-width:90% !important;
+  text-align:center !important;
+  box-sizing:border-box !important;
+  position:relative !important;
+  z-index:5 !important;
+}
+
+.lc-perf-bonus-line-10448{
+  display:block !important;
+  margin:0 auto 6px !important;
+  font-size:0.74em !important;
+  font-weight:900 !important;
+  letter-spacing:0.6px !important;
+  text-align:center !important;
+  width:fit-content !important;
+}
+</style>
+
+<script>
+/* ===== PERFORMANCE BADGE FIX v1.0.4.48.1 =====
+   Visual-only fix: relocates badge into .premium-end-shell.
+   Coin bonus is given by v1.0.4.48 (do NOT add coins here = avoid double).
+*/
+(function(){
+  if(window.__PERF_BADGE_FIX_V104481) return;
+  window.__PERF_BADGE_FIX_V104481 = true;
+
+  var TIER_MASTER  = { name: 'MASTER',  bonus: 100, cls: 'master',  icon: '\u2B50' };
+  var TIER_SKILLED = { name: 'SKILLED', bonus: 50,  cls: 'skilled', icon: '\u{1F3AF}' };
+  var TIER_CLEAR   = { name: 'CLEAR',   bonus: 20,  cls: 'clear',   icon: '\u2705' };
+  var PERFECT_BONUS_104481 = 50;
+
+  function determineTier104481(shotsLeftVal, totalShotsVal){
+    if(!totalShotsVal || totalShotsVal <= 0) return TIER_CLEAR;
+    var ratio = shotsLeftVal / totalShotsVal;
+    if(ratio >= 0.6) return TIER_MASTER;
+    if(ratio >= 0.3) return TIER_SKILLED;
+    return TIER_CLEAR;
+  }
+
+  function relocateBadge104481(){
+    try{
+      if(typeof shotsLeft === 'undefined' || typeof totalShots === 'undefined') return;
+
+      var screen = document.getElementById('levelCompleteS');
+      if(!screen) return;
+
+      var shell = screen.querySelector('.premium-end-shell');
+      var targetContainer = shell || screen;
+
+      var oldBadges = targetContainer.querySelectorAll('.lc-perf-badge-10448, .lc-perf-bonus-line-10448');
+      oldBadges.forEach(function(el){ try{ el.remove(); }catch(e){} });
+
+      var tier = determineTier104481(shotsLeft, totalShots);
+      var isPerfect = (totalShots - shotsLeft <= 1) &&
+                      (typeof targetsLeft !== 'undefined' && targetsLeft <= 0) &&
+                      (typeof targets !== 'undefined' && targets.length > 1);
+
+      var badge = document.createElement('div');
+      badge.className = 'lc-perf-badge-10448 ' + tier.cls;
+      badge.textContent = tier.icon + ' ' + tier.name + '  +' + tier.bonus + ' COINS';
+
+      var perfectLine = null;
+      if(isPerfect){
+        perfectLine = document.createElement('div');
+        perfectLine.className = 'lc-perf-bonus-line-10448 perfect';
+        perfectLine.textContent = '\u{1F4A5} PERFECT BONUS  +' + PERFECT_BONUS_104481 + ' COINS';
+      }
+
+      var anchorBtn = targetContainer.querySelector('button[onclick*="nextLevel"]') ||
+                      targetContainer.querySelector('button.btn-primary') ||
+                      targetContainer.querySelector('button.btn-gold');
+
+      if(anchorBtn && anchorBtn.parentNode === targetContainer){
+        targetContainer.insertBefore(badge, anchorBtn);
+        if(perfectLine) targetContainer.insertBefore(perfectLine, anchorBtn);
+      }else{
+        var lcCoins = document.getElementById('lcCoins');
+        if(lcCoins && lcCoins.parentNode){
+          lcCoins.parentNode.insertBefore(badge, lcCoins.nextSibling);
+          if(perfectLine) badge.parentNode.insertBefore(perfectLine, badge.nextSibling);
+        }else{
+          targetContainer.appendChild(badge);
+          if(perfectLine) targetContainer.appendChild(perfectLine);
+        }
+      }
+    }catch(e){
+      try{ console.warn('[PERF BADGE FIX v104481] failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen104481 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen104481.apply(this, arguments);
+      try{
+        if(id === 'levelCompleteS'){
+          setTimeout(relocateBadge104481, 100);
+          setTimeout(relocateBadge104481, 350);
+          setTimeout(relocateBadge104481, 800);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  try{ console.log('[PERFORMANCE BADGE FIX v1.0.4.48.1] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
