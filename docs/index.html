@@ -9095,5 +9095,27 @@ body.non-game-screen-active #hud{
   try{ console.log('[EXTRA BALL BOOSTER v1.0.4.46] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== BOOSTER POSITION FIX v1.0.4.46.1 ===== */
+#boosterPanel10446{
+  bottom:110px !important;
+  bottom:calc(110px + env(safe-area-inset-bottom, 0px)) !important;
+  right:12px !important;
+  z-index:90 !important;
+}
+
+#boosterPanel10446 .booster-btn-10446{
+  width:64px !important;
+  height:64px !important;
+  font-size:1.65em !important;
+}
+
+#boosterPanel10446 .booster-count-10446{
+  min-width:24px !important;
+  height:24px !important;
+  font-size:0.7em !important;
+  border-width:2.5px !important;
+}
+</style>
 </body>
 </html>
