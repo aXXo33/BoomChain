@@ -7334,5 +7334,242 @@ body.lm384-mode #globalSettings{
   try{ console.log('[LEVEL COMPLETE BURST v1.0.4.42] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== COMBO CRESCENDO COIN POP v1.0.4.43 ===== */
+
+.combo-tier-frame{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:180;
+  border-style:solid;
+  border-width:0;
+  opacity:0;
+  animation: comboFrameFlash10443 0.6s ease-out forwards;
+}
+
+.combo-tier-frame.bronze{
+  border-color:#cd7f32;
+  border-width:4px;
+  box-shadow:
+    inset 0 0 60px rgba(205,127,50,0.32),
+    inset 0 0 120px rgba(205,127,50,0.14);
+}
+
+.combo-tier-frame.silver{
+  border-color:#c0c0c0;
+  border-width:5px;
+  box-shadow:
+    inset 0 0 80px rgba(192,192,192,0.42),
+    inset 0 0 160px rgba(192,192,192,0.18);
+}
+
+.combo-tier-frame.gold{
+  border-color:#f7c948;
+  border-width:6px;
+  box-shadow:
+    inset 0 0 100px rgba(247,201,72,0.55),
+    inset 0 0 200px rgba(255,107,53,0.22);
+}
+
+@keyframes comboFrameFlash10443{
+  0%{ opacity:0; transform: scale(1.04); }
+  25%{ opacity:1; transform: scale(1); }
+  100%{ opacity:0; transform: scale(1); }
+}
+
+.combo-tier-text{
+  position:fixed;
+  left:50%;
+  top:38%;
+  transform:translate(-50%, -50%);
+  z-index:185;
+  pointer-events:none;
+  font-size:1.4em;
+  font-weight:950;
+  letter-spacing:3px;
+  opacity:0;
+  animation: comboTierTextPop10443 0.9s ease-out forwards;
+}
+
+.combo-tier-text.bronze{
+  color:#cd7f32;
+  text-shadow:0 0 18px rgba(205,127,50,0.7);
+}
+
+.combo-tier-text.silver{
+  color:#e8e8e8;
+  text-shadow:0 0 22px rgba(192,192,192,0.85);
+}
+
+.combo-tier-text.gold{
+  color:#f7c948;
+  text-shadow:
+    0 0 26px rgba(247,201,72,0.9),
+    0 0 52px rgba(255,107,53,0.55);
+  font-size:1.8em;
+}
+
+@keyframes comboTierTextPop10443{
+  0%{ opacity:0; transform: translate(-50%, -50%) scale(0.4) rotate(-8deg); }
+  20%{ opacity:1; transform: translate(-50%, -50%) scale(1.18) rotate(3deg); }
+  35%{ transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  80%{ opacity:1; transform: translate(-50%, -55%) scale(1); }
+  100%{ opacity:0; transform: translate(-50%, -65%) scale(1); }
+}
+
+.coin-stack-pop{
+  position:fixed;
+  z-index:200;
+  pointer-events:none;
+  font-size:1.4em;
+  font-weight:950;
+  color:#f7c948;
+  text-shadow:
+    0 0 14px rgba(247,201,72,0.85),
+    0 2px 4px rgba(0,0,0,0.7);
+  opacity:0;
+  animation: coinStackRise10443 1.1s ease-out forwards;
+}
+
+.coin-stack-pop.big{
+  font-size:1.9em;
+  text-shadow:
+    0 0 22px rgba(247,201,72,0.95),
+    0 0 44px rgba(255,107,53,0.6),
+    0 2px 4px rgba(0,0,0,0.7);
+}
+
+@keyframes coinStackRise10443{
+  0%{ opacity:0; transform: translateY(10px) scale(0.6); }
+  20%{ opacity:1; transform: translateY(-15px) scale(1.18); }
+  35%{ transform: translateY(-25px) scale(1); }
+  100%{ opacity:0; transform: translateY(-95px) scale(1.1); }
+}
+</style>
+
+<script>
+/* ===== COMBO CRESCENDO COIN POP v1.0.4.43 ===== */
+(function(){
+  if(window.__COMBO_CRESCENDO_V10443) return;
+  window.__COMBO_CRESCENDO_V10443 = true;
+
+  function getComboTier10443(combo){
+    if(combo >= 8) return 'gold';
+    if(combo >= 6) return 'silver';
+    if(combo >= 4) return 'bronze';
+    return null;
+  }
+
+  function getComboLabel10443(tier){
+    if(tier === 'gold') return 'SPECTACULAR';
+    if(tier === 'silver') return 'AMAZING';
+    if(tier === 'bronze') return 'GREAT';
+    return '';
+  }
+
+  function fireComboTier10443(combo){
+    var tier = getComboTier10443(combo);
+    if(!tier) return;
+
+    try{
+      var existing = document.querySelectorAll('.combo-tier-frame, .combo-tier-text');
+      existing.forEach(function(el){ el.remove(); });
+
+      var frame = document.createElement('div');
+      frame.className = 'combo-tier-frame ' + tier;
+      document.body.appendChild(frame);
+      setTimeout(function(){ try{ frame.remove(); }catch(e){} }, 700);
+
+      var text = document.createElement('div');
+      text.className = 'combo-tier-text ' + tier;
+      text.textContent = getComboLabel10443(tier);
+      document.body.appendChild(text);
+      setTimeout(function(){ try{ text.remove(); }catch(e){} }, 1000);
+
+      if(typeof window.triggerShake === 'function'){
+        var shakeAmount = tier === 'gold' ? 12 : (tier === 'silver' ? 8 : 5);
+        window.triggerShake(shakeAmount);
+      }
+
+      if(typeof window.hapticHeavy === 'function' && tier === 'gold'){
+        window.hapticHeavy();
+      }else if(typeof window.hapticMedium === 'function' && tier === 'silver'){
+        window.hapticMedium();
+      }
+    }catch(e){
+      try{ console.warn('[COMBO TIER v1.0.4.43] failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showComboText === 'function'){
+    var oldShowComboText10443 = window.showComboText;
+    window.showComboText = function(combo){
+      var r = oldShowComboText10443.apply(this, arguments);
+      try{ fireComboTier10443(combo); }catch(e){}
+      return r;
+    };
+  }
+
+  var coinStackBuffer10443 = {
+    total: 0,
+    x: 0,
+    y: 0,
+    timer: null,
+    count: 0
+  };
+
+  function flushCoinStack10443(){
+    if(coinStackBuffer10443.total <= 0) return;
+
+    try{
+      var pop = document.createElement('div');
+      pop.className = 'coin-stack-pop';
+      if(coinStackBuffer10443.total >= 30 || coinStackBuffer10443.count >= 4){
+        pop.className += ' big';
+      }
+      pop.textContent = '+' + coinStackBuffer10443.total + ' \u{1FA99}';
+      pop.style.left = (coinStackBuffer10443.x - 35) + 'px';
+      pop.style.top = (coinStackBuffer10443.y - 20) + 'px';
+      document.body.appendChild(pop);
+      setTimeout(function(){ try{ pop.remove(); }catch(e){} }, 1200);
+    }catch(e){}
+
+    coinStackBuffer10443.total = 0;
+    coinStackBuffer10443.count = 0;
+    coinStackBuffer10443.timer = null;
+  }
+
+  if(typeof window.showCoinFly === 'function'){
+    var oldShowCoinFly10443 = window.showCoinFly;
+    window.showCoinFly = function(x, y, amount){
+      try{
+        if(typeof amount !== 'number' || amount <= 0){
+          return oldShowCoinFly10443.apply(this, arguments);
+        }
+
+        coinStackBuffer10443.total += amount;
+        coinStackBuffer10443.count += 1;
+        coinStackBuffer10443.x = x;
+        coinStackBuffer10443.y = y;
+
+        if(coinStackBuffer10443.timer){
+          clearTimeout(coinStackBuffer10443.timer);
+        }
+        coinStackBuffer10443.timer = setTimeout(flushCoinStack10443, 220);
+
+        if(coinStackBuffer10443.count <= 1){
+          return oldShowCoinFly10443.apply(this, arguments);
+        }
+        return null;
+      }catch(e){
+        return oldShowCoinFly10443.apply(this, arguments);
+      }
+    };
+  }
+
+  try{ console.log('[COMBO CRESCENDO COIN POP v1.0.4.43] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
