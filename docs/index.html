@@ -6804,5 +6804,138 @@ body.lm384-mode #globalSettings{
   try{ console.log('[SHOP RARITY UPGRADE v1.0.4.40] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== SHOP RARITY SAFE CORRECTION v1.0.4.40.1 =====
+   Corrects v1.0.4.40 without touching economy/gameplay.
+   Uses prestige-name Legendary list so Shatter+ does not accidentally become Legendary.
+*/
+
+.shop-grid{
+  max-width:360px !important;
+  max-height:50vh !important;
+  gap:10px !important;
+}
+
+.shop-item{
+  min-height:unset !important;
+  padding:12px 8px !important;
+}
+
+.shop-rarity-tag{
+  font-size:0.47em !important;
+  padding:2px 6px !important;
+  margin-top:3px !important;
+  line-height:1.35 !important;
+}
+
+.shop-item.rarity-legendary{
+  border-color:rgba(247,201,72,0.60) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.15), transparent 45%),
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.026)) !important;
+  box-shadow:
+    0 13px 28px rgba(0,0,0,0.28),
+    0 0 24px rgba(247,201,72,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.075) !important;
+}
+
+.shop-item.rarity-legendary .shop-rarity-tag{
+  color:#f7c948 !important;
+  background:rgba(247,201,72,0.13) !important;
+  border-color:rgba(247,201,72,0.42) !important;
+  box-shadow:0 0 14px rgba(247,201,72,0.13) !important;
+}
+</style>
+
+<script>
+/* ===== SHOP RARITY SAFE CORRECTION v1.0.4.40.1 ===== */
+(function(){
+  if(window.__SHOP_RARITY_SAFE_CORRECTION_V104401) return;
+  window.__SHOP_RARITY_SAFE_CORRECTION_V104401 = true;
+
+  function normalize104401(s){
+    return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  }
+
+  function rarityForShopCard104401(name, price){
+    var n = normalize104401(name);
+    var p = Number(price) || 0;
+
+    // Hand-picked prestige cosmetics.
+    // Keeps Shatter+ as Epic even though its price is 5000.
+    var legendaryNames = {
+      plasma:true,
+      aurora:true,
+      rainbow:true,
+      void:true,
+      rainbowtrail:true,
+      nova:true
+    };
+
+    if(legendaryNames[n]) return 'legendary';
+    if(p >= 3500) return 'epic';
+    if(p >= 1000) return 'rare';
+    return 'common';
+  }
+
+  function label104401(r){
+    if(r==='legendary') return 'LEGENDARY';
+    if(r==='epic') return 'EPIC';
+    if(r==='rare') return 'RARE';
+    return 'COMMON';
+  }
+
+  function reclassifyShop104401(){
+    try{
+      var cards=document.querySelectorAll('#shopGrid .shop-item');
+      cards.forEach(function(card){
+        var priceNode=card.querySelector('.skin-price');
+        var nameNode=card.querySelector('.skin-name');
+        var tag=card.querySelector('.shop-rarity-tag');
+        if(!priceNode || !nameNode) return;
+
+        var name=(nameNode.textContent||'').trim();
+        var txt=(priceNode.textContent||'').replace(/,/g,'');
+        var m=txt.match(/(\d+)/);
+        var price=m?parseInt(m[1],10):0;
+
+        var rarity=rarityForShopCard104401(name, price);
+
+        card.classList.remove('rarity-common','rarity-rare','rarity-epic','rarity-legendary');
+        card.classList.add('rarity-'+rarity);
+
+        if(tag){
+          tag.className='shop-rarity-tag shop-rarity-'+rarity;
+          tag.textContent=label104401(rarity);
+        }
+      });
+    }catch(e){}
+  }
+
+  if(typeof window.shopTab==='function'){
+    var oldShopTab104401=window.shopTab;
+    window.shopTab=function(tab){
+      var r=oldShopTab104401.apply(this,arguments);
+      setTimeout(reclassifyShop104401,40);
+      setTimeout(reclassifyShop104401,160);
+      return r;
+    };
+  }
+
+  if(typeof window.openShop==='function'){
+    var oldOpenShop104401=window.openShop;
+    window.openShop=function(){
+      var r=oldOpenShop104401.apply(this,arguments);
+      setTimeout(reclassifyShop104401,100);
+      setTimeout(reclassifyShop104401,220);
+      return r;
+    };
+  }
+
+  setTimeout(reclassifyShop104401,500);
+
+  try{ console.log('[SHOP RARITY SAFE CORRECTION v1.0.4.40.1] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
