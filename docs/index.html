@@ -1185,7 +1185,7 @@ function generateLevel(room,li,gl){
     });
   }else{
     // Procedural generation
-    if(isBossRoom){shotsLeft=totalShots=5;}else if(currentRoom===5){totalShots=5;shotsLeft=totalShots;}else{totalShots=5;shotsLeft=totalShots;}
+    if(isBossRoom){shotsLeft=totalShots=5;}else if(currentRoom===5){totalShots=3;shotsLeft=totalShots;}else{totalShots=3;shotsLeft=totalShots;} /* v1.0.4.49 SHOT REDUCTION applied */
     var numT=isBossRoom?1:Math.min(3+li+Math.floor(gl/3),15);
     var types=room.targetTypes;
     for(var i=0;i<numT;i++){
