@@ -2,6 +2,64 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- ===== CACHE BUSTER v1.0.4.49.2 ===== -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+/* ===== CACHE BUSTER v1.0.4.49.2 ===== */
+(function(){
+  var BUSTER_VERSION = '1.0.4.49.2';
+  try{
+    var lastVersion = null;
+    try{ lastVersion = localStorage.getItem('__cacheBusterVersion'); }catch(e){}
+
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        if(regs && regs.length){
+          regs.forEach(function(reg){
+            try{ reg.unregister(); }catch(e){}
+          });
+          try{ console.log('[CACHE BUSTER v104492] unregistered ' + regs.length + ' SW(s)'); }catch(e){}
+        }
+      }).catch(function(){});
+    }
+
+    if('caches' in self){
+      try{
+        caches.keys().then(function(keys){
+          if(keys && keys.length){
+            keys.forEach(function(k){
+              try{ caches.delete(k); }catch(e){}
+            });
+            try{ console.log('[CACHE BUSTER v104492] cleared ' + keys.length + ' cache(s)'); }catch(e){}
+          }
+        }).catch(function(){});
+      }catch(e){}
+    }
+
+    try{
+      localStorage.setItem('__cacheBusterVersion', BUSTER_VERSION);
+
+      if(lastVersion && lastVersion !== BUSTER_VERSION && !window.__cacheBusterReloaded104492){
+        window.__cacheBusterReloaded104492 = true;
+        sessionStorage.setItem('__cacheBusterDidReload', '1');
+        try{
+          var url = window.location.href.split('#')[0];
+          var sep = url.indexOf('?') >= 0 ? '&' : '?';
+          window.location.replace(url + sep + 'cb=' + Date.now());
+        }catch(e){
+          window.location.reload();
+        }
+      }
+    }catch(e){}
+
+    try{ console.log('[CACHE BUSTER v1.0.4.49.2] active, ver=' + BUSTER_VERSION); }catch(e){}
+  }catch(e){
+    try{ console.warn('[CACHE BUSTER v104492] failed', e); }catch(_){}
+  }
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0">
 <title>Boom Chain</title>
 <style>
