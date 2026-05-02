@@ -5784,5 +5784,569 @@ body.living-map-mode #globalSettings{
   }
 }
 </style>
+<style>
+/* ===== FINAL COMPACT LIVING MAP v1.0.4.38.4 =====
+   Final override: true 2x3 sector grid, HUD hidden, no scroll dependency.
+*/
+
+body.lm384-mode #hud,
+body.lm384-mode #globalSettings{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+#worldMapS.active{
+  padding:0 !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  overflow:hidden !important;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(79,195,247,0.15), transparent 32%),
+    radial-gradient(circle at 50% 70%, rgba(186,104,200,0.11), transparent 46%),
+    rgba(3,4,14,0.98) !important;
+}
+
+.lm384-shell{
+  width:100%;
+  height:calc(100vh - 88px);
+  min-height:0;
+  padding:10px 10px 8px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+  color:#fff;
+  text-align:center;
+}
+
+.lm384-shell::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,0.030) 49%, transparent 50%),
+    linear-gradient(0deg, transparent 0 48%, rgba(255,255,255,0.020) 49%, transparent 50%);
+  background-size:52px 52px;
+  opacity:0.16;
+  transform:rotate(-8deg);
+  pointer-events:none;
+}
+
+.lm384-top,
+.lm384-core,
+.lm384-grid,
+.lm384-back{
+  position:relative;
+  z-index:2;
+}
+
+.lm384-top{
+  flex:0 0 auto;
+  margin:0 auto 5px;
+}
+
+.lm384-kicker{
+  display:inline-block;
+  color:#4fc3f7;
+  font-size:0.50em;
+  font-weight:950;
+  letter-spacing:2px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid rgba(79,195,247,0.32);
+  background:rgba(79,195,247,0.08);
+  margin-bottom:3px;
+}
+
+.lm384-title{
+  font-size:1.12em;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:1.1px;
+  text-shadow:0 0 20px rgba(79,195,247,0.32);
+}
+
+.lm384-core{
+  flex:0 0 auto;
+  width:100%;
+  max-width:410px;
+  margin:4px auto 7px;
+  border-radius:15px;
+  padding:7px 9px;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(247,201,72,0.18), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+  border:1px solid rgba(247,201,72,0.26);
+  box-shadow:0 10px 26px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+.lm384-core-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.lm384-orb{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle at 35% 30%, #fff7c8, #f7c948 42%, rgba(247,201,72,0.15) 72%);
+  box-shadow:0 0 20px rgba(247,201,72,0.40);
+  font-size:0.95em;
+  animation:lm384Pulse 2.4s ease-in-out infinite;
+}
+
+.lm384-core-info{
+  flex:1;
+  text-align:left;
+}
+
+.lm384-core-label{
+  color:#f7c948;
+  font-size:0.48em;
+  font-weight:950;
+  letter-spacing:1.4px;
+}
+
+.lm384-core-main{
+  color:#fff;
+  font-size:0.72em;
+  font-weight:950;
+  margin-top:1px;
+}
+
+.lm384-core-bar{
+  height:4px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.09);
+  overflow:hidden;
+  margin-top:4px;
+}
+
+.lm384-core-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#4fc3f7,#f7c948);
+  box-shadow:0 0 12px rgba(247,201,72,0.28);
+}
+
+.lm384-grid{
+  width:100%;
+  max-width:420px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:repeat(3, 1fr);
+  gap:7px;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
+
+.lm384-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:15px;
+  padding:7px 6px 6px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.072), rgba(255,255,255,0.024));
+  border:1px solid rgba(255,255,255,0.10);
+  box-shadow:0 10px 24px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.06);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  cursor:pointer;
+}
+
+.lm384-card.restored{
+  border-color:var(--accent);
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.26),
+    0 0 18px color-mix(in srgb, var(--accent) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+.lm384-card.active-sector{
+  border-color:#f7c948;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.28),
+    0 0 20px rgba(247,201,72,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+.lm384-card.locked{
+  cursor:default;
+  opacity:0.78;
+  filter:saturate(0.70);
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255,23,68,0.13), transparent 30%),
+    linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
+  border-color:rgba(255,23,68,0.24);
+}
+
+.lm384-card::after{
+  content:"";
+  position:absolute;
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  right:-25px;
+  top:-25px;
+  border:1px solid var(--accent);
+  opacity:0.24;
+  box-shadow:0 0 18px var(--accent);
+  pointer-events:none;
+}
+
+.lm384-card.locked::after{
+  border-color:#ff1744;
+  box-shadow:0 0 18px rgba(255,23,68,0.36);
+  animation:lm384Unstable 1.8s ease-in-out infinite;
+}
+
+.lm384-icon{
+  width:31px;
+  height:31px;
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.14em;
+  background:rgba(255,255,255,0.065);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:0 0 16px color-mix(in srgb, var(--accent) 18%, transparent);
+  margin-bottom:3px;
+  position:relative;
+  z-index:2;
+}
+
+.lm384-state{
+  position:relative;
+  z-index:2;
+  font-size:0.40em;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:1px;
+  margin-bottom:3px;
+}
+
+.lm384-card.restored .lm384-state{
+  color:#7CFF8A;
+}
+
+.lm384-card.active-sector .lm384-state{
+  color:#f7c948;
+}
+
+.lm384-card.locked .lm384-state{
+  color:#ff7f7f;
+}
+
+.lm384-name{
+  position:relative;
+  z-index:2;
+  color:#fff;
+  font-size:0.68em;
+  font-weight:950;
+  line-height:1.05;
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.lm384-progress{
+  position:relative;
+  z-index:2;
+  width:92%;
+  height:4px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.08);
+  overflow:hidden;
+  margin-top:6px;
+}
+
+.lm384-progress-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),#f7c948);
+  box-shadow:0 0 10px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.lm384-stars{
+  position:relative;
+  z-index:2;
+  color:#f7c948;
+  font-size:0.52em;
+  font-weight:900;
+  line-height:1;
+  margin-top:4px;
+}
+
+.lm384-unstable{
+  position:relative;
+  z-index:2;
+  color:#ff8a8a;
+  font-size:0.39em;
+  font-weight:950;
+  letter-spacing:0.7px;
+  line-height:1.05;
+  margin-top:5px;
+}
+
+.lm384-back{
+  flex:0 0 auto;
+  margin-top:6px;
+}
+
+.lm384-back .btn{
+  padding:6px 20px !important;
+  font-size:0.72em !important;
+  border-radius:12px !important;
+  margin:2px !important;
+}
+
+@keyframes lm384Pulse{
+  0%,100%{transform:scale(0.96);opacity:0.88}
+  50%{transform:scale(1.06);opacity:1}
+}
+
+@keyframes lm384Unstable{
+  0%,100%{opacity:0.18;transform:scale(0.94)}
+  50%{opacity:0.48;transform:scale(1.08)}
+}
+
+@media(max-height:700px){
+  .lm384-shell{
+    height:calc(100vh - 84px);
+    padding-top:7px;
+  }
+  .lm384-top{
+    margin-bottom:3px;
+  }
+  .lm384-core{
+    padding:6px 8px;
+    margin-bottom:5px;
+  }
+  .lm384-orb{
+    width:30px;
+    height:30px;
+    flex-basis:30px;
+  }
+  .lm384-grid{
+    gap:6px;
+  }
+  .lm384-icon{
+    width:28px;
+    height:28px;
+    font-size:1em;
+  }
+  .lm384-name{
+    font-size:0.62em;
+  }
+  .lm384-stars{
+    font-size:0.48em;
+  }
+  .lm384-back{
+    margin-top:4px;
+  }
+}
+</style>
+
+<script>
+/* ===== FINAL COMPACT LIVING MAP v1.0.4.38.4 ===== */
+(function(){
+  if(window.__FINAL_COMPACT_LIVING_MAP_V104384) return;
+  window.__FINAL_COMPACT_LIVING_MAP_V104384 = true;
+
+  function esc384(s){
+    return String(s||'').replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function levelCount384(rp){
+    if(!rp || !rp.levels) return 0;
+    return rp.levels.filter(function(v){return v>0;}).length;
+  }
+
+  function starCount384(rp){
+    if(!rp || !rp.levels) return 0;
+    return rp.levels.reduce(function(a,b){return a+(b||0);},0);
+  }
+
+  function restored384(rp,ri){
+    if(!rp) return false;
+    if(rp.cleared) return true;
+    if(ri===5) return !!save.endlessHighLevel;
+    return rp.levels && rp.levels.length && rp.levels.every(function(v){return v>0;});
+  }
+
+  function cleanup384(){
+    try{
+      confetti=[];
+      if(typeof cctx!=='undefined' && cctx && typeof W!=='undefined' && typeof H!=='undefined'){
+        cctx.clearRect(0,0,W,H);
+      }
+    }catch(e){}
+
+    try{
+      if(typeof setEndOverlayMode==='function') setEndOverlayMode(false);
+    }catch(e){}
+
+    try{
+      document.body.classList.remove('boss-clear-premium-mode');
+      document.body.classList.remove('living-map-mode');
+      document.body.classList.add('lm384-mode');
+
+      var hud=document.getElementById('hud');
+      if(hud) hud.style.display='none';
+
+      var gear=document.getElementById('globalSettings');
+      if(gear) gear.style.display='none';
+    }catch(e){}
+  }
+
+  function exit384(){
+    try{
+      document.body.classList.remove('lm384-mode');
+      document.body.classList.remove('living-map-mode');
+    }catch(e){}
+  }
+
+  window.__renderFinalCompactLivingMap384=function(){
+    cleanup384();
+
+    if(typeof showScreen==='function'){
+      showScreen('worldMapS');
+    }
+
+    cleanup384();
+
+    var screen=document.getElementById('worldMapS');
+    if(!screen) return;
+
+    var total=ROOMS.length;
+    var restoredCount=0;
+
+    for(var i=0;i<ROOMS.length;i++){
+      if(restored384(save.roomProgress[i],i)) restoredCount++;
+    }
+
+    var pct=Math.round((restoredCount/total)*100);
+
+    var html='';
+    html+='<div class="lm384-shell">';
+    html+='<div class="lm384-top">';
+    html+='<div class="lm384-kicker">LIVING MAP</div>';
+    html+='<div class="lm384-title">CORE CHAIN GRID</div>';
+    html+='</div>';
+
+    html+='<div class="lm384-core">';
+    html+='<div class="lm384-core-row">';
+    html+='<div class="lm384-orb">&#9889;</div>';
+    html+='<div class="lm384-core-info">';
+    html+='<div class="lm384-core-label">CORE CHAIN STATUS</div>';
+    html+='<div class="lm384-core-main">'+restoredCount+' / '+total+' SECTORS RESTORED</div>';
+    html+='<div class="lm384-core-bar"><div class="lm384-core-fill" style="width:'+pct+'%"></div></div>';
+    html+='</div>';
+    html+='</div>';
+    html+='</div>';
+
+    html+='<div class="lm384-grid">';
+
+    ROOMS.forEach(function(room,ri){
+      var rp=save.roomProgress[ri] || {unlocked:ri===0,cleared:false,levels:[]};
+      var unlocked=!!rp.unlocked || ri===0;
+      var isRestored=restored384(rp,ri);
+      var active=unlocked && !isRestored;
+      var locked=!unlocked;
+
+      var cl=levelCount384(rp);
+      var stars=starCount384(rp);
+      var levelTotal=(rp.levels&&rp.levels.length?rp.levels.length:12);
+      var maxStars=levelTotal*3;
+      var pp=ri===5 ? (save.endlessHighLevel?100:0) : Math.round((cl/levelTotal)*100);
+
+      var cls=isRestored?'restored':(active?'active-sector':'locked');
+      var state=isRestored?'RESTORED':(active?'ACTIVE':'SIGNAL');
+
+      html+='<div class="lm384-card '+cls+'" style="--accent:'+room.accent+'" '+(locked?'':'onclick="lm384OpenRoom('+ri+')"')+'>';
+      html+='<div class="lm384-icon">'+room.icon+'</div>';
+      html+='<div class="lm384-state">'+state+'</div>';
+      html+='<div class="lm384-name">'+esc384(room.name).toUpperCase()+'</div>';
+
+      if(locked){
+        html+='<div class="lm384-unstable">UNSTABLE · ENERGY LEAK</div>';
+      }else{
+        html+='<div class="lm384-progress"><div class="lm384-progress-fill" style="width:'+pp+'%"></div></div>';
+        if(ri===5){
+          html+='<div class="lm384-stars">&#8734; BEST '+(save.endlessHighLevel?save.endlessHighLevel-25:0)+'</div>';
+        }else{
+          html+='<div class="lm384-stars">&#11088; '+stars+'/'+maxStars+'</div>';
+        }
+      }
+
+      html+='</div>';
+    });
+
+    html+='</div>';
+    html+='<div class="lm384-back"><button class="btn btn-secondary btn-small" onclick="lm384BackMenu()">&#x2190; BACK</button></div>';
+    html+='</div>';
+
+    screen.innerHTML=html;
+
+    cleanup384();
+  };
+
+  window.lm384OpenRoom=function(ri){
+    exit384();
+    if(typeof openRoomIntro==='function') openRoomIntro(ri);
+  };
+
+  window.lm384BackMenu=function(){
+    exit384();
+    if(typeof showMenu==='function') showMenu();
+  };
+
+  function install384(){
+    window.startWorldMap=function(){
+      return window.__renderFinalCompactLivingMap384();
+    };
+  }
+
+  install384();
+  setTimeout(install384,100);
+  setTimeout(install384,500);
+  setTimeout(install384,1500);
+  setInterval(install384,2000);
+
+  if(typeof window.startRoomLevel==='function'){
+    var oldSRL384=window.startRoomLevel;
+    window.startRoomLevel=function(){
+      exit384();
+      return oldSRL384.apply(this,arguments);
+    };
+  }
+
+  if(typeof window.showMenu==='function'){
+    var oldSM384=window.showMenu;
+    window.showMenu=function(){
+      exit384();
+      return oldSM384.apply(this,arguments);
+    };
+  }
+
+  try{ console.log('[FINAL COMPACT LIVING MAP v1.0.4.38.4] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
