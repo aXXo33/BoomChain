@@ -8301,5 +8301,170 @@ body.lm384-mode #globalSettings{
   try{ console.log('[DAILY STREAK CALENDAR v1.0.4.45] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== STREAK BUTTON HUD FIX v1.0.4.45.1 ===== */
+body.non-game-screen-active #hud,
+body.non-game-screen-active #globalSettings{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+</style>
+
+<script>
+/* ===== STREAK BUTTON HUD FIX v1.0.4.45.1 ===== */
+(function(){
+  if(window.__STREAK_HUD_FIX_V104451) return;
+  window.__STREAK_HUD_FIX_V104451 = true;
+
+  var NON_GAME_SCREENS_104451 = [
+    'menuS',
+    'worldMapS',
+    'roomIntroS',
+    'shopS',
+    'achieveS',
+    'statsS',
+    'dailySpinS',
+    'dailyStreakS',
+    'leaderboardS',
+    'seasonPassS',
+    'levelCompleteS',
+    'gameOverS',
+    'bossClearS',
+    'tutorialS'
+  ];
+
+  function setNonGameMode10451(id){
+    try{
+      if(NON_GAME_SCREENS_104451.indexOf(id) !== -1){
+        document.body.classList.add('non-game-screen-active');
+      }else{
+        document.body.classList.remove('non-game-screen-active');
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen104451 = window.showScreen;
+    window.showScreen = function(id){
+      setNonGameMode10451(id);
+      return oldShowScreen104451.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.startRoomLevel === 'function'){
+    var oldStartRoomLevel104451 = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      try{ document.body.classList.remove('non-game-screen-active'); }catch(e){}
+      return oldStartRoomLevel104451.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.startDailyChallenge === 'function'){
+    var oldStartDailyChallenge104451 = window.startDailyChallenge;
+    window.startDailyChallenge = function(){
+      try{ document.body.classList.remove('non-game-screen-active'); }catch(e){}
+      return oldStartDailyChallenge104451.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.startWeeklyChallenge === 'function'){
+    var oldStartWeeklyChallenge104451 = window.startWeeklyChallenge;
+    window.startWeeklyChallenge = function(){
+      try{ document.body.classList.remove('non-game-screen-active'); }catch(e){}
+      return oldStartWeeklyChallenge104451.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.retryLevel === 'function'){
+    var oldRetryLevel104451 = window.retryLevel;
+    window.retryLevel = function(){
+      try{ document.body.classList.remove('non-game-screen-active'); }catch(e){}
+      return oldRetryLevel104451.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.nextLevel === 'function'){
+    var oldNextLevel104451 = window.nextLevel;
+    window.nextLevel = function(){
+      try{ document.body.classList.remove('non-game-screen-active'); }catch(e){}
+      return oldNextLevel104451.apply(this, arguments);
+    };
+  }
+
+  setTimeout(function(){
+    try{
+      var menu = document.getElementById('menuS');
+      if(menu && menu.classList.contains('active')){
+        document.body.classList.add('non-game-screen-active');
+      }
+    }catch(e){}
+  }, 100);
+
+  function injectStreakButton104451(){
+    try{
+      if(document.getElementById('dailyStreakBtn10445')){
+        return true;
+      }
+
+      var menuScreen = document.getElementById('menuS');
+      if(!menuScreen) return false;
+
+      var dailySpinBtn = menuScreen.querySelector('button[onclick*="openDailyReward"]');
+      if(!dailySpinBtn) return false;
+
+      var btn = document.createElement('button');
+      btn.id = 'dailyStreakBtn10445';
+      btn.className = 'btn btn-gold';
+      btn.style.cssText = 'margin-top:5px;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#1a1a2e;box-shadow:0 4px 18px rgba(255,107,53,0.45),0 0 24px rgba(247,201,72,0.25);animation:pulse 1.8s ease-in-out infinite;';
+      btn.innerHTML = '\u{1F525} DAILY STREAK';
+      btn.onclick = function(){
+        if(typeof window.openDailyStreak10445 === 'function'){
+          window.openDailyStreak10445();
+        }
+      };
+
+      dailySpinBtn.parentNode.insertBefore(btn, dailySpinBtn.nextSibling);
+      return true;
+    }catch(e){
+      try{ console.warn('[STREAK BTN INJECT v104451] failed', e); }catch(_){}
+      return false;
+    }
+  }
+
+  setTimeout(injectStreakButton104451, 200);
+  setTimeout(injectStreakButton104451, 800);
+  setTimeout(injectStreakButton104451, 2000);
+  setTimeout(injectStreakButton104451, 4000);
+
+  if(typeof window.showMenu === 'function'){
+    var oldShowMenu104451 = window.showMenu;
+    window.showMenu = function(){
+      var r = oldShowMenu104451.apply(this, arguments);
+      setTimeout(injectStreakButton104451, 80);
+      setTimeout(injectStreakButton104451, 300);
+      return r;
+    };
+  }
+
+  try{
+    var observer = new MutationObserver(function(mutations){
+      var menu = document.getElementById('menuS');
+      if(menu && menu.classList.contains('active')){
+        if(!document.getElementById('dailyStreakBtn10445')){
+          injectStreakButton104451();
+        }
+      }
+    });
+    var menuTarget = document.getElementById('menuS');
+    if(menuTarget){
+      observer.observe(menuTarget, { attributes:true, attributeFilter:['class'] });
+    }
+  }catch(e){}
+
+  try{ console.log('[STREAK BUTTON HUD FIX v1.0.4.45.1] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
