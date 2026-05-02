@@ -6937,5 +6937,154 @@ body.lm384-mode #globalSettings{
   try{ console.log('[SHOP RARITY SAFE CORRECTION v1.0.4.40.1] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== PRESTIGE COSMETIC LAYER v1.0.4.41 ===== */
+
+.shop-prestige-line{
+  position:relative;
+  z-index:2;
+  display:block;
+  margin-top:5px;
+  padding:0 4px;
+  font-size:0.52em;
+  font-weight:600;
+  letter-spacing:0.4px;
+  line-height:1.3;
+  font-style:italic;
+  opacity:0.78;
+  color:#c7ccda;
+  text-align:center;
+  min-height:1.3em;
+}
+
+.shop-item.rarity-legendary .shop-prestige-line{
+  color:#ffd97a;
+  opacity:0.92;
+  text-shadow:0 0 8px rgba(247,201,72,0.18);
+}
+
+.shop-item.rarity-epic .shop-prestige-line{
+  color:#d8a8e8;
+  opacity:0.86;
+}
+
+.shop-item.rarity-rare .shop-prestige-line{
+  color:#a8d8f0;
+  opacity:0.80;
+}
+
+.shop-item.rarity-common .shop-prestige-line{
+  display:none;
+}
+</style>
+
+<script>
+/* ===== PRESTIGE COSMETIC LAYER v1.0.4.41 ===== */
+(function(){
+  if(window.__PRESTIGE_COSMETIC_V10441) return;
+  window.__PRESTIGE_COSMETIC_V10441 = true;
+
+  var PRESTIGE_LINES_10441 = {
+    'plasma':'Forged in particle storms',
+    'aurora':'Captured from northern skies',
+    'rainbow':'Refracted through chaos prisms',
+    'void':'Born from absolute zero',
+    'crystal':'Hand-cut lab specimen',
+    'ice':'Cooled below stellar limits',
+    'fire':'Ember of supernova core',
+    'gold':'Pressed under tectonic weight',
+    'rainbow_trail':'Light bent through prism storms',
+    'ghost_trail':'Echo of forgotten orbits',
+    'spark_trail':'Pulled from electric storms',
+    'ice_trail':'Vapor of glacial winds',
+    'nova':'Stellar collapse essence',
+    'shatter':'Crystallized impact resonance',
+    'fireworks':'Captured from celebrations past',
+    'confetti':'Memory of every victory'
+  };
+
+  var PRESTIGE_BY_NAME_10441 = {
+    'plasma':'plasma',
+    'aurora':'aurora',
+    'rainbow':'rainbow',
+    'void':'void',
+    'crystal':'crystal',
+    'ice':'ice',
+    'fire':'fire',
+    'gold':'gold',
+    'rainbow trail':'rainbow_trail',
+    'ghost':'ghost_trail',
+    'sparks':'spark_trail',
+    'spark':'spark_trail',
+    'ice trail':'ice_trail',
+    'nova':'nova',
+    'shatter+':'shatter',
+    'shatter':'shatter',
+    'fireworks':'fireworks',
+    'confetti':'confetti'
+  };
+
+  function getPrestigeLine10441(card){
+    var nameNode = card.querySelector('.skin-name');
+    if(!nameNode) return null;
+    var n = (nameNode.textContent||'').trim().toLowerCase();
+    var key = PRESTIGE_BY_NAME_10441[n];
+    if(!key) return null;
+    return PRESTIGE_LINES_10441[key] || null;
+  }
+
+  function applyPrestigeLines10441(){
+    try{
+      var cards = document.querySelectorAll('#shopGrid .shop-item');
+      cards.forEach(function(card){
+        if(card.dataset.prestigeApplied==='1') return;
+
+        var line = getPrestigeLine10441(card);
+        if(!line) return;
+
+        var existing = card.querySelector('.shop-prestige-line');
+        if(existing) existing.remove();
+
+        var el = document.createElement('div');
+        el.className = 'shop-prestige-line';
+        el.textContent = line;
+
+        var priceNode = card.querySelector('.skin-price');
+        if(priceNode){
+          priceNode.insertAdjacentElement('afterend', el);
+        }else{
+          card.appendChild(el);
+        }
+
+        card.dataset.prestigeApplied='1';
+      });
+    }catch(e){}
+  }
+
+  if(typeof window.shopTab==='function'){
+    var oldShopTab10441 = window.shopTab;
+    window.shopTab = function(tab){
+      var r = oldShopTab10441.apply(this, arguments);
+      setTimeout(applyPrestigeLines10441, 60);
+      setTimeout(applyPrestigeLines10441, 200);
+      return r;
+    };
+  }
+
+  if(typeof window.openShop==='function'){
+    var oldOpenShop10441 = window.openShop;
+    window.openShop = function(){
+      var r = oldOpenShop10441.apply(this, arguments);
+      setTimeout(applyPrestigeLines10441, 120);
+      setTimeout(applyPrestigeLines10441, 280);
+      return r;
+    };
+  }
+
+  setTimeout(applyPrestigeLines10441, 600);
+
+  try{ console.log('[PRESTIGE COSMETIC LAYER v1.0.4.41] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
