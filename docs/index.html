@@ -4080,5 +4080,69 @@ button[onclick="openSettings()"]{
   try{ console.log('[ECONOMY STATS INTEGRITY v1.0.4.33] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== BOSS CLEAR HIDE HUD v1.0.4.36.1 ===== */
+body.boss-clear-premium-mode #hud,
+body.boss-clear-premium-mode #globalSettings{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+</style>
+
+<script>
+/* ===== BOSS CLEAR HIDE HUD v1.0.4.36.1 =====
+   Clean victory screen: hide HUD + settings gear only while bossClearS is active.
+*/
+(function(){
+  if(window.__BOSS_CLEAR_HIDE_HUD_V104361) return;
+  window.__BOSS_CLEAR_HIDE_HUD_V104361 = true;
+
+  function setBossClearMode(id){
+    try{
+      if(id === 'bossClearS'){
+        document.body.classList.add('boss-clear-premium-mode');
+      }else{
+        document.body.classList.remove('boss-clear-premium-mode');
+      }
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var _showScreenBossHud = window.showScreen;
+    window.showScreen = function(id){
+      setBossClearMode(id);
+      return _showScreenBossHud.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.startRoomLevel === 'function'){
+    var _startRoomLevelBossHud = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      try{ document.body.classList.remove('boss-clear-premium-mode'); }catch(e){}
+      return _startRoomLevelBossHud.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.startWorldMap === 'function'){
+    var _startWorldMapBossHud = window.startWorldMap;
+    window.startWorldMap = function(){
+      try{ document.body.classList.remove('boss-clear-premium-mode'); }catch(e){}
+      return _startWorldMapBossHud.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.showMenu === 'function'){
+    var _showMenuBossHud = window.showMenu;
+    window.showMenu = function(){
+      try{ document.body.classList.remove('boss-clear-premium-mode'); }catch(e){}
+      return _showMenuBossHud.apply(this, arguments);
+    };
+  }
+
+  try{ console.log('[BOSS CLEAR HIDE HUD v1.0.4.36.1] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
