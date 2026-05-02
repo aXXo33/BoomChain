@@ -7086,5 +7086,253 @@ body.lm384-mode #globalSettings{
   try{ console.log('[PRESTIGE COSMETIC LAYER v1.0.4.41] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== LEVEL COMPLETE BURST v1.0.4.42 ===== */
+
+#levelCompleteS.active{
+  background:
+    radial-gradient(circle at 50% 22%, rgba(76,175,80,0.20), transparent 36%),
+    radial-gradient(circle at 50% 78%, rgba(247,201,72,0.16), transparent 44%),
+    rgba(3,4,14,0.97) !important;
+  animation: lcBgPulse10442 3.2s ease-in-out infinite;
+}
+
+@keyframes lcBgPulse10442{
+  0%,100%{ filter: brightness(1) saturate(1); }
+  50%{ filter: brightness(1.08) saturate(1.18); }
+}
+
+#levelCompleteS.lc-perfect-burst::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border:3px solid rgba(247,201,72,0.55);
+  border-radius:0;
+  box-shadow:
+    inset 0 0 60px rgba(247,201,72,0.32),
+    inset 0 0 120px rgba(255,107,53,0.18);
+  animation: lcPerfectFrame10442 1.2s ease-out;
+  pointer-events:none;
+  z-index:1;
+}
+
+@keyframes lcPerfectFrame10442{
+  0%{ opacity:0; transform: scale(1.05); }
+  30%{ opacity:1; transform: scale(1); }
+  100%{ opacity:0.55; transform: scale(1); }
+}
+
+.lc-burst-emoji{
+  animation: lcEmojiPunch10442 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  filter: drop-shadow(0 0 24px rgba(76,175,80,0.5));
+}
+
+@keyframes lcEmojiPunch10442{
+  0%{ transform: scale(0) rotate(-12deg); opacity:0; }
+  50%{ transform: scale(1.32) rotate(6deg); opacity:1; }
+  75%{ transform: scale(0.92) rotate(-3deg); }
+  100%{ transform: scale(1) rotate(0deg); opacity:1; }
+}
+
+.lc-burst-title{
+  animation: lcTitleSlide10442 0.5s ease-out 0.15s both !important;
+  text-shadow: 0 0 28px rgba(76,175,80,0.55);
+}
+
+@keyframes lcTitleSlide10442{
+  0%{ transform: translateY(20px) scale(0.85); opacity:0; }
+  100%{ transform: translateY(0) scale(1); opacity:1; }
+}
+
+.lc-stars-burst .star{
+  display:inline-block;
+  opacity:0;
+  transform: scale(0) rotate(-180deg);
+  animation: lcStarPop10442 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  filter: drop-shadow(0 0 16px rgba(247,201,72,0.85));
+  position:relative;
+}
+
+.lc-stars-burst .star.s1{ animation-delay: 0.45s; }
+.lc-stars-burst .star.s2{ animation-delay: 0.75s; }
+.lc-stars-burst .star.s3{ animation-delay: 1.05s; }
+
+.lc-stars-burst .star.empty{
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.18));
+  opacity:0.4;
+}
+
+.lc-stars-burst .star.empty.s1,
+.lc-stars-burst .star.empty.s2,
+.lc-stars-burst .star.empty.s3{
+  animation: lcStarPopEmpty10442 0.4s ease-out forwards;
+}
+
+@keyframes lcStarPop10442{
+  0%{ transform: scale(0) rotate(-180deg); opacity:0; }
+  60%{ transform: scale(1.45) rotate(15deg); opacity:1; }
+  80%{ transform: scale(0.9) rotate(-5deg); }
+  100%{ transform: scale(1) rotate(0deg); opacity:1; }
+}
+
+@keyframes lcStarPopEmpty10442{
+  0%{ transform: scale(0); opacity:0; }
+  100%{ transform: scale(1); opacity:0.4; }
+}
+
+.lc-stars-burst .star::after{
+  content:"";
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  border:2px solid rgba(247,201,72,0.7);
+  opacity:0;
+  animation: lcStarRing10442 0.7s ease-out forwards;
+  pointer-events:none;
+}
+
+.lc-stars-burst .star.empty::after{ display:none; }
+
+.lc-stars-burst .star.s1::after{ animation-delay: 0.5s; }
+.lc-stars-burst .star.s2::after{ animation-delay: 0.8s; }
+.lc-stars-burst .star.s3::after{ animation-delay: 1.1s; }
+
+@keyframes lcStarRing10442{
+  0%{ opacity:0.85; transform: scale(0.6); }
+  100%{ opacity:0; transform: scale(2.2); }
+}
+
+.lc-burst-score{
+  animation: lcScoreRise10442 0.5s ease-out 1.3s both !important;
+  text-shadow: 0 0 20px rgba(247,201,72,0.55);
+}
+
+@keyframes lcScoreRise10442{
+  0%{ transform: translateY(15px) scale(0.85); opacity:0; }
+  60%{ transform: translateY(-3px) scale(1.12); }
+  100%{ transform: translateY(0) scale(1); opacity:1; }
+}
+
+.lc-burst-coins{
+  animation: lcCoinsPop10442 0.45s ease-out 1.5s both !important;
+}
+
+@keyframes lcCoinsPop10442{
+  0%{ transform: scale(0.6); opacity:0; }
+  60%{ transform: scale(1.18); opacity:1; }
+  100%{ transform: scale(1); opacity:1; }
+}
+
+.lc-burst-perfect{
+  animation: lcPerfectBadge10442 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.7s both !important;
+  text-shadow: 0 0 22px rgba(255,107,53,0.65);
+}
+
+@keyframes lcPerfectBadge10442{
+  0%{ transform: scale(0) rotate(-15deg); opacity:0; }
+  60%{ transform: scale(1.25) rotate(8deg); opacity:1; }
+  100%{ transform: scale(1) rotate(0deg); opacity:1; }
+}
+
+#levelCompleteS .btn{
+  animation: lcButtonRise10442 0.4s ease-out 1.95s both;
+}
+
+@keyframes lcButtonRise10442{
+  0%{ transform: translateY(20px); opacity:0; }
+  100%{ transform: translateY(0); opacity:1; }
+}
+</style>
+
+<script>
+/* ===== LEVEL COMPLETE BURST v1.0.4.42 ===== */
+(function(){
+  if(window.__LEVEL_BURST_V10442) return;
+  window.__LEVEL_BURST_V10442 = true;
+
+  function applyBurstClasses10442(){
+    try{
+      var screen = document.getElementById('levelCompleteS');
+      if(!screen) return;
+
+      var emoji = document.getElementById('lcEmoji');
+      var title = document.getElementById('lcTitle');
+      var stars = document.getElementById('lcStars');
+      var score = document.getElementById('lcScore');
+      var coins = document.getElementById('lcCoins');
+      var perfect = document.getElementById('lcPerfect');
+
+      if(emoji){
+        emoji.classList.remove('lc-burst-emoji');
+        void emoji.offsetWidth;
+        emoji.classList.add('lc-burst-emoji');
+      }
+
+      if(title){
+        title.classList.remove('lc-burst-title');
+        void title.offsetWidth;
+        title.classList.add('lc-burst-title');
+      }
+
+      if(stars){
+        stars.classList.remove('lc-stars-burst');
+        var raw = stars.textContent || '';
+        var filled = (raw.match(/\u2B50/g) || []).length;
+        var total = 3;
+        var html = '';
+        for(var i=0; i<total; i++){
+          var isFilled = i < filled;
+          var cls = 'star s' + (i+1) + (isFilled ? '' : ' empty');
+          html += '<span class="' + cls + '">' + (isFilled ? '\u2B50' : '\u2606') + '</span> ';
+        }
+        stars.innerHTML = html;
+        void stars.offsetWidth;
+        stars.classList.add('lc-stars-burst');
+      }
+
+      if(score){
+        score.classList.remove('lc-burst-score');
+        void score.offsetWidth;
+        score.classList.add('lc-burst-score');
+      }
+
+      if(coins && coins.textContent && coins.textContent.trim().length > 0){
+        coins.classList.remove('lc-burst-coins');
+        void coins.offsetWidth;
+        coins.classList.add('lc-burst-coins');
+      }
+
+      if(perfect && perfect.style.display !== 'none' && perfect.textContent && perfect.textContent.trim().length > 0){
+        perfect.classList.remove('lc-burst-perfect');
+        void perfect.offsetWidth;
+        perfect.classList.add('lc-burst-perfect');
+      }
+
+      var isPerfect = perfect && perfect.style.display !== 'none' && perfect.textContent && perfect.textContent.trim().length > 0;
+
+      screen.classList.remove('lc-perfect-burst');
+      if(isPerfect){
+        void screen.offsetWidth;
+        screen.classList.add('lc-perfect-burst');
+      }
+    }catch(e){
+      try{ console.warn('[LEVEL BURST v1.0.4.42] failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10442 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10442.apply(this, arguments);
+      if(id === 'levelCompleteS'){
+        setTimeout(applyBurstClasses10442, 30);
+      }
+      return r;
+    };
+  }
+
+  try{ console.log('[LEVEL COMPLETE BURST v1.0.4.42] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
