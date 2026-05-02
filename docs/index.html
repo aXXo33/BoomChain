@@ -6537,5 +6537,272 @@ body.lm384-mode #globalSettings{
   50%{filter:saturate(0.78) brightness(1.05)}
 }
 </style>
+<style>
+/* ===== SHOP RARITY UPGRADE v1.0.4.40 ===== */
+
+#shopS.active{
+  background:
+    radial-gradient(circle at 50% 10%, rgba(247,201,72,0.13), transparent 34%),
+    radial-gradient(circle at 50% 72%, rgba(186,104,200,0.10), transparent 45%),
+    rgba(3,4,14,0.97) !important;
+}
+
+#shopS > div:first-child{
+  letter-spacing:2px !important;
+  text-shadow:0 0 22px rgba(247,201,72,0.25);
+}
+
+#shopCoins{
+  padding:7px 14px !important;
+  border-radius:999px !important;
+  background:rgba(247,201,72,0.10) !important;
+  border:1px solid rgba(247,201,72,0.28) !important;
+  box-shadow:0 0 20px rgba(247,201,72,0.10) !important;
+}
+
+.shop-grid{
+  gap:9px !important;
+  max-width:382px !important;
+  max-height:58vh !important;
+  padding:8px !important;
+}
+
+.shop-item{
+  position:relative !important;
+  overflow:hidden !important;
+  min-height:116px !important;
+  padding:13px 8px 10px !important;
+  border-radius:18px !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025)) !important;
+  border:1px solid rgba(255,255,255,0.12) !important;
+  box-shadow:
+    0 12px 24px rgba(0,0,0,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+
+.shop-item::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.08), transparent 40%, rgba(255,255,255,0.025));
+  opacity:0.6;
+  pointer-events:none;
+}
+
+.shop-item::after{
+  content:"";
+  position:absolute;
+  width:70px;
+  height:70px;
+  right:-30px;
+  top:-30px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.14);
+  opacity:0.30;
+  pointer-events:none;
+}
+
+.shop-item.owned{
+  border-color:rgba(124,255,138,0.52) !important;
+  box-shadow:
+    0 12px 24px rgba(0,0,0,0.24),
+    0 0 18px rgba(124,255,138,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+
+.shop-item.equipped{
+  border-color:rgba(247,201,72,0.72) !important;
+  box-shadow:
+    0 14px 28px rgba(0,0,0,0.28),
+    0 0 24px rgba(247,201,72,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+.shop-item .skin-preview{
+  position:relative !important;
+  z-index:2 !important;
+  width:42px !important;
+  height:42px !important;
+  border:1px solid rgba(255,255,255,0.20) !important;
+  box-shadow:0 0 18px rgba(255,255,255,0.12) !important;
+}
+
+.shop-item .skin-name{
+  position:relative !important;
+  z-index:2 !important;
+  color:#fff !important;
+  font-size:0.72em !important;
+  font-weight:950 !important;
+  letter-spacing:0.4px !important;
+  margin-top:5px !important;
+}
+
+.shop-item .skin-price{
+  position:relative !important;
+  z-index:2 !important;
+  color:#f7c948 !important;
+  font-size:0.66em !important;
+  font-weight:900 !important;
+  margin-top:5px !important;
+}
+
+.shop-rarity-tag{
+  position:relative;
+  z-index:2;
+  display:inline-block;
+  margin-top:3px;
+  padding:3px 7px;
+  border-radius:999px;
+  font-size:0.48em;
+  font-weight:950;
+  letter-spacing:1.2px;
+  border:1px solid rgba(255,255,255,0.14);
+}
+
+.shop-rarity-common{
+  color:#b8c0d6;
+  background:rgba(184,192,214,0.08);
+  border-color:rgba(184,192,214,0.20);
+}
+
+.shop-rarity-rare{
+  color:#73d7ff;
+  background:rgba(79,195,247,0.10);
+  border-color:rgba(79,195,247,0.32);
+}
+
+.shop-rarity-epic{
+  color:#d98cff;
+  background:rgba(186,104,200,0.12);
+  border-color:rgba(186,104,200,0.36);
+}
+
+.shop-rarity-legendary{
+  color:#f7c948;
+  background:rgba(247,201,72,0.13);
+  border-color:rgba(247,201,72,0.42);
+  box-shadow:0 0 16px rgba(247,201,72,0.16);
+}
+
+.shop-item.rarity-legendary{
+  border-color:rgba(247,201,72,0.55) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.16), transparent 45%),
+    linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.028)) !important;
+  box-shadow:
+    0 16px 34px rgba(0,0,0,0.30),
+    0 0 28px rgba(247,201,72,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+.shop-item.rarity-legendary::after{
+  border-color:rgba(247,201,72,0.40);
+  box-shadow:0 0 24px rgba(247,201,72,0.28);
+  animation:shopLegendPulse10440 2.4s ease-in-out infinite;
+}
+
+.shop-item.rarity-epic{
+  border-color:rgba(186,104,200,0.46) !important;
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.28),
+    0 0 22px rgba(186,104,200,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+.shop-item.rarity-rare{
+  border-color:rgba(79,195,247,0.38) !important;
+}
+
+.shop-item.rarity-legendary .skin-preview,
+.shop-item.rarity-epic .skin-preview{
+  animation:shopItemBreath10440 2.7s ease-in-out infinite;
+}
+
+@keyframes shopLegendPulse10440{
+  0%,100%{opacity:0.22;transform:scale(0.94)}
+  50%{opacity:0.56;transform:scale(1.08)}
+}
+
+@keyframes shopItemBreath10440{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.22)}
+}
+</style>
+
+<script>
+/* ===== SHOP RARITY UPGRADE v1.0.4.40 ===== */
+(function(){
+  if(window.__SHOP_RARITY_UPGRADE_V10440) return;
+  window.__SHOP_RARITY_UPGRADE_V10440 = true;
+
+  function rarityForItem(item){
+    var p = Number(item && item.price) || 0;
+    if(p >= 8000) return 'legendary';
+    if(p >= 3500) return 'epic';
+    if(p >= 1200) return 'rare';
+    return 'common';
+  }
+
+  function rarityLabel(r){
+    if(r==='legendary') return 'LEGENDARY';
+    if(r==='epic') return 'EPIC';
+    if(r==='rare') return 'RARE';
+    return 'COMMON';
+  }
+
+  function enhanceShopCards(){
+    try{
+      var cards=document.querySelectorAll('#shopGrid .shop-item');
+      cards.forEach(function(card){
+        if(card.dataset.rarityApplied==='1') return;
+
+        var priceNode=card.querySelector('.skin-price');
+        var nameNode=card.querySelector('.skin-name');
+        if(!priceNode || !nameNode) return;
+
+        var txt=(priceNode.textContent||'').replace(/,/g,'');
+        var m=txt.match(/(\d+)/);
+        var price=m?parseInt(m[1],10):0;
+
+        var fakeItem={price:price};
+        var rarity=rarityForItem(fakeItem);
+
+        card.classList.add('rarity-'+rarity);
+
+        var tag=document.createElement('div');
+        tag.className='shop-rarity-tag shop-rarity-'+rarity;
+        tag.textContent=rarityLabel(rarity);
+
+        nameNode.insertAdjacentElement('afterend',tag);
+        card.dataset.rarityApplied='1';
+      });
+    }catch(e){}
+  }
+
+  if(typeof window.shopTab==='function'){
+    var oldShopTab10440=window.shopTab;
+    window.shopTab=function(tab){
+      var r=oldShopTab10440.apply(this,arguments);
+      setTimeout(enhanceShopCards,30);
+      setTimeout(enhanceShopCards,120);
+      return r;
+    };
+  }
+
+  if(typeof window.openShop==='function'){
+    var oldOpenShop10440=window.openShop;
+    window.openShop=function(){
+      var r=oldOpenShop10440.apply(this,arguments);
+      setTimeout(enhanceShopCards,80);
+      setTimeout(enhanceShopCards,180);
+      return r;
+    };
+  }
+
+  try{ console.log('[SHOP RARITY UPGRADE v1.0.4.40] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
