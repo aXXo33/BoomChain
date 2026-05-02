@@ -8654,5 +8654,446 @@ body.non-game-screen-active #hud{
   try{ console.log('[UNIFIED FIX v1.0.4.45.2] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== EXTRA BALL BOOSTER v1.0.4.46 ===== */
+
+#boosterPanel10446{
+  position:fixed;
+  bottom:80px;
+  right:14px;
+  z-index:55;
+  display:none;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:auto;
+}
+
+#boosterPanel10446.active{ display:flex; }
+
+.booster-btn-10446{
+  position:relative;
+  width:60px;
+  height:60px;
+  border-radius:16px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.18), transparent 50%),
+    linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.025));
+  border:1.5px solid rgba(247,201,72,0.55);
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.36),
+    0 0 22px rgba(247,201,72,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.5em;
+  filter:drop-shadow(0 0 10px rgba(247,201,72,0.45));
+  transition:transform 0.15s ease;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+.booster-btn-10446:active{
+  transform:scale(0.92);
+}
+
+.booster-btn-10446.empty{
+  border-color:rgba(255,255,255,0.20);
+  background:rgba(255,255,255,0.04);
+  filter:none;
+  opacity:0.7;
+}
+
+.booster-btn-10446.armed{
+  animation: boosterArmedPulse10446 0.9s ease-in-out infinite;
+  border-color:rgba(76,255,138,0.7);
+  box-shadow:
+    0 6px 22px rgba(0,0,0,0.36),
+    0 0 28px rgba(76,255,138,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+@keyframes boosterArmedPulse10446{
+  0%,100%{ transform:scale(1); box-shadow: 0 6px 22px rgba(0,0,0,0.36), 0 0 28px rgba(76,255,138,0.45), inset 0 1px 0 rgba(255,255,255,0.10); }
+  50%{ transform:scale(1.06); box-shadow: 0 6px 24px rgba(0,0,0,0.4), 0 0 38px rgba(76,255,138,0.65), inset 0 1px 0 rgba(255,255,255,0.14); }
+}
+
+.booster-count-10446{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  min-width:22px;
+  height:22px;
+  padding:0 5px;
+  border-radius:11px;
+  background:#ff6b35;
+  color:#fff;
+  font-size:0.65em;
+  font-weight:950;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid rgba(3,4,14,0.85);
+  box-shadow:0 2px 8px rgba(0,0,0,0.4);
+}
+
+.booster-count-10446.zero{
+  background:rgba(255,255,255,0.18);
+  color:#888;
+}
+
+.booster-empty-modal-10446{
+  position:fixed;
+  inset:0;
+  background:rgba(3,4,14,0.92);
+  z-index:300;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.booster-empty-modal-10446.active{ display:flex; }
+
+.bem-card-10446{
+  max-width:340px;
+  width:100%;
+  border-radius:20px;
+  padding:22px 18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.18), transparent 45%),
+    linear-gradient(180deg, rgba(24,28,52,0.96), rgba(7,9,22,0.94));
+  border:1px solid rgba(247,201,72,0.40);
+  box-shadow:
+    0 18px 44px rgba(0,0,0,0.48),
+    0 0 28px rgba(247,201,72,0.18);
+  text-align:center;
+  animation:popIn 0.34s ease-out;
+}
+
+.bem-icon-10446{
+  font-size:3em;
+  filter:drop-shadow(0 0 18px rgba(247,201,72,0.55));
+  margin-bottom:8px;
+}
+
+.bem-title-10446{
+  color:#fff;
+  font-size:1.3em;
+  font-weight:950;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+
+.bem-desc-10446{
+  color:#bec4d6;
+  font-size:0.85em;
+  line-height:1.4;
+  margin-bottom:14px;
+}
+
+.bem-btn-watch-10446{
+  width:100%;
+  padding:13px;
+  border-radius:14px;
+  background:linear-gradient(135deg, #f7c948, #ff8c5a);
+  color:#1a1a2e;
+  font-size:0.95em;
+  font-weight:950;
+  letter-spacing:0.8px;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 8px 22px rgba(247,201,72,0.35);
+  margin-bottom:8px;
+  animation:pulse 1.5s ease-in-out infinite;
+}
+
+.bem-btn-coin-10446{
+  width:100%;
+  padding:11px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.07);
+  color:#fff;
+  font-size:0.85em;
+  font-weight:700;
+  border:1px solid rgba(255,255,255,0.15);
+  cursor:pointer;
+  margin-bottom:6px;
+}
+
+.bem-btn-cancel-10446{
+  width:100%;
+  padding:8px;
+  background:transparent;
+  color:#888;
+  font-size:0.78em;
+  border:none;
+  cursor:pointer;
+}
+</style>
+
+<div id="boosterPanel10446">
+  <div id="extraBallBooster10446" class="booster-btn-10446">
+    \u26A1
+    <div id="extraBallCount10446" class="booster-count-10446">0</div>
+  </div>
+</div>
+
+<div id="boosterEmptyModal10446" class="booster-empty-modal-10446">
+  <div class="bem-card-10446">
+    <div class="bem-icon-10446">\u26A1</div>
+    <div class="bem-title-10446">EXTRA BALL</div>
+    <div class="bem-desc-10446">Launch 2 balls on your next shot. Doubles your hit chance!</div>
+    <button class="bem-btn-watch-10446" id="bemWatchBtn10446">\u{1F3AC} WATCH AD = +1 EXTRA BALL</button>
+    <button class="bem-btn-coin-10446" id="bemCoinBtn10446">\u{1FA99} BUY 1 FOR 50 COINS</button>
+    <button class="bem-btn-cancel-10446" id="bemCancelBtn10446">CANCEL</button>
+  </div>
+</div>
+
+<script>
+/* ===== EXTRA BALL BOOSTER v1.0.4.46 ===== */
+(function(){
+  if(window.__EXTRA_BALL_BOOSTER_V10446) return;
+  window.__EXTRA_BALL_BOOSTER_V10446 = true;
+
+  var EXTRA_BALL_COIN_PRICE = 50;
+  var EXTRA_BALL_FREE_START = 3;
+
+  function ensureBoosterState10446(){
+    if(typeof save === 'undefined' || !save) return null;
+    if(!save.boosters10446){
+      save.boosters10446 = {
+        extraBall: EXTRA_BALL_FREE_START
+      };
+      try{ saveSave(); }catch(e){}
+    }
+    if(typeof save.boosters10446.extraBall !== 'number'){
+      save.boosters10446.extraBall = EXTRA_BALL_FREE_START;
+      try{ saveSave(); }catch(e){}
+    }
+    return save.boosters10446;
+  }
+
+  function getExtraBallCount10446(){
+    var st = ensureBoosterState10446();
+    return st ? (st.extraBall || 0) : 0;
+  }
+
+  function setExtraBallCount10446(n){
+    var st = ensureBoosterState10446();
+    if(!st) return;
+    st.extraBall = Math.max(0, n);
+    try{ saveSave(); }catch(e){}
+    refreshBoosterUI10446();
+  }
+
+  function refreshBoosterUI10446(){
+    try{
+      var countEl = document.getElementById('extraBallCount10446');
+      var btnEl = document.getElementById('extraBallBooster10446');
+      if(!countEl || !btnEl) return;
+      var n = getExtraBallCount10446();
+      countEl.textContent = n;
+      countEl.classList.toggle('zero', n <= 0);
+      btnEl.classList.toggle('empty', n <= 0);
+      if(!window.__extraBallArmed10446){
+        btnEl.classList.remove('armed');
+      }
+    }catch(e){}
+  }
+
+  function showBoosterPanel10446(){
+    try{
+      var panel = document.getElementById('boosterPanel10446');
+      if(panel) panel.classList.add('active');
+      refreshBoosterUI10446();
+    }catch(e){}
+  }
+
+  function hideBoosterPanel10446(){
+    try{
+      var panel = document.getElementById('boosterPanel10446');
+      if(panel) panel.classList.remove('active');
+      window.__extraBallArmed10446 = false;
+    }catch(e){}
+  }
+
+  function showEmptyModal10446(){
+    try{
+      var modal = document.getElementById('boosterEmptyModal10446');
+      if(modal) modal.classList.add('active');
+    }catch(e){}
+  }
+
+  function hideEmptyModal10446(){
+    try{
+      var modal = document.getElementById('boosterEmptyModal10446');
+      if(modal) modal.classList.remove('active');
+    }catch(e){}
+  }
+
+  window.grantExtraBall10446 = function(){
+    var n = getExtraBallCount10446();
+    setExtraBallCount10446(n + 1);
+    try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+    try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    hideEmptyModal10446();
+
+    var pop = document.createElement('div');
+    pop.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#76ff8a,#4CAF50);color:#0a1a0a;padding:18px 28px;border-radius:18px;z-index:310;font-weight:950;font-size:1.1em;box-shadow:0 12px 40px rgba(76,255,138,0.4);animation:popIn 0.4s;text-align:center;';
+    pop.innerHTML = '<div style="font-size:1.6em;margin-bottom:4px">\u26A1</div><div>+1 EXTRA BALL!</div>';
+    document.body.appendChild(pop);
+    setTimeout(function(){ try{ pop.remove(); }catch(e){} }, 1500);
+  };
+
+  function tryConsumeAndArm10446(){
+    var n = getExtraBallCount10446();
+    if(n <= 0){
+      showEmptyModal10446();
+      return;
+    }
+    if(window.__extraBallArmed10446){
+      window.__extraBallArmed10446 = false;
+      var btnEl = document.getElementById('extraBallBooster10446');
+      if(btnEl) btnEl.classList.remove('armed');
+      try{ if(typeof sndUITap10444 === 'function') sndUITap10444(); }catch(e){}
+      return;
+    }
+    window.__extraBallArmed10446 = true;
+    var btnEl2 = document.getElementById('extraBallBooster10446');
+    if(btnEl2) btnEl2.classList.add('armed');
+    try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+    try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+  }
+
+  function buyWithCoins10446(){
+    if(typeof coins === 'undefined') return;
+    if(coins < EXTRA_BALL_COIN_PRICE){
+      var warn = document.createElement('div');
+      warn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ff1744;color:#fff;padding:14px 24px;border-radius:14px;z-index:320;font-weight:900;font-size:0.95em;animation:popIn 0.3s;';
+      warn.textContent = 'Not enough coins!';
+      document.body.appendChild(warn);
+      setTimeout(function(){ try{ warn.remove(); }catch(e){} }, 1500);
+      return;
+    }
+    coins -= EXTRA_BALL_COIN_PRICE;
+    try{ saveSave(); }catch(e){}
+    grantExtraBall10446();
+  }
+
+  function watchAdForExtraBall10446(){
+    try{
+      if(typeof showRewardedAd === 'function'){
+        showRewardedAd('grantExtraBall10446');
+      }else{
+        grantExtraBall10446();
+      }
+    }catch(e){
+      grantExtraBall10446();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){ wireBoosterUI10446(); });
+  if(document.readyState !== 'loading'){
+    setTimeout(wireBoosterUI10446, 50);
+  }
+
+  function wireBoosterUI10446(){
+    try{
+      var btn = document.getElementById('extraBallBooster10446');
+      if(btn && !btn.dataset.wired){
+        btn.addEventListener('click', tryConsumeAndArm10446);
+        btn.dataset.wired = '1';
+      }
+      var watchBtn = document.getElementById('bemWatchBtn10446');
+      if(watchBtn && !watchBtn.dataset.wired){
+        watchBtn.addEventListener('click', watchAdForExtraBall10446);
+        watchBtn.dataset.wired = '1';
+      }
+      var coinBtn = document.getElementById('bemCoinBtn10446');
+      if(coinBtn && !coinBtn.dataset.wired){
+        coinBtn.addEventListener('click', buyWithCoins10446);
+        coinBtn.dataset.wired = '1';
+      }
+      var cancelBtn = document.getElementById('bemCancelBtn10446');
+      if(cancelBtn && !cancelBtn.dataset.wired){
+        cancelBtn.addEventListener('click', hideEmptyModal10446);
+        cancelBtn.dataset.wired = '1';
+      }
+      refreshBoosterUI10446();
+    }catch(e){}
+  }
+
+  if(typeof window.shoot === 'function'){
+    var oldShoot10446 = window.shoot;
+    window.shoot = function(dx, dy){
+      var armed = !!window.__extraBallArmed10446;
+      var r = oldShoot10446.apply(this, arguments);
+
+      if(armed){
+        try{
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist > 0){
+            var angleOffset = 0.18;
+            var cosA = Math.cos(angleOffset);
+            var sinA = Math.sin(angleOffset);
+            var dx2 = dx * cosA - dy * sinA;
+            var dy2 = dx * sinA + dy * cosA;
+            window.__extraBallArmed10446 = false;
+
+            var n = getExtraBallCount10446();
+            setExtraBallCount10446(n - 1);
+
+            setTimeout(function(){
+              try{ oldShoot10446.call(window, dx2, dy2); }catch(e){}
+              try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+            }, 80);
+          }else{
+            window.__extraBallArmed10446 = false;
+          }
+
+          var btnEl = document.getElementById('extraBallBooster10446');
+          if(btnEl) btnEl.classList.remove('armed');
+        }catch(e){}
+      }
+      return r;
+    };
+  }
+
+  if(typeof window.startRoomLevel === 'function'){
+    var oldStartRoomLevel10446 = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      window.__extraBallArmed10446 = false;
+      var r = oldStartRoomLevel10446.apply(this, arguments);
+      setTimeout(showBoosterPanel10446, 60);
+      return r;
+    };
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10446 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10446.apply(this, arguments);
+      try{
+        if(id === 'menuS' || id === 'worldMapS' || id === 'roomIntroS' ||
+           id === 'shopS' || id === 'achieveS' || id === 'statsS' ||
+           id === 'dailySpinS' || id === 'dailyStreakS' || id === 'leaderboardS' ||
+           id === 'seasonPassS' || id === 'levelCompleteS' || id === 'gameOverS' ||
+           id === 'bossClearS' || id === 'tutorialS'){
+          hideBoosterPanel10446();
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  ensureBoosterState10446();
+  setTimeout(refreshBoosterUI10446, 200);
+
+  try{ console.log('[EXTRA BALL BOOSTER v1.0.4.46] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
