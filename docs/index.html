@@ -7571,5 +7571,175 @@ body.lm384-mode #globalSettings{
   try{ console.log('[COMBO CRESCENDO COIN POP v1.0.4.43] active'); }catch(e){}
 })();
 </script>
+<script>
+/* ===== SOUND DESIGN LAYER v1.0.4.44 ===== */
+(function(){
+  if(window.__SOUND_DESIGN_V10444) return;
+  window.__SOUND_DESIGN_V10444 = true;
+
+  function safePlayTone10444(f, t, d, v){
+    try{
+      if(typeof sfxEnabled === 'undefined' || !sfxEnabled) return;
+      if(typeof playTone === 'function'){
+        playTone(f, t, d, v);
+      }
+    }catch(e){}
+  }
+
+  function playChord10444(freqs, type, duration, volume){
+    if(!Array.isArray(freqs)) return;
+    freqs.forEach(function(f){
+      safePlayTone10444(f, type, duration, volume);
+    });
+  }
+
+  window.sndComboBronze10444 = function(){
+    playChord10444([261.63, 329.63, 392.00], 'sine', 0.18, 0.07);
+    setTimeout(function(){
+      safePlayTone10444(523.25, 'triangle', 0.12, 0.05);
+    }, 80);
+  };
+
+  window.sndComboSilver10444 = function(){
+    playChord10444([261.63, 329.63, 392.00, 493.88], 'sine', 0.22, 0.075);
+    setTimeout(function(){
+      playChord10444([523.25, 659.25], 'triangle', 0.18, 0.06);
+    }, 100);
+  };
+
+  window.sndComboGold10444 = function(){
+    safePlayTone10444(130.81, 'sawtooth', 0.4, 0.10);
+    playChord10444([261.63, 329.63, 392.00, 493.88, 523.25], 'sine', 0.3, 0.085);
+    setTimeout(function(){
+      playChord10444([659.25, 783.99, 987.77], 'triangle', 0.25, 0.07);
+    }, 120);
+    setTimeout(function(){
+      safePlayTone10444(1046.50, 'sine', 0.4, 0.06);
+    }, 240);
+  };
+
+  window.sndStarPop10444 = function(starIndex){
+    var notes = [523.25, 659.25, 783.99];
+    var freq = notes[Math.min(starIndex, 2)];
+    safePlayTone10444(freq, 'triangle', 0.25, 0.08);
+    setTimeout(function(){
+      safePlayTone10444(freq * 2, 'sine', 0.15, 0.04);
+    }, 50);
+  };
+
+  window.sndPerfectChord10444 = function(){
+    playChord10444([523.25, 659.25, 783.99, 1046.50], 'sine', 0.5, 0.09);
+    setTimeout(function(){
+      playChord10444([659.25, 830.61, 987.77, 1318.51], 'triangle', 0.45, 0.07);
+    }, 200);
+  };
+
+  window.sndCoinStackPop10444 = function(stackSize){
+    var basePitch = 800 + Math.min(stackSize, 6) * 80;
+    safePlayTone10444(basePitch, 'sine', 0.08, 0.06);
+    setTimeout(function(){
+      safePlayTone10444(basePitch * 1.5, 'sine', 0.06, 0.04);
+    }, 40);
+  };
+
+  window.sndBossDefeat10444 = function(){
+    safePlayTone10444(82.41, 'sawtooth', 0.6, 0.18);
+    setTimeout(function(){
+      playChord10444([261.63, 329.63, 392.00, 523.25], 'triangle', 0.5, 0.10);
+    }, 150);
+    setTimeout(function(){
+      playChord10444([329.63, 415.30, 493.88, 659.25], 'sine', 0.6, 0.08);
+    }, 350);
+  };
+
+  window.__lastUITap10444 = 0;
+  window.sndUITap10444 = function(){
+    var now = Date.now();
+    if(now - window.__lastUITap10444 < 50) return;
+    window.__lastUITap10444 = now;
+    safePlayTone10444(600, 'sine', 0.03, 0.05);
+  };
+
+  // Hook into combo tier (v1.0.4.43) by wrapping showComboText again
+  if(typeof window.showComboText === 'function'){
+    var oldShowComboText10444 = window.showComboText;
+    window.showComboText = function(combo){
+      var r = oldShowComboText10444.apply(this, arguments);
+      try{
+        if(combo >= 8){
+          window.sndComboGold10444();
+        }else if(combo >= 6){
+          window.sndComboSilver10444();
+        }else if(combo >= 4){
+          window.sndComboBronze10444();
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  // Hook into level complete burst (v1.0.4.42)
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10444 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10444.apply(this, arguments);
+      try{
+        if(id === 'levelCompleteS'){
+          setTimeout(function(){ window.sndStarPop10444(0); }, 460);
+          setTimeout(function(){ window.sndStarPop10444(1); }, 760);
+          setTimeout(function(){ window.sndStarPop10444(2); }, 1060);
+
+          setTimeout(function(){
+            var perfect = document.getElementById('lcPerfect');
+            if(perfect && perfect.style.display !== 'none' && perfect.textContent && perfect.textContent.trim().length > 0){
+              window.sndPerfectChord10444();
+            }
+          }, 1700);
+        }else if(id === 'bossClearS'){
+          setTimeout(function(){ window.sndBossDefeat10444(); }, 60);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  // Hook into showCoinFly (v1.0.4.43 coin stack)
+  if(typeof window.showCoinFly === 'function'){
+    var oldShowCoinFly10444 = window.showCoinFly;
+    var coinSoundBuffer = { count: 0, timer: null };
+    window.showCoinFly = function(x, y, amount){
+      var r = oldShowCoinFly10444.apply(this, arguments);
+      try{
+        coinSoundBuffer.count += 1;
+        if(coinSoundBuffer.timer) clearTimeout(coinSoundBuffer.timer);
+        coinSoundBuffer.timer = setTimeout(function(){
+          if(coinSoundBuffer.count > 1){
+            window.sndCoinStackPop10444(coinSoundBuffer.count);
+          }
+          coinSoundBuffer.count = 0;
+          coinSoundBuffer.timer = null;
+        }, 230);
+      }catch(e){}
+      return r;
+    };
+  }
+
+  // Global UI tap sound on all .btn clicks
+  document.addEventListener('click', function(e){
+    try{
+      var t = e.target;
+      while(t && t !== document.body){
+        if(t.classList && t.classList.contains('btn')){
+          window.sndUITap10444();
+          return;
+        }
+        t = t.parentElement;
+      }
+    }catch(_){}
+  }, true);
+
+  try{ console.log('[SOUND DESIGN LAYER v1.0.4.44] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
