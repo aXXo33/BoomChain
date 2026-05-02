@@ -4374,5 +4374,474 @@ body.boss-clear-premium-mode #globalSettings{
   try{ console.log('[BOSS CLEAR HIDE HUD v1.0.4.36.1] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== LIVING MAP STATES v1.0.4.38 ===== */
+
+#worldMapS.active{
+  padding:0 !important;
+  justify-content:flex-start !important;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(79,195,247,0.13), transparent 34%),
+    radial-gradient(circle at 50% 72%, rgba(186,104,200,0.10), transparent 45%),
+    rgba(3,4,14,0.97) !important;
+  overflow-y:auto;
+}
+
+.lm-shell{
+  width:100%;
+  min-height:100vh;
+  padding:28px 14px 24px;
+  box-sizing:border-box;
+  color:#fff;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.lm-shell::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,0.035) 49%, transparent 50%),
+    linear-gradient(0deg, transparent 0 48%, rgba(255,255,255,0.025) 49%, transparent 50%);
+  background-size:54px 54px;
+  opacity:0.18;
+  transform:rotate(-8deg);
+  pointer-events:none;
+}
+
+.lm-top{
+  position:relative;
+  z-index:2;
+  max-width:440px;
+  margin:0 auto 14px;
+}
+
+.lm-kicker{
+  display:inline-block;
+  color:#4fc3f7;
+  font-size:0.68em;
+  font-weight:950;
+  letter-spacing:3px;
+  padding:7px 12px;
+  border-radius:999px;
+  border:1px solid rgba(79,195,247,0.35);
+  background:rgba(79,195,247,0.08);
+  margin-bottom:8px;
+}
+
+.lm-title{
+  font-size:1.55em;
+  font-weight:950;
+  letter-spacing:1px;
+  text-shadow:0 0 22px rgba(79,195,247,0.34);
+}
+
+.lm-sub{
+  color:#b9bfd2;
+  font-size:0.82em;
+  line-height:1.35;
+  margin:7px auto 10px;
+  max-width:330px;
+}
+
+.lm-core{
+  position:relative;
+  z-index:2;
+  max-width:390px;
+  margin:10px auto 16px;
+  border-radius:22px;
+  padding:14px 14px 13px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.18), transparent 38%),
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+  border:1px solid rgba(247,201,72,0.28);
+  box-shadow:
+    0 16px 36px rgba(0,0,0,0.30),
+    0 0 28px rgba(247,201,72,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.lm-core-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+.lm-core-orb{
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 35% 30%, #fff4b8, #f7c948 38%, rgba(247,201,72,0.16) 70%);
+  box-shadow:0 0 24px rgba(247,201,72,0.45);
+  animation:lmCorePulse 2.4s ease-in-out infinite;
+  font-size:1.45em;
+}
+
+.lm-core-info{
+  text-align:left;
+  flex:1;
+}
+
+.lm-core-label{
+  color:#f7c948;
+  font-size:0.68em;
+  font-weight:950;
+  letter-spacing:2px;
+}
+
+.lm-core-main{
+  color:#fff;
+  font-size:1.02em;
+  font-weight:950;
+  margin-top:3px;
+}
+
+.lm-core-bar{
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.09);
+  overflow:hidden;
+  margin-top:9px;
+}
+
+.lm-core-fill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#4fc3f7,#f7c948);
+  box-shadow:0 0 14px rgba(247,201,72,0.30);
+  transition:width 0.35s ease;
+}
+
+.lm-grid{
+  position:relative;
+  z-index:2;
+  max-width:440px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+.lm-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:22px;
+  padding:13px 13px 12px;
+  text-align:left;
+  border:1px solid rgba(255,255,255,0.10);
+  background:linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+  cursor:pointer;
+  transition:transform 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+}
+
+.lm-card:active{
+  transform:scale(0.985);
+}
+
+.lm-card.restored{
+  border-color:var(--accent);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.26),
+    0 0 20px color-mix(in srgb, var(--accent) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.lm-card.active-sector{
+  border-color:#f7c948;
+  box-shadow:
+    0 16px 34px rgba(0,0,0,0.30),
+    0 0 24px rgba(247,201,72,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.lm-card.locked{
+  cursor:default;
+  opacity:0.78;
+  filter:saturate(0.70);
+  background:
+    radial-gradient(circle at 92% 15%, rgba(255,23,68,0.13), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
+  border-color:rgba(255,23,68,0.24);
+}
+
+.lm-card::after{
+  content:"";
+  position:absolute;
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  right:-32px;
+  top:-34px;
+  border:1px solid var(--accent);
+  opacity:0.25;
+  box-shadow:0 0 20px var(--accent);
+  pointer-events:none;
+}
+
+.lm-card.locked::after{
+  border-color:#ff1744;
+  box-shadow:0 0 20px rgba(255,23,68,0.35);
+  animation:lmUnstablePulse 1.8s ease-in-out infinite;
+}
+
+.lm-card-main{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.lm-icon{
+  width:50px;
+  height:50px;
+  border-radius:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.85em;
+  background:rgba(255,255,255,0.065);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:0 0 18px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.lm-info{
+  flex:1;
+  min-width:0;
+}
+
+.lm-state{
+  font-size:0.58em;
+  font-weight:950;
+  letter-spacing:2px;
+  margin-bottom:4px;
+}
+
+.lm-card.restored .lm-state{
+  color:#7CFF8A;
+}
+
+.lm-card.active-sector .lm-state{
+  color:#f7c948;
+}
+
+.lm-card.locked .lm-state{
+  color:#ff6b6b;
+}
+
+.lm-name{
+  color:#fff;
+  font-size:0.98em;
+  font-weight:950;
+  letter-spacing:0.8px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.lm-desc{
+  color:#b9bfd2;
+  font-size:0.70em;
+  line-height:1.25;
+  margin-top:3px;
+}
+
+.lm-meta{
+  position:relative;
+  z-index:2;
+  margin-top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.lm-progress{
+  flex:1;
+  height:6px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.08);
+  overflow:hidden;
+}
+
+.lm-progress-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),#f7c948);
+  box-shadow:0 0 12px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.lm-stars{
+  color:#f7c948;
+  font-size:0.72em;
+  font-weight:900;
+  min-width:72px;
+  text-align:right;
+}
+
+.lm-unstable{
+  position:relative;
+  z-index:2;
+  margin-top:9px;
+  color:#ff8a8a;
+  font-size:0.62em;
+  font-weight:950;
+  letter-spacing:1.5px;
+}
+
+.lm-back{
+  position:relative;
+  z-index:2;
+  margin-top:15px;
+}
+
+@keyframes lmCorePulse{
+  0%,100%{transform:scale(0.96);opacity:0.86}
+  50%{transform:scale(1.06);opacity:1}
+}
+
+@keyframes lmUnstablePulse{
+  0%,100%{opacity:0.18;transform:scale(0.94)}
+  50%{opacity:0.48;transform:scale(1.08)}
+}
+
+@media(min-width:560px){
+  .lm-grid{
+    grid-template-columns:1fr 1fr;
+  }
+}
+</style>
+
+<script>
+/* ===== LIVING MAP STATES v1.0.4.38 =====
+   Premium world map state system:
+   RESTORED / ACTIVE / LOCKED-UNSTABLE + Core Chain progress.
+*/
+(function(){
+  if(window.__LIVING_MAP_STATES_V10438) return;
+  window.__LIVING_MAP_STATES_V10438 = true;
+
+  function lmLevelCount(rp){
+    if(!rp || !rp.levels) return 0;
+    return rp.levels.filter(function(v){return v>0;}).length;
+  }
+
+  function lmStarCount(rp){
+    if(!rp || !rp.levels) return 0;
+    return rp.levels.reduce(function(a,b){return a+(b||0);},0);
+  }
+
+  function lmIsRestored(rp,ri){
+    if(!rp) return false;
+    if(rp.cleared) return true;
+    if(ri===5) return !!save.endlessHighLevel;
+    return rp.levels && rp.levels.length && rp.levels.every(function(v){return v>0;});
+  }
+
+  function lmEsc(s){
+    return String(s||'').replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  window.startWorldMap=function(){
+    showScreen('worldMapS');
+
+    var screen=document.getElementById('worldMapS');
+    if(!screen) return;
+
+    var total=ROOMS.length;
+    var restoredCount=0;
+
+    for(var i=0;i<ROOMS.length;i++){
+      var rp0=save.roomProgress[i];
+      if(lmIsRestored(rp0,i)) restoredCount++;
+    }
+
+    var pct=Math.round((restoredCount/total)*100);
+
+    var html='';
+    html+='<div class="lm-shell">';
+    html+='<div class="lm-top">';
+    html+='<div class="lm-kicker">LIVING MAP</div>';
+    html+='<div class="lm-title">CORE CHAIN GRID</div>';
+    html+='<div class="lm-sub">Restore sectors, stabilize the chain, and unlock deeper labs.</div>';
+    html+='</div>';
+
+    html+='<div class="lm-core">';
+    html+='<div class="lm-core-row">';
+    html+='<div class="lm-core-orb">&#9889;</div>';
+    html+='<div class="lm-core-info">';
+    html+='<div class="lm-core-label">CORE CHAIN STATUS</div>';
+    html+='<div class="lm-core-main">'+restoredCount+' / '+total+' SECTORS RESTORED</div>';
+    html+='<div class="lm-core-bar"><div class="lm-core-fill" style="width:'+pct+'%"></div></div>';
+    html+='</div>';
+    html+='</div>';
+    html+='</div>';
+
+    html+='<div class="lm-grid">';
+
+    ROOMS.forEach(function(room,ri){
+      var rp=save.roomProgress[ri] || {unlocked:ri===0,cleared:false,levels:[]};
+      var unlocked=!!rp.unlocked || ri===0;
+      var restored=lmIsRestored(rp,ri);
+      var active=unlocked && !restored;
+      var locked=!unlocked;
+      var cl=lmLevelCount(rp);
+      var stars=lmStarCount(rp);
+      var maxStars=(rp.levels&&rp.levels.length?rp.levels.length:12)*3;
+      var levelTotal=(rp.levels&&rp.levels.length?rp.levels.length:12);
+      var pp=ri===5 ? (save.endlessHighLevel?100:0) : Math.round((cl/levelTotal)*100);
+      var state=restored?'RESTORED':(active?'ACTIVE SECTOR':'SIGNAL DETECTED');
+      var cls=restored?'restored':(active?'active-sector':'locked');
+      var onclick=locked?'':' onclick="openRoomIntro('+ri+')"';
+
+      html+='<div class="lm-card '+cls+'" style="--accent:'+room.accent+'"'+onclick+'>';
+      html+='<div class="lm-card-main">';
+      html+='<div class="lm-icon">'+room.icon+'</div>';
+      html+='<div class="lm-info">';
+      html+='<div class="lm-state">'+state+'</div>';
+      html+='<div class="lm-name">'+lmEsc(room.name).toUpperCase()+'</div>';
+      html+='<div class="lm-desc">'+lmEsc(room.desc)+'</div>';
+      html+='</div>';
+      html+='</div>';
+
+      if(locked){
+        html+='<div class="lm-unstable">UNSTABLE · ENERGY LEAK DETECTED</div>';
+      }else{
+        html+='<div class="lm-meta">';
+        html+='<div class="lm-progress"><div class="lm-progress-fill" style="width:'+pp+'%"></div></div>';
+        if(ri===5){
+          html+='<div class="lm-stars">&#8734; BEST '+(save.endlessHighLevel?save.endlessHighLevel-25:0)+'</div>';
+        }else{
+          html+='<div class="lm-stars">&#11088; '+stars+'/'+maxStars+'</div>';
+        }
+        html+='</div>';
+      }
+
+      html+='</div>';
+    });
+
+    html+='</div>';
+    html+='<div class="lm-back"><button class="btn btn-secondary btn-small" onclick="showMenu()">&#x2190; BACK</button></div>';
+    html+='</div>';
+
+    screen.innerHTML=html;
+  };
+
+  try{ console.log('[LIVING MAP STATES v1.0.4.38] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
