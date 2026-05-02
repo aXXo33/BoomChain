@@ -9604,5 +9604,164 @@ body.non-game-screen-active #hud{
   try{ console.log('[BOOSTER FINAL FIX v1.0.4.46.3] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== COMBO SHOT REFUND v1.0.4.47 ===== */
+
+.shot-refund-toast-10447{
+  position:fixed;
+  top:42%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  z-index:200;
+  pointer-events:none;
+  padding:12px 22px;
+  border-radius:999px;
+  background:linear-gradient(135deg, #4CAF50, #76ff8a);
+  color:#0a1a0a;
+  font-size:1.05em;
+  font-weight:950;
+  letter-spacing:1.2px;
+  box-shadow:
+    0 8px 28px rgba(76,255,138,0.55),
+    0 0 36px rgba(76,255,138,0.32);
+  animation: shotRefundFloat10447 1.6s ease-out forwards;
+  white-space:nowrap;
+}
+
+.shot-refund-toast-10447.big{
+  font-size:1.25em;
+  padding:14px 28px;
+  background:linear-gradient(135deg, #f7c948, #76ff8a);
+  box-shadow:
+    0 10px 32px rgba(247,201,72,0.55),
+    0 0 44px rgba(76,255,138,0.4);
+}
+
+@keyframes shotRefundFloat10447{
+  0%{ opacity:0; transform:translate(-50%, -30%) scale(0.6); }
+  20%{ opacity:1; transform:translate(-50%, -50%) scale(1.18); }
+  35%{ transform:translate(-50%, -50%) scale(1); }
+  80%{ opacity:1; transform:translate(-50%, -75%) scale(1); }
+  100%{ opacity:0; transform:translate(-50%, -100%) scale(1); }
+}
+
+#hudShots.shot-refund-pulse-10447{
+  animation: hudShotPulse10447 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-shadow:0 0 16px rgba(76,255,138,0.85);
+}
+
+@keyframes hudShotPulse10447{
+  0%{ transform:scale(1); }
+  40%{ transform:scale(1.5); color:#76ff8a; }
+  100%{ transform:scale(1); }
+}
+</style>
+
+<script>
+/* ===== COMBO SHOT REFUND v1.0.4.47 ===== */
+(function(){
+  if(window.__COMBO_SHOT_REFUND_V10447) return;
+  window.__COMBO_SHOT_REFUND_V10447 = true;
+
+  var REFUND_TIERS_10447 = [
+    { combo: 6, refund: 1, label: '+1 EXTRA SHOT!', big: false },
+    { combo: 8, refund: 1, label: '+1 BONUS SHOT!', big: true }
+  ];
+
+  function resetRefundsForLevel10447(){
+    window.__refundsGivenThisLevel10447 = {};
+  }
+  resetRefundsForLevel10447();
+
+  function showRefundToast10447(label, big){
+    try{
+      var toast = document.createElement('div');
+      toast.className = 'shot-refund-toast-10447' + (big ? ' big' : '');
+      toast.textContent = label;
+      document.body.appendChild(toast);
+      setTimeout(function(){ try{ toast.remove(); }catch(e){} }, 1700);
+    }catch(e){}
+  }
+
+  function pulseHudShots10447(){
+    try{
+      var hudShots = document.getElementById('hudShots');
+      if(!hudShots) return;
+      hudShots.classList.remove('shot-refund-pulse-10447');
+      void hudShots.offsetWidth;
+      hudShots.classList.add('shot-refund-pulse-10447');
+      setTimeout(function(){
+        try{ hudShots.classList.remove('shot-refund-pulse-10447'); }catch(e){}
+      }, 700);
+    }catch(e){}
+  }
+
+  function tryGrantShotRefund10447(combo){
+    try{
+      if(typeof shotsLeft === 'undefined' || typeof totalShots === 'undefined') return;
+      if(typeof gameActive === 'undefined' || !gameActive) return;
+
+      var maxTierGiven = null;
+      for(var i = 0; i < REFUND_TIERS_10447.length; i++){
+        var tier = REFUND_TIERS_10447[i];
+        if(combo >= tier.combo && !window.__refundsGivenThisLevel10447[tier.combo]){
+          window.__refundsGivenThisLevel10447[tier.combo] = true;
+          shotsLeft += tier.refund;
+          totalShots += tier.refund;
+          maxTierGiven = tier;
+        }
+      }
+
+      if(maxTierGiven){
+        if(typeof updateHUD === 'function') updateHUD();
+        showRefundToast10447(maxTierGiven.label, maxTierGiven.big);
+        pulseHudShots10447();
+        try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+        try{
+          if(maxTierGiven.big && typeof hapticHeavy === 'function') hapticHeavy();
+          else if(typeof hapticMedium === 'function') hapticMedium();
+        }catch(e){}
+      }
+    }catch(e){
+      try{ console.warn('[COMBO REFUND v10447] failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showComboText === 'function'){
+    var oldShowComboText10447 = window.showComboText;
+    window.showComboText = function(combo){
+      var r = oldShowComboText10447.apply(this, arguments);
+      try{ tryGrantShotRefund10447(combo); }catch(e){}
+      return r;
+    };
+  }
+
+  if(typeof window.startRoomLevel === 'function'){
+    var oldStartRoomLevel10447 = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      resetRefundsForLevel10447();
+      return oldStartRoomLevel10447.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.retryLevel === 'function'){
+    var oldRetryLevel10447 = window.retryLevel;
+    window.retryLevel = function(){
+      resetRefundsForLevel10447();
+      return oldRetryLevel10447.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.nextLevel === 'function'){
+    var oldNextLevel10447 = window.nextLevel;
+    window.nextLevel = function(){
+      resetRefundsForLevel10447();
+      return oldNextLevel10447.apply(this, arguments);
+    };
+  }
+
+  try{ console.log('[COMBO SHOT REFUND v1.0.4.47] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
