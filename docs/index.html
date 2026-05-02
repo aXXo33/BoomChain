@@ -8466,5 +8466,193 @@ body.non-game-screen-active #globalSettings{
   try{ console.log('[STREAK BUTTON HUD FIX v1.0.4.45.1] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== UNIFIED FIX v1.0.4.45.2 ===== */
+body.non-game-screen-active #hud{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+.lc-back-to-map-104452,
+.bc-back-to-map-104452{
+  background:rgba(255,255,255,0.08) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,0.18) !important;
+  padding:7px 16px !important;
+  font-size:0.78em !important;
+  font-weight:700 !important;
+  border-radius:10px !important;
+  margin-top:8px !important;
+  letter-spacing:0.6px !important;
+  cursor:pointer !important;
+}
+
+.lc-back-to-map-104452:hover,
+.bc-back-to-map-104452:hover{
+  background:rgba(255,255,255,0.14) !important;
+}
+</style>
+
+<script>
+/* ===== UNIFIED FIX v1.0.4.45.2 ===== */
+(function(){
+  if(window.__UNIFIED_FIX_V104452) return;
+  window.__UNIFIED_FIX_V104452 = true;
+
+  /* === FIX A: HUD initial load + observer === */
+  function hideHudOnNonGameNow104452(){
+    try{
+      document.body.classList.add('non-game-screen-active');
+      var hud = document.getElementById('hud');
+      if(hud) hud.style.display = 'none';
+    }catch(e){}
+  }
+
+  function setupHudObserver104452(){
+    try{
+      var hud = document.getElementById('hud');
+      if(!hud) return;
+      var observer = new MutationObserver(function(mutations){
+        try{
+          if(document.body.classList.contains('non-game-screen-active')){
+            if(hud.style.display !== 'none'){
+              hud.style.display = 'none';
+            }
+          }
+        }catch(e){}
+      });
+      observer.observe(hud, { attributes:true, attributeFilter:['style'] });
+    }catch(e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      hideHudOnNonGameNow104452();
+      setupHudObserver104452();
+    });
+  }else{
+    hideHudOnNonGameNow104452();
+    setupHudObserver104452();
+  }
+
+  /* === FIX B: Daily Streak button correct position === */
+  function fixStreakButtonPosition104452(){
+    try{
+      var menuScreen = document.getElementById('menuS');
+      if(!menuScreen) return false;
+
+      var dailySpinBtn = menuScreen.querySelector('button[onclick*="openDailyReward"]');
+      if(!dailySpinBtn) return false;
+
+      var existingBtn = document.getElementById('dailyStreakBtn10445');
+
+      if(existingBtn){
+        var nextSibling = dailySpinBtn.nextSibling;
+        if(existingBtn === nextSibling || existingBtn.previousSibling === dailySpinBtn){
+          return true;
+        }
+        try{ existingBtn.remove(); }catch(e){}
+      }
+
+      var btn = document.createElement('button');
+      btn.id = 'dailyStreakBtn10445';
+      btn.className = 'btn btn-gold';
+      btn.style.cssText = 'margin-top:5px;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#1a1a2e;box-shadow:0 4px 18px rgba(255,107,53,0.45),0 0 24px rgba(247,201,72,0.25);animation:pulse 1.8s ease-in-out infinite;';
+      btn.innerHTML = '\u{1F525} DAILY STREAK';
+      btn.onclick = function(){
+        if(typeof window.openDailyStreak10445 === 'function'){
+          window.openDailyStreak10445();
+        }
+      };
+
+      dailySpinBtn.parentNode.insertBefore(btn, dailySpinBtn.nextSibling);
+      return true;
+    }catch(e){
+      try{ console.warn('[UNIFIED FIX v104452] streak btn failed', e); }catch(_){}
+      return false;
+    }
+  }
+
+  setTimeout(fixStreakButtonPosition104452, 300);
+  setTimeout(fixStreakButtonPosition104452, 1000);
+  setTimeout(fixStreakButtonPosition104452, 2500);
+
+  if(typeof window.showMenu === 'function'){
+    var oldShowMenu104452 = window.showMenu;
+    window.showMenu = function(){
+      var r = oldShowMenu104452.apply(this, arguments);
+      setTimeout(fixStreakButtonPosition104452, 100);
+      return r;
+    };
+  }
+
+  /* === FIX C: Add MAP button to levelComplete + bossClear === */
+  function addMapButtonToLevelComplete104452(){
+    try{
+      var screen = document.getElementById('levelCompleteS');
+      if(!screen) return;
+      if(screen.querySelector('.lc-back-to-map-104452')) return;
+
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-secondary btn-small lc-back-to-map-104452';
+      btn.innerHTML = '\u2190 MAP';
+      btn.onclick = function(){
+        try{
+          if(typeof window.startWorldMap === 'function'){
+            window.startWorldMap();
+          }
+        }catch(e){}
+      };
+
+      screen.appendChild(btn);
+    }catch(e){}
+  }
+
+  function addMapButtonToBossClear104452(){
+    try{
+      var screen = document.getElementById('bossClearS');
+      if(!screen) return;
+      if(screen.querySelector('.bc-back-to-map-104452')) return;
+
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-secondary btn-small bc-back-to-map-104452';
+      btn.innerHTML = '\u2190 MAP';
+      btn.onclick = function(){
+        try{
+          if(typeof window.startWorldMap === 'function'){
+            window.startWorldMap();
+          }
+        }catch(e){}
+      };
+
+      screen.appendChild(btn);
+    }catch(e){}
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen104452 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen104452.apply(this, arguments);
+      try{
+        if(id === 'levelCompleteS'){
+          setTimeout(addMapButtonToLevelComplete104452, 50);
+        }else if(id === 'bossClearS'){
+          setTimeout(addMapButtonToBossClear104452, 50);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  setTimeout(function(){
+    addMapButtonToLevelComplete104452();
+    addMapButtonToBossClear104452();
+  }, 1500);
+
+  try{ console.log('[UNIFIED FIX v1.0.4.45.2] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
