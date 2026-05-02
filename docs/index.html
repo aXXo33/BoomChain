@@ -9117,5 +9117,237 @@ body.non-game-screen-active #hud{
   border-width:2.5px !important;
 }
 </style>
+<style>
+/* ===== BOOSTER BUGFIX v1.0.4.46.2 ===== */
+#extraBallArmedBanner10462{
+  position:fixed;
+  top:80px;
+  top:calc(80px + env(safe-area-inset-top, 0px));
+  left:50%;
+  transform:translateX(-50%);
+  z-index:90;
+  display:none;
+  padding:8px 16px;
+  border-radius:999px;
+  background:linear-gradient(135deg, rgba(76,255,138,0.95), rgba(76,175,80,0.95));
+  color:#0a1a0a;
+  font-size:0.78em;
+  font-weight:950;
+  letter-spacing:1.2px;
+  box-shadow:0 6px 22px rgba(76,255,138,0.45), 0 0 28px rgba(76,255,138,0.32);
+  animation:armedBannerPulse10462 1.2s ease-in-out infinite;
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+#extraBallArmedBanner10462.active{ display:block; }
+
+@keyframes armedBannerPulse10462{
+  0%,100%{ transform:translateX(-50%) scale(1); }
+  50%{ transform:translateX(-50%) scale(1.06); }
+}
+</style>
+
+<div id="extraBallArmedBanner10462">⚡ EXTRA BALL ARMED — TAKE YOUR SHOT!</div>
+
+<script>
+/* ===== BOOSTER BUGFIX v1.0.4.46.2 ===== */
+(function(){
+  if(window.__BOOSTER_BUGFIX_V104462) return;
+  window.__BOOSTER_BUGFIX_V104462 = true;
+
+  function fixEmojiRender10462(){
+    try{
+      var btnEl = document.getElementById('extraBallBooster10446');
+      if(btnEl){
+        var countEl = document.getElementById('extraBallCount10446');
+        var countText = countEl ? countEl.textContent : '0';
+        btnEl.innerHTML = '\u26A1<div id="extraBallCount10446" class="booster-count-10446">' + countText + '</div>';
+      }
+
+      var modal = document.getElementById('boosterEmptyModal10446');
+      if(modal){
+        var icon = modal.querySelector('.bem-icon-10446');
+        if(icon) icon.textContent = '\u26A1';
+
+        var watchBtn = document.getElementById('bemWatchBtn10446');
+        if(watchBtn) watchBtn.innerHTML = '\u{1F3AC} WATCH AD = +1 EXTRA BALL';
+
+        var coinBtn = document.getElementById('bemCoinBtn10446');
+        if(coinBtn) coinBtn.innerHTML = '\u{1FA99} BUY 1 FOR 50 COINS';
+      }
+    }catch(e){
+      try{ console.warn('[BUGFIX v104462] emoji render failed', e); }catch(_){}
+    }
+  }
+
+  function spawnSecondBallManually10462(dx, dy){
+    try{
+      if(typeof balls === 'undefined' || !Array.isArray(balls)) return;
+      if(typeof launchX === 'undefined' || typeof launchY === 'undefined') return;
+
+      var angleOffset = 0.18;
+      var cosA = Math.cos(angleOffset);
+      var sinA = Math.sin(angleOffset);
+      var dx2 = dx * cosA - dy * sinA;
+      var dy2 = dx * sinA + dy * cosA;
+      var dist = Math.sqrt(dx2*dx2 + dy2*dy2);
+      if(dist < 1) return;
+      var speed = 12;
+      var vx = (dx2 / dist) * speed;
+      var vy = (dy2 / dist) * speed;
+
+      balls.push({
+        x: launchX, y: launchY,
+        vx: vx, vy: vy,
+        r: 8, active: true, bounces: 0, trail: []
+      });
+
+      try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[BUGFIX v104462] 2nd ball spawn failed', e); }catch(_){}
+    }
+  }
+
+  function rewireShoot10462(){
+    try{
+      if(typeof window.shoot !== 'function') return;
+      if(window.__shootRewiredFor10462) return;
+      window.__shootRewiredFor10462 = true;
+
+      var prevShoot = window.shoot;
+
+      window.shoot = function(dx, dy){
+        var wasArmed = !!window.__extraBallArmed10446;
+        var canShoot = (typeof gameActive !== 'undefined' && gameActive) &&
+                       (typeof shooting !== 'undefined' && !shooting) &&
+                       (typeof shotsLeft !== 'undefined' && shotsLeft > 0);
+
+        var distOk = (Math.sqrt(dx*dx + dy*dy) >= 10);
+
+        var r = prevShoot.apply(this, arguments);
+
+        if(wasArmed && canShoot && distOk){
+          setTimeout(function(){
+            spawnSecondBallManually10462(dx, dy);
+          }, 60);
+          hideArmedBanner10462();
+          var btnEl = document.getElementById('extraBallBooster10446');
+          if(btnEl) btnEl.classList.remove('armed');
+        }
+
+        return r;
+      };
+    }catch(e){
+      try{ console.warn('[BUGFIX v104462] rewire shoot failed', e); }catch(_){}
+    }
+  }
+
+  function showArmedBanner10462(){
+    try{
+      var b = document.getElementById('extraBallArmedBanner10462');
+      if(b) b.classList.add('active');
+    }catch(e){}
+  }
+
+  function hideArmedBanner10462(){
+    try{
+      var b = document.getElementById('extraBallArmedBanner10462');
+      if(b) b.classList.remove('active');
+    }catch(e){}
+  }
+
+  function rewireBoosterTap10462(){
+    try{
+      var btn = document.getElementById('extraBallBooster10446');
+      if(!btn) return;
+      if(btn.dataset.rewireFor10462) return;
+      btn.dataset.rewireFor10462 = '1';
+
+      var stopper = function(e){
+        try{
+          if(e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        }catch(_){}
+      };
+
+      btn.addEventListener('touchstart', function(e){
+        try{
+          if(e && typeof e.preventDefault === 'function') e.preventDefault();
+          stopper(e);
+        }catch(_){}
+      }, { passive:false });
+
+      btn.addEventListener('touchend', function(e){
+        try{
+          if(e && typeof e.preventDefault === 'function') e.preventDefault();
+          stopper(e);
+        }catch(_){}
+      }, { passive:false });
+
+      btn.addEventListener('click', stopper, true);
+
+      if(window.__armedBannerInterval10462) clearInterval(window.__armedBannerInterval10462);
+      window.__armedBannerInterval10462 = setInterval(function(){
+        try{
+          var armed = !!window.__extraBallArmed10446;
+          var btnEl = document.getElementById('extraBallBooster10446');
+          var hasArmedClass = btnEl && btnEl.classList.contains('armed');
+          if(armed && hasArmedClass){
+            showArmedBanner10462();
+          }else{
+            hideArmedBanner10462();
+          }
+        }catch(_){}
+      }, 200);
+    }catch(e){
+      try{ console.warn('[BUGFIX v104462] rewire tap failed', e); }catch(_){}
+    }
+  }
+
+  function applyAllFixes10462(){
+    fixEmojiRender10462();
+    rewireShoot10462();
+    rewireBoosterTap10462();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAllFixes10462);
+  }else{
+    setTimeout(applyAllFixes10462, 50);
+  }
+
+  setTimeout(applyAllFixes10462, 500);
+  setTimeout(applyAllFixes10462, 1500);
+
+  if(typeof window.startRoomLevel === 'function'){
+    var oldStartRoom10462 = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      var r = oldStartRoom10462.apply(this, arguments);
+      setTimeout(applyAllFixes10462, 80);
+      hideArmedBanner10462();
+      return r;
+    };
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10462 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10462.apply(this, arguments);
+      try{
+        if(id === 'menuS' || id === 'worldMapS' || id === 'levelCompleteS' ||
+           id === 'gameOverS' || id === 'bossClearS' || id === 'shopS' ||
+           id === 'achieveS' || id === 'statsS' || id === 'dailySpinS' ||
+           id === 'dailyStreakS' || id === 'leaderboardS' || id === 'seasonPassS' ||
+           id === 'roomIntroS' || id === 'tutorialS'){
+          hideArmedBanner10462();
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  try{ console.log('[BOOSTER BUGFIX v1.0.4.46.2] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
