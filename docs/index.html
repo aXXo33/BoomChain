@@ -626,7 +626,7 @@ var TRAILS=[
 {id:'ice_trail',name:'Ice',color:'#81d4fa',price:80},{id:'rainbow_trail',name:'Rainbow',color:'rainbow',price:200},
 {id:'spark_trail',name:'Sparks',color:'#ffd700',price:120},{id:'ghost_trail',name:'Ghost',color:'#b0bec5',price:150}
 ];
-var EFFECTS=[{id:'default',name:'Classic',price:0},{id:'confetti',name:'Confetti',price:100},{id:'fireworks',name:'Fireworks',price:150},{id:'shatter',name:'Shatter+',price:200},{id:'nova',name:'Nova',price:250}];
+var EFFECTS=[{id:'default',name:'Classic',price:0},{id:'confetti',name:'Confetti',price:1500},{id:'fireworks',name:'Fireworks',price:3500},{id:'shatter',name:'Shatter+',price:5000},{id:'nova',name:'Nova',price:9000}];
 var ACHIEVEMENTS=[
 {id:'first_shot',name:'First Shot',desc:'Complete first level',icon:TARGET,check:function(){return save.bestLevel>=1}},
 {id:'perfect1',name:'Perfect!',desc:'Get a Perfect Shot',icon:BOOM,check:function(){return save.totalPerfects>=1}},
@@ -1006,7 +1006,7 @@ function update(){
         if(t.hp<=0){t.alive=false;targetsLeft--;combo++;if(combo>maxCombo)maxCombo=combo;
           var pts=t.type==='boss'?500:(t.type==='hard'?30:(t.type==='crystal'?40:20));
           pts=pts*Math.max(1,combo);score+=pts;showScoreFly(t.x,t.y-20,pts);
-          var coinAmt=Math.floor(pts/20)+(combo>2?combo:0);coins+=coinAmt;showCoinFly(t.x+20,t.y,coinAmt);
+          var coinAmt=Math.max(1,Math.floor(pts/60))+(combo>2?Math.floor(combo/2):0);coins+=coinAmt;showCoinFly(t.x+20,t.y,coinAmt);
           var ec=t.type==='explosive'?'#ff5722':(t.type==='crystal'?'#81d4fa':ROOMS[currentRoom].accent);
           spawnParticles(t.x,t.y,ec,20+combo*5,6,5);spawnShockwave(t.x,t.y,ec);
           // EXPLOSION 3-LAYER (v1.0.3): white flash core + extra shake on combo for satisfaction.
@@ -1057,7 +1057,7 @@ function levelComplete(){
     document.body.appendChild(flash);setTimeout(function(){flash.remove()},400);
     nativeHaptic('success');setTimeout(function(){playTone(1500,'sine',0.2,0.15);playTone(1800,'triangle',0.15,0.1)},200);}
   else{sndWin();spawnConfetti(W/2,H/3,40);}
-  var coinBonus=starsEarned*5+(isPerfect?35:0)+(maxCombo>2?maxCombo*3:0);coins+=coinBonus;
+  var coinBonus=starsEarned*4+(isPerfect?22:0)+(maxCombo>2?maxCombo*2:0);coins+=coinBonus;
   // PERFECT CHAIN COUNTER (v1.0.3): track total perfect-chains for skin unlocks later
   if(isPerfect){save.totalPerfectChains=(save.totalPerfectChains||0)+1;}
   if(save.roomProgress[currentRoom]&&currentRoomLevel<save.roomProgress[currentRoom].levels.length){var old=save.roomProgress[currentRoom].levels[currentRoomLevel];
@@ -3554,6 +3554,135 @@ button[onclick="openSettings()"]{
   window.addEventListener('resize',scheduleSingleRowHud);
 
   try{ console.log('[CLEAN SINGLE ROW HUD v1.0.4.32] active'); }catch(e){}
+})();
+</script>
+<style>
+/* ===== ECONOMY STATS INTEGRITY v1.0.4.33 ===== */
+.stats-health-pill{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:0.82em;
+  font-weight:900;
+  margin:4px 0 10px;
+  border:1px solid rgba(255,255,255,0.12);
+}
+.stats-health-green{
+  color:#8dff96;
+  background:rgba(76,175,80,0.12);
+  border-color:rgba(76,175,80,0.35);
+}
+.stats-health-yellow{
+  color:#f7c948;
+  background:rgba(247,201,72,0.12);
+  border-color:rgba(247,201,72,0.35);
+}
+.stats-health-red{
+  color:#ff8a65;
+  background:rgba(255,107,53,0.12);
+  border-color:rgba(255,107,53,0.35);
+}
+</style>
+
+<script>
+/* ===== ECONOMY STATS INTEGRITY v1.0.4.33 =====
+   Fixes Stats display reliability:
+   - Win Rate cannot exceed 100%
+   - Levels Won cannot display above Levels Played
+   - Total Coins uses real current coins/save.coins
+   - Adds simple health zone label
+*/
+(function(){
+  function getSafeAnalyticsSummary(){
+    var s = {sessions:0,levelsPlayed:0,levelsWon:0,levelsLost:0,avgRetries:0,dropOffLevels:{},perfectShots:0,coinsEarned:0,shopVisits:0};
+
+    try{
+      if(typeof getAnalyticsSummary === 'function'){
+        s = getAnalyticsSummary() || s;
+      }
+    }catch(e){}
+
+    var played = Number(s.levelsPlayed || 0);
+    var rawWon = Number(s.levelsWon || 0);
+    var rawLost = Number(s.levelsLost || 0);
+
+    if(played < 0) played = 0;
+    if(rawWon < 0) rawWon = 0;
+    if(rawLost < 0) rawLost = 0;
+
+    var won = Math.min(rawWon, played);
+    var lost = Math.max(0, Math.min(rawLost, Math.max(played - won, 0) || rawLost));
+
+    var winRate = played > 0 ? Math.round((won / played) * 100) : 0;
+    winRate = Math.max(0, Math.min(100, winRate));
+
+    var realCoins = 0;
+    try{
+      realCoins = Number(typeof coins !== 'undefined' ? coins : (save && save.coins ? save.coins : 0));
+    }catch(e){
+      realCoins = 0;
+    }
+
+    var healthClass = winRate >= 80 ? 'stats-health-green' : (winRate >= 50 ? 'stats-health-yellow' : 'stats-health-red');
+    var healthText = winRate >= 80 ? 'GREEN ZONE' : (winRate >= 50 ? 'YELLOW ZONE' : 'RED ZONE');
+
+    return {
+      sessions:s.sessions || 0,
+      levelsPlayed:played,
+      levelsWon:won,
+      levelsLost:lost,
+      rawLevelsWon:rawWon,
+      rawLevelsLost:rawLost,
+      winRate:winRate,
+      perfectShots:s.perfectShots || 0,
+      totalCoins:realCoins || 0,
+      shopVisits:s.shopVisits || 0,
+      bestChain:(save && save.bestChainCombo) ? save.bestChainCombo : 0,
+      endlessBest:(save && save.endlessHighLevel) ? Math.max(0, save.endlessHighLevel - 25) : 0,
+      dropOffLevels:s.dropOffLevels || {},
+      healthClass:healthClass,
+      healthText:healthText
+    };
+  }
+
+  window.showStats = function(){
+    try{
+      showScreen('statsS');
+
+      var s = getSafeAnalyticsSummary();
+      var html = '';
+
+      html += '<div class="stats-health-pill '+s.healthClass+'">'+s.healthText+' · '+s.winRate+'% WIN RATE</div><br>';
+
+      html += '<b style="color:#ff6b35">Sessions:</b> '+s.sessions+'<br>';
+      html += '<b style="color:#ff6b35">Levels Played:</b> '+s.levelsPlayed+'<br>';
+      html += '<b style="color:#4CAF50">Levels Won:</b> '+s.levelsWon+'<br>';
+      html += '<b style="color:#ff1744">Levels Lost:</b> '+s.levelsLost+'<br>';
+      html += '<b style="color:#f7c948">Win Rate:</b> '+s.winRate+'%<br>';
+      html += '<b style="color:#f7c948">Perfect Shots:</b> '+s.perfectShots+'<br>';
+      html += '<b style="color:#f7c948">Total Coins:</b> '+Number(s.totalCoins).toLocaleString()+'<br>';
+      html += '<b style="color:#ff6b35">Shop Visits:</b> '+s.shopVisits+'<br>';
+      html += '<b style="color:#f7c948">Best Chain:</b> '+s.bestChain+'-combo<br>';
+      html += '<b style="color:#ff1744">Endless Best:</b> Lvl '+s.endlessBest+'<br>';
+
+      if(s.rawLevelsWon > s.levelsPlayed){
+        html += '<br><span style="color:#888;font-size:0.85em">Stats normalized: duplicate win events were capped for reliable display.</span><br>';
+      }
+
+      if(Object.keys(s.dropOffLevels).length > 0){
+        html += '<br><b style="color:#ff1744">Hardest Levels:</b><br>';
+        var sorted = Object.entries(s.dropOffLevels).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
+        sorted.forEach(function(e){ html += e[0]+': '+e[1]+' fails<br>'; });
+      }
+
+      var el = document.getElementById('statsContent');
+      if(el) el.innerHTML = html;
+    }catch(e){
+      console.warn('[STATS v1.0.4.33] failed', e);
+    }
+  };
+
+  try{ console.log('[ECONOMY STATS INTEGRITY v1.0.4.33] active'); }catch(e){}
 })();
 </script>
 </body>
