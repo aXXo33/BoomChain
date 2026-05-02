@@ -6348,5 +6348,194 @@ body.lm384-mode #globalSettings{
   try{ console.log('[FINAL COMPACT LIVING MAP v1.0.4.38.4] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== CORE CHAIN THE PULSE v1.0.4.39 =====
+   Adds living energy/pulse without changing layout or gameplay.
+*/
+
+.lm384-core{
+  position:relative !important;
+  overflow:hidden !important;
+}
+
+.lm384-core::before{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(247,201,72,0.20) 38deg,
+      transparent 76deg,
+      rgba(79,195,247,0.14) 128deg,
+      transparent 178deg,
+      rgba(247,201,72,0.16) 240deg,
+      transparent 360deg
+    );
+  opacity:0.28;
+  animation:coreChainSpin10439 8s linear infinite;
+  pointer-events:none;
+}
+
+.lm384-core::after{
+  content:"";
+  position:absolute;
+  left:48px;
+  right:18px;
+  top:50%;
+  height:2px;
+  background:linear-gradient(90deg, rgba(247,201,72,0.0), rgba(247,201,72,0.55), rgba(79,195,247,0.0));
+  filter:blur(1px);
+  opacity:0.72;
+  animation:coreChainFlow10439 1.9s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.lm384-orb{
+  position:relative !important;
+  z-index:3 !important;
+  animation:coreOrbPulse10439 1.9s ease-in-out infinite !important;
+}
+
+.lm384-orb::after{
+  content:"";
+  position:absolute;
+  inset:-7px;
+  border-radius:50%;
+  border:1px solid rgba(247,201,72,0.38);
+  box-shadow:
+    0 0 18px rgba(247,201,72,0.36),
+    inset 0 0 14px rgba(247,201,72,0.18);
+  animation:coreOrbRing10439 1.9s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.lm384-core-info{
+  position:relative !important;
+  z-index:3 !important;
+}
+
+.lm384-core-fill{
+  position:relative !important;
+  overflow:hidden !important;
+}
+
+.lm384-core-fill::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:42px;
+  left:-46px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.78), transparent);
+  animation:coreBarShimmer10439 2.4s ease-in-out infinite;
+}
+
+.lm384-card.restored .lm384-icon{
+  animation:restoredIconPulse10439 2.8s ease-in-out infinite;
+}
+
+.lm384-card.restored .lm384-progress-fill{
+  position:relative !important;
+  overflow:hidden !important;
+}
+
+.lm384-card.restored .lm384-progress-fill::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:34px;
+  left:-38px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.68), transparent);
+  animation:sectorEnergyFlow10439 3.1s ease-in-out infinite;
+}
+
+.lm384-card.active-sector{
+  animation:activeSectorBreath10439 2.2s ease-in-out infinite;
+}
+
+.lm384-card.active-sector .lm384-state{
+  text-shadow:0 0 14px rgba(247,201,72,0.55);
+}
+
+.lm384-card.locked{
+  animation:lockedSectorSignal10439 3.4s ease-in-out infinite;
+}
+
+.lm384-card.locked .lm384-unstable{
+  text-shadow:0 0 12px rgba(255,23,68,0.35);
+}
+
+@keyframes coreChainSpin10439{
+  0%{transform:rotate(0deg) scale(1)}
+  100%{transform:rotate(360deg) scale(1)}
+}
+
+@keyframes coreChainFlow10439{
+  0%,100%{opacity:0.28;transform:translateX(-8px)}
+  50%{opacity:0.78;transform:translateX(8px)}
+}
+
+@keyframes coreOrbPulse10439{
+  0%,100%{
+    transform:scale(0.96);
+    box-shadow:0 0 20px rgba(247,201,72,0.34);
+  }
+  50%{
+    transform:scale(1.08);
+    box-shadow:0 0 34px rgba(247,201,72,0.62), 0 0 48px rgba(79,195,247,0.18);
+  }
+}
+
+@keyframes coreOrbRing10439{
+  0%,100%{opacity:0.28;transform:scale(0.92)}
+  50%{opacity:0.72;transform:scale(1.18)}
+}
+
+@keyframes coreBarShimmer10439{
+  0%{left:-46px;opacity:0}
+  35%{opacity:0.8}
+  70%{left:100%;opacity:0}
+  100%{left:100%;opacity:0}
+}
+
+@keyframes sectorEnergyFlow10439{
+  0%{left:-38px;opacity:0}
+  30%{opacity:0.62}
+  68%{left:100%;opacity:0}
+  100%{left:100%;opacity:0}
+}
+
+@keyframes restoredIconPulse10439{
+  0%,100%{
+    filter:drop-shadow(0 0 4px rgba(124,255,138,0.16));
+  }
+  50%{
+    filter:drop-shadow(0 0 12px rgba(124,255,138,0.38));
+  }
+}
+
+@keyframes activeSectorBreath10439{
+  0%,100%{
+    box-shadow:
+      0 10px 24px rgba(0,0,0,0.28),
+      0 0 20px rgba(247,201,72,0.20),
+      inset 0 1px 0 rgba(255,255,255,0.07);
+  }
+  50%{
+    box-shadow:
+      0 12px 28px rgba(0,0,0,0.32),
+      0 0 30px rgba(247,201,72,0.34),
+      inset 0 1px 0 rgba(255,255,255,0.09);
+  }
+}
+
+@keyframes lockedSectorSignal10439{
+  0%,100%{filter:saturate(0.68) brightness(0.96)}
+  50%{filter:saturate(0.78) brightness(1.05)}
+}
+</style>
 </body>
 </html>
