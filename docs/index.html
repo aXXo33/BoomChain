@@ -1765,29 +1765,40 @@ var bgParticles=[];
 function initBg(){bgParticles=[];for(var i=0;i<50;i++)bgParticles.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+0.5,speed:Math.random()*0.3+0.1,opacity:Math.random()*0.3+0.1,drift:Math.random()*0.5-0.25});}
 initBg();
 function drawBg(){
+  /* ===== BACKGROUND DEPTH TUNING v1.0.4.37.1 ===== */
   var room=ROOMS[currentRoom]||ROOMS[0];
 
-  // Deep room gradient
+  // Base premium room gradient: dark but not flat
   var grad=ctx.createLinearGradient(0,0,0,H);
   grad.addColorStop(0,room.bg1);
-  grad.addColorStop(0.55,room.bg2);
+  grad.addColorStop(0.42,room.bg2);
+  grad.addColorStop(0.78,'#11182d');
   grad.addColorStop(1,'#050713');
   ctx.fillStyle=grad;
   ctx.fillRect(0,0,W,H);
 
-  // Ambient radial depth
-  var glow=ctx.createRadialGradient(W*0.5,H*0.18,0,W*0.5,H*0.18,Math.max(W,H)*0.72);
-  glow.addColorStop(0,bcHexToRgba(room.accent,0.14));
-  glow.addColorStop(0.42,bcHexToRgba(room.accent,0.045));
-  glow.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=glow;
+  // Top lab glow / spotlight
+  var topGlow=ctx.createRadialGradient(W*0.50,H*0.12,0,W*0.50,H*0.12,Math.max(W,H)*0.62);
+  topGlow.addColorStop(0,bcHexToRgba(room.accent,0.18));
+  topGlow.addColorStop(0.35,bcHexToRgba(room.accent,0.070));
+  topGlow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=topGlow;
   ctx.fillRect(0,0,W,H);
 
-  // Premium grid: large faint grid + small fine grid
+  // Lower depth haze: gives playfield more vertical depth
+  var lowerGlow=ctx.createRadialGradient(W*0.48,H*0.82,0,W*0.48,H*0.82,Math.max(W,H)*0.58);
+  lowerGlow.addColorStop(0,'rgba(79,195,247,0.055)');
+  lowerGlow.addColorStop(0.42,bcHexToRgba(room.accent,0.038));
+  lowerGlow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=lowerGlow;
+  ctx.fillRect(0,0,W,H);
+
+  // Premium grid: calmer, more depth, less visual noise
   ctx.save();
   ctx.lineWidth=1;
 
-  ctx.strokeStyle=bcHexToRgba(room.accent,0.055);
+  // Large grid
+  ctx.strokeStyle=bcHexToRgba(room.accent,0.043);
   for(var x=0;x<W;x+=80){
     ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
   }
@@ -1795,7 +1806,8 @@ function drawBg(){
     ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
   }
 
-  ctx.strokeStyle=bcHexToRgba(room.accent,0.032);
+  // Fine grid, more subtle
+  ctx.strokeStyle=bcHexToRgba(room.accent,0.024);
   for(var x2=0;x2<W;x2+=40){
     ctx.beginPath();ctx.moveTo(x2,0);ctx.lineTo(x2,H);ctx.stroke();
   }
@@ -1804,26 +1816,38 @@ function drawBg(){
   }
   ctx.restore();
 
-  // Subtle vignette for depth
-  var vg=ctx.createRadialGradient(W*0.5,H*0.46,Math.min(W,H)*0.18,W*0.5,H*0.46,Math.max(W,H)*0.72);
+  // Soft diagonal depth wash, very subtle
+  var diag=ctx.createLinearGradient(0,0,W,H);
+  diag.addColorStop(0,'rgba(255,255,255,0.018)');
+  diag.addColorStop(0.45,'rgba(255,255,255,0)');
+  diag.addColorStop(1,bcHexToRgba(room.accent,0.035));
+  ctx.fillStyle=diag;
+  ctx.fillRect(0,0,W,H);
+
+  // Vignette: keeps targets readable and screen premium
+  var vg=ctx.createRadialGradient(W*0.5,H*0.44,Math.min(W,H)*0.16,W*0.5,H*0.44,Math.max(W,H)*0.76);
   vg.addColorStop(0,'rgba(0,0,0,0)');
-  vg.addColorStop(1,'rgba(0,0,0,0.28)');
+  vg.addColorStop(0.62,'rgba(0,0,0,0.06)');
+  vg.addColorStop(1,'rgba(0,0,0,0.34)');
   ctx.fillStyle=vg;
   ctx.fillRect(0,0,W,H);
 
-  // Ambient particles
+  // Ambient particles: slightly brighter but still controlled
   bgParticles.forEach(function(p){
     p.y-=p.speed;
     p.x+=p.drift;
     if(p.y<-5){p.y=H+5;p.x=Math.random()*W;}
+
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.globalAlpha=p.opacity*0.85;
+    ctx.arc(p.x,p.y,p.r*1.08,0,Math.PI*2);
+    ctx.globalAlpha=Math.min(0.42,p.opacity*1.15);
     ctx.fillStyle=room.accent;
     ctx.shadowColor=room.accent;
-    ctx.shadowBlur=6;
+    ctx.shadowBlur=7;
     ctx.fill();
-    ctx.shadowBlur=0;
+    ctx.restore();
+
     ctx.globalAlpha=1;
   });
 }
