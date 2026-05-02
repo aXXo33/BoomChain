@@ -1170,7 +1170,7 @@ function generateLevel(room,li,gl){
   var hcKey=currentRoom+'_'+li;
   var hc=HANDCRAFTED[hcKey];
   if(hc){
-    shotsLeft=totalShots=hc.shots;
+    shotsLeft=totalShots=(isBossRoom?hc.shots:3); /* v1.0.4.49.1 HANDCRAFTED SHOTS applied */
     hc.targets.forEach(function(ht){
       var tx=margin+ht.x*playW,ty=topMargin+ht.y*playH;
       var type=ht.type;
