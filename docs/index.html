@@ -9349,5 +9349,260 @@ body.non-game-screen-active #hud{
   try{ console.log('[BOOSTER BUGFIX v1.0.4.46.2] active'); }catch(e){}
 })();
 </script>
+<script>
+/* ===== BOOSTER FINAL FIX v1.0.4.46.3 ===== */
+(function(){
+  if(window.__BOOSTER_FINAL_V104463) return;
+  window.__BOOSTER_FINAL_V104463 = true;
+
+  /* === FIX 1: Remove broken preventDefault from v104462 === */
+  function rewireTapClean10463(){
+    try{
+      var btn = document.getElementById('extraBallBooster10446');
+      if(!btn) return;
+
+      var newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+
+      newBtn.dataset.rewireFor10462 = '';
+      newBtn.dataset.wired = '';
+
+      newBtn.addEventListener('click', function(e){
+        try{
+          if(e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        }catch(_){}
+
+        try{
+          var st = (typeof save !== 'undefined' && save && save.boosters10446)
+            ? save.boosters10446 : null;
+          var n = (st && typeof st.extraBall === 'number') ? st.extraBall : 0;
+
+          if(n <= 0){
+            var modal = document.getElementById('boosterEmptyModal10446');
+            if(modal) modal.classList.add('active');
+            return;
+          }
+
+          if(window.__extraBallArmed10446){
+            window.__extraBallArmed10446 = false;
+            newBtn.classList.remove('armed');
+            try{ if(typeof sndUITap10444 === 'function') sndUITap10444(); }catch(e){}
+            hideArmedBannerSafe10463();
+            return;
+          }
+
+          window.__extraBallArmed10446 = true;
+          newBtn.classList.add('armed');
+          try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+          try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+          showArmedBannerSafe10463();
+        }catch(e){
+          try{ console.warn('[FINAL v104463] tap handler failed', e); }catch(_){}
+        }
+      });
+    }catch(e){
+      try{ console.warn('[FINAL v104463] rewire tap failed', e); }catch(_){}
+    }
+  }
+
+  /* === FIX 2: Re-render emoji with direct character === */
+  function forceEmojiRender10463(){
+    try{
+      var btn = document.getElementById('extraBallBooster10446');
+      if(!btn) return;
+
+      var st = (typeof save !== 'undefined' && save && save.boosters10446)
+        ? save.boosters10446 : null;
+      var n = (st && typeof st.extraBall === 'number') ? st.extraBall : 0;
+
+      btn.textContent = '';
+      var iconSpan = document.createElement('span');
+      iconSpan.style.cssText = 'font-size:1em;line-height:1;';
+      iconSpan.textContent = String.fromCodePoint(0x26A1);
+      btn.appendChild(iconSpan);
+
+      var countDiv = document.createElement('div');
+      countDiv.id = 'extraBallCount10446';
+      countDiv.className = 'booster-count-10446';
+      countDiv.textContent = String(n);
+      if(n <= 0) countDiv.classList.add('zero');
+      btn.appendChild(countDiv);
+
+      if(n <= 0){
+        btn.classList.add('empty');
+      }else{
+        btn.classList.remove('empty');
+      }
+    }catch(e){
+      try{ console.warn('[FINAL v104463] emoji render failed', e); }catch(_){}
+    }
+  }
+
+  function fixModalEmojis10463(){
+    try{
+      var modal = document.getElementById('boosterEmptyModal10446');
+      if(!modal) return;
+
+      var icon = modal.querySelector('.bem-icon-10446');
+      if(icon){ icon.textContent = String.fromCodePoint(0x26A1); }
+
+      var watchBtn = document.getElementById('bemWatchBtn10446');
+      if(watchBtn){
+        watchBtn.textContent = String.fromCodePoint(0x1F3AC) + ' WATCH AD = +1 EXTRA BALL';
+      }
+
+      var coinBtn = document.getElementById('bemCoinBtn10446');
+      if(coinBtn){
+        coinBtn.textContent = String.fromCodePoint(0x1FA99) + ' BUY 1 FOR 50 COINS';
+      }
+    }catch(e){
+      try{ console.warn('[FINAL v104463] modal emoji failed', e); }catch(_){}
+    }
+  }
+
+  /* === FIX 3: Armed banner safe handlers === */
+  function showArmedBannerSafe10463(){
+    try{
+      var b = document.getElementById('extraBallArmedBanner10462');
+      if(b) b.classList.add('active');
+    }catch(e){}
+  }
+
+  function hideArmedBannerSafe10463(){
+    try{
+      var b = document.getElementById('extraBallArmedBanner10462');
+      if(b) b.classList.remove('active');
+    }catch(e){}
+  }
+
+  /* === FIX 4: Migration check — fresh start helper === */
+  function migrateBoosterCount10463(){
+    try{
+      if(typeof save === 'undefined' || !save) return;
+      if(!save.boosters10446) return;
+      if(save.boosters10446_migrated_v10463) return;
+
+      if(save.boosters10446.extraBall === 0 && !save.boosters10446_eachUsed){
+        save.boosters10446.extraBall = 3;
+      }
+      save.boosters10446_migrated_v10463 = true;
+      try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[FINAL v104463] migration failed', e); }catch(_){}
+    }
+  }
+
+  /* === FIX 5: Track grant for migration purposes === */
+  if(typeof window.grantExtraBall10446 === 'function'){
+    var oldGrant10463 = window.grantExtraBall10446;
+    window.grantExtraBall10446 = function(){
+      try{
+        if(typeof save !== 'undefined' && save && save.boosters10446){
+          save.boosters10446_eachUsed = true;
+        }
+      }catch(e){}
+      var r = oldGrant10463.apply(this, arguments);
+      setTimeout(forceEmojiRender10463, 50);
+      return r;
+    };
+  }
+
+  /* === FIX 6: Apply all === */
+  function applyAll10463(){
+    migrateBoosterCount10463();
+    forceEmojiRender10463();
+    fixModalEmojis10463();
+    rewireTapClean10463();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10463);
+  }else{
+    setTimeout(applyAll10463, 50);
+  }
+
+  setTimeout(applyAll10463, 600);
+  setTimeout(applyAll10463, 2000);
+
+  if(typeof window.startRoomLevel === 'function'){
+    var oldStartRoom10463 = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      var r = oldStartRoom10463.apply(this, arguments);
+      setTimeout(applyAll10463, 100);
+      hideArmedBannerSafe10463();
+      window.__extraBallArmed10446 = false;
+      return r;
+    };
+  }
+
+  /* === FIX 7: Re-render after shoot for count refresh === */
+  if(typeof window.shoot === 'function'){
+    var oldShoot10463 = window.shoot;
+    window.shoot = function(dx, dy){
+      var r = oldShoot10463.apply(this, arguments);
+      setTimeout(forceEmojiRender10463, 100);
+      setTimeout(forceEmojiRender10463, 250);
+      return r;
+    };
+  }
+
+  /* === FIX 8: Cancel button on modal === */
+  setTimeout(function(){
+    try{
+      var cancelBtn = document.getElementById('bemCancelBtn10446');
+      if(cancelBtn){
+        var newCancel = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+        newCancel.addEventListener('click', function(){
+          try{
+            var modal = document.getElementById('boosterEmptyModal10446');
+            if(modal) modal.classList.remove('active');
+          }catch(e){}
+        });
+      }
+
+      var watchBtn = document.getElementById('bemWatchBtn10446');
+      if(watchBtn){
+        var newWatch = watchBtn.cloneNode(true);
+        watchBtn.parentNode.replaceChild(newWatch, watchBtn);
+        newWatch.addEventListener('click', function(){
+          try{
+            if(typeof showRewardedAd === 'function'){
+              showRewardedAd('grantExtraBall10446');
+            }
+          }catch(e){}
+        });
+      }
+
+      var coinBtn = document.getElementById('bemCoinBtn10446');
+      if(coinBtn){
+        var newCoin = coinBtn.cloneNode(true);
+        coinBtn.parentNode.replaceChild(newCoin, coinBtn);
+        newCoin.addEventListener('click', function(){
+          try{
+            if(typeof coins !== 'undefined' && coins >= 50){
+              coins -= 50;
+              if(typeof saveSave === 'function') saveSave();
+              if(typeof window.grantExtraBall10446 === 'function'){
+                window.grantExtraBall10446();
+              }
+            }else{
+              var warn = document.createElement('div');
+              warn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ff1744;color:#fff;padding:14px 24px;border-radius:14px;z-index:320;font-weight:900;font-size:0.95em;';
+              warn.textContent = 'Not enough coins!';
+              document.body.appendChild(warn);
+              setTimeout(function(){ try{ warn.remove(); }catch(e){} }, 1500);
+            }
+          }catch(e){}
+        });
+      }
+    }catch(e){
+      try{ console.warn('[FINAL v104463] modal wire failed', e); }catch(_){}
+    }
+  }, 800);
+
+  try{ console.log('[BOOSTER FINAL FIX v1.0.4.46.3] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
