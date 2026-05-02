@@ -9763,5 +9763,159 @@ body.non-game-screen-active #hud{
   try{ console.log('[COMBO SHOT REFUND v1.0.4.47] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== PERFORMANCE BONUS v1.0.4.48 ===== */
+
+.lc-perf-badge-10448{
+  display:inline-block;
+  margin-top:10px;
+  padding:9px 18px;
+  border-radius:999px;
+  font-size:0.78em;
+  font-weight:950;
+  letter-spacing:1.4px;
+  border:1.5px solid;
+  animation: lcPerfBadgePop10448 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.55s both;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.lc-perf-badge-10448.master{
+  background:radial-gradient(circle at 50% 0%, rgba(247,201,72,0.28), rgba(247,201,72,0.08));
+  color:#f7c948;
+  border-color:rgba(247,201,72,0.65);
+  box-shadow:
+    0 6px 20px rgba(247,201,72,0.35),
+    0 0 26px rgba(247,201,72,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+  text-shadow:0 0 14px rgba(247,201,72,0.6);
+}
+
+.lc-perf-badge-10448.skilled{
+  background:rgba(192,192,192,0.13);
+  color:#e8e8e8;
+  border-color:rgba(192,192,192,0.55);
+  box-shadow:
+    0 5px 16px rgba(0,0,0,0.32),
+    0 0 16px rgba(192,192,192,0.18);
+  text-shadow:0 0 10px rgba(220,220,220,0.45);
+}
+
+.lc-perf-badge-10448.clear{
+  background:rgba(205,127,50,0.10);
+  color:#cd9b6a;
+  border-color:rgba(205,127,50,0.45);
+}
+
+.lc-perf-bonus-line-10448{
+  display:block;
+  margin-top:7px;
+  font-size:0.76em;
+  font-weight:900;
+  color:#76ff8a;
+  letter-spacing:0.6px;
+  text-shadow:0 0 10px rgba(76,255,138,0.45);
+  animation: lcPerfBadgePop10448 0.5s ease-out 1.85s both;
+}
+
+.lc-perf-bonus-line-10448.perfect{
+  color:#ff8c5a;
+  text-shadow:0 0 12px rgba(255,107,53,0.5);
+}
+
+@keyframes lcPerfBadgePop10448{
+  0%{ opacity:0; transform: scale(0.7) translateY(8px); }
+  70%{ opacity:1; transform: scale(1.12) translateY(0); }
+  100%{ opacity:1; transform: scale(1) translateY(0); }
+}
+</style>
+
+<script>
+/* ===== PERFORMANCE BONUS v1.0.4.48 ===== */
+(function(){
+  if(window.__PERFORMANCE_BONUS_V10448) return;
+  window.__PERFORMANCE_BONUS_V10448 = true;
+
+  var TIER_MASTER  = { name: 'MASTER',  bonus: 100, cls: 'master',  icon: '\u2B50' };
+  var TIER_SKILLED = { name: 'SKILLED', bonus: 50,  cls: 'skilled', icon: '\u{1F3AF}' };
+  var TIER_CLEAR   = { name: 'CLEAR',   bonus: 20,  cls: 'clear',   icon: '\u2705' };
+
+  var PERFECT_BONUS_10448 = 50;
+
+  function determineTier10448(shotsLeftVal, totalShotsVal){
+    if(!totalShotsVal || totalShotsVal <= 0) return TIER_CLEAR;
+    var ratio = shotsLeftVal / totalShotsVal;
+    if(ratio >= 0.6) return TIER_MASTER;
+    if(ratio >= 0.3) return TIER_SKILLED;
+    return TIER_CLEAR;
+  }
+
+  function applyPerformanceBonus10448(){
+    try{
+      if(typeof shotsLeft === 'undefined' || typeof totalShots === 'undefined') return;
+      if(typeof coins === 'undefined') return;
+
+      var tier = determineTier10448(shotsLeft, totalShots);
+      var isPerfect = (totalShots - shotsLeft <= 1) &&
+                      (typeof targetsLeft !== 'undefined' && targetsLeft <= 0) &&
+                      (typeof targets !== 'undefined' && targets.length > 1);
+
+      var totalBonus = tier.bonus;
+      if(isPerfect) totalBonus += PERFECT_BONUS_10448;
+
+      coins += totalBonus;
+      try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+
+      var screen = document.getElementById('levelCompleteS');
+      if(!screen) return;
+
+      var oldBadges = screen.querySelectorAll('.lc-perf-badge-10448, .lc-perf-bonus-line-10448');
+      oldBadges.forEach(function(el){ try{ el.remove(); }catch(e){} });
+
+      var lcCoins = document.getElementById('lcCoins');
+      if(!lcCoins) return;
+
+      var badge = document.createElement('div');
+      badge.className = 'lc-perf-badge-10448 ' + tier.cls;
+      badge.textContent = tier.icon + ' ' + tier.name + '  +' + tier.bonus + ' COINS';
+
+      lcCoins.insertAdjacentElement('afterend', badge);
+
+      if(isPerfect){
+        var perfectLine = document.createElement('div');
+        perfectLine.className = 'lc-perf-bonus-line-10448 perfect';
+        perfectLine.textContent = '\u{1F4A5} PERFECT BONUS  +' + PERFECT_BONUS_10448 + ' COINS';
+        badge.insertAdjacentElement('afterend', perfectLine);
+      }
+
+      try{
+        if(tier === TIER_MASTER && typeof sndAchieve === 'function') sndAchieve();
+      }catch(e){}
+
+      try{
+        if(tier === TIER_MASTER && typeof hapticHeavy === 'function') hapticHeavy();
+        else if(tier === TIER_SKILLED && typeof hapticMedium === 'function') hapticMedium();
+      }catch(e){}
+    }catch(e){
+      try{ console.warn('[PERF BONUS v10448] failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10448 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10448.apply(this, arguments);
+      try{
+        if(id === 'levelCompleteS'){
+          setTimeout(applyPerformanceBonus10448, 30);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  try{ console.log('[PERFORMANCE BONUS v1.0.4.48] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
