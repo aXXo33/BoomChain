@@ -5400,5 +5400,160 @@ body.living-map-mode #globalSettings{
   try{ console.log('[WORLD MAP UNIFICATION CLEANUP v1.0.4.38.1] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== LIVING MAP FIT ALL 6 SECTORS v1.0.4.38.2 =====
+   Compact premium living map so all 6 sectors are visible and Endless Lab does not disappear below the fold.
+*/
+
+#worldMapS.active{
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+
+.lm381-shell{
+  padding:18px 12px 110px !important;
+  min-height:auto !important;
+}
+
+.lm381-top{
+  margin-bottom:8px !important;
+}
+
+.lm381-kicker{
+  font-size:0.58em !important;
+  padding:5px 10px !important;
+  margin-bottom:5px !important;
+}
+
+.lm381-title{
+  font-size:1.34em !important;
+  line-height:1.05 !important;
+}
+
+.lm381-sub{
+  font-size:0.70em !important;
+  margin:5px auto 7px !important;
+  line-height:1.25 !important;
+}
+
+.lm381-core{
+  margin:7px auto 10px !important;
+  padding:10px 11px !important;
+  border-radius:18px !important;
+}
+
+.lm381-core-orb{
+  width:42px !important;
+  height:42px !important;
+  font-size:1.15em !important;
+}
+
+.lm381-core-label{
+  font-size:0.56em !important;
+}
+
+.lm381-core-main{
+  font-size:0.82em !important;
+}
+
+.lm381-core-bar{
+  height:5px !important;
+  margin-top:6px !important;
+}
+
+.lm381-grid{
+  max-width:430px !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:9px !important;
+}
+
+.lm381-card{
+  min-height:124px !important;
+  border-radius:18px !important;
+  padding:10px 8px 9px !important;
+}
+
+.lm381-icon{
+  width:39px !important;
+  height:39px !important;
+  border-radius:14px !important;
+  font-size:1.42em !important;
+  margin-bottom:2px !important;
+}
+
+.lm381-main{
+  gap:3px !important;
+}
+
+.lm381-state{
+  font-size:0.48em !important;
+  letter-spacing:1.4px !important;
+}
+
+.lm381-name{
+  font-size:0.78em !important;
+  line-height:1.1 !important;
+}
+
+.lm381-desc{
+  font-size:0.56em !important;
+  line-height:1.15 !important;
+  min-height:24px !important;
+}
+
+.lm381-meta{
+  margin-top:7px !important;
+}
+
+.lm381-progress{
+  height:5px !important;
+}
+
+.lm381-stars{
+  font-size:0.60em !important;
+  margin-top:4px !important;
+}
+
+.lm381-unstable{
+  margin-top:7px !important;
+  font-size:0.47em !important;
+  letter-spacing:0.9px !important;
+}
+
+.lm381-back{
+  margin-top:10px !important;
+}
+
+.lm381-back .btn{
+  padding:8px 24px !important;
+  font-size:0.82em !important;
+}
+
+@media(max-width:390px){
+  .lm381-shell{
+    padding-top:16px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    padding-bottom:115px !important;
+  }
+
+  .lm381-grid{
+    gap:8px !important;
+  }
+
+  .lm381-card{
+    min-height:118px !important;
+    padding:9px 7px 8px !important;
+  }
+
+  .lm381-title{
+    font-size:1.22em !important;
+  }
+
+  .lm381-core{
+    padding:9px 10px !important;
+  }
+}
+</style>
 </body>
 </html>
