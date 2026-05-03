@@ -10586,9 +10586,9 @@ body.non-game-screen-active #hud{
   window.__IAP_COMPLETE_FIX_V10451 = true;
 
   var PRODUCTS_10451 = {
-    NO_ADS:    'com.primequantumstudios.boomchain.noads',
-    COINS_100: 'com.primequantumstudios.boomchain.coins100',
-    COINS_500: 'com.primequantumstudios.boomchain.coins500'
+    NO_ADS:    '$rc_lifetime', /* v1.0.4.51.1 RC package id */
+    COINS_100: 'coins_100', /* v1.0.4.51.1 RC package id */
+    COINS_500: 'coins_500' /* v1.0.4.51.1 RC package id */
   };
 
   var COIN_GRANTS_10451 = {};
@@ -10639,7 +10639,7 @@ body.non-game-screen-active #hud{
             var amount = COIN_GRANTS_10451[productId];
             try{
               if(typeof coins !== 'undefined'){
-                coins += amount;
+                /* v1.0.4.51.1 native already adds coins, no double-grant */
                 if(typeof saveSave === 'function') saveSave();
               }
             }catch(e){}
