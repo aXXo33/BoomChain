@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10925,17 +10925,7 @@ body.non-game-screen-active #hud{
       if(window.__preGameBoosterArmed10450){
         window.__preGameBoosterArmed10450 = false;
       }
-      if(window.__extraBallArmed10446){
-        window.__extraBallArmed10446 = false;
-      }
-      var btnEl = document.getElementById('extraBallBooster10446');
-      if(btnEl){
-        btnEl.classList.remove('armed');
-      }
-      var armedBanner = document.getElementById('extraBallArmedBanner10462');
-      if(armedBanner){
-        armedBanner.classList.remove('active');
-      }
+      /* v1.0.4.53.1 ARMED OVERCORRECTION FIX: real booster (ad/coin earned) persists across MAP/menu return */
 
       var pgbBtn = document.getElementById('pgbAction10450');
       if(pgbBtn){
