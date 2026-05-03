@@ -10814,5 +10814,63 @@ body.non-game-screen-active #hud{
   try{ console.log('[IAP COMPLETE FIX v1.0.4.51] active'); }catch(e){}
 })();
 </script>
+<script>
+/* ===== CONFETTI RESET v1.0.4.52 =====
+   Bug: confetti particles persist on menu screens because gameLoop's update()
+   only runs when gameActive=true, so life decrement stops, draw() keeps drawing.
+   Fix: clear confetti + particles + shockwaves when entering main menu / world map.
+*/
+(function(){
+  if(window.__CONFETTI_RESET_V10452) return;
+  window.__CONFETTI_RESET_V10452 = true;
+
+  function clearVisualResidue10452(){
+    try{
+      if(typeof confetti !== 'undefined' && Array.isArray(confetti)){
+        confetti.length = 0;
+      }
+      if(typeof particles !== 'undefined' && Array.isArray(particles)){
+        particles.length = 0;
+      }
+      if(typeof shockwaves !== 'undefined' && Array.isArray(shockwaves)){
+        shockwaves.length = 0;
+      }
+      if(typeof textPops !== 'undefined' && Array.isArray(textPops)){
+        textPops.length = 0;
+      }
+
+      try{
+        var cc = document.getElementById('confettiCanvas');
+        if(cc){
+          var cctx2 = cc.getContext('2d');
+          if(cctx2 && typeof W !== 'undefined' && typeof H !== 'undefined'){
+            cctx2.clearRect(0, 0, W, H);
+          }
+        }
+      }catch(e){}
+    }catch(e){
+      try{ console.warn('[CONFETTI RESET v10452] failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showMenu === 'function'){
+    var oldShowMenu10452 = window.showMenu;
+    window.showMenu = function(){
+      clearVisualResidue10452();
+      return oldShowMenu10452.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.startWorldMap === 'function'){
+    var oldStartWorldMap10452 = window.startWorldMap;
+    window.startWorldMap = function(){
+      clearVisualResidue10452();
+      return oldStartWorldMap10452.apply(this, arguments);
+    };
+  }
+
+  try{ console.log('[CONFETTI RESET v1.0.4.52] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
