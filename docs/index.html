@@ -10099,5 +10099,325 @@ body.non-game-screen-active #hud{
   try{ console.log('[PERFORMANCE BADGE FIX v1.0.4.48.1] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== PRE-GAME BOOSTER OFFER v1.0.4.50 ===== */
+
+#preGameBoosterOffer10450{
+  display:none;
+  margin:14px auto 8px;
+  padding:14px 16px;
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.14), transparent 55%),
+    linear-gradient(180deg, rgba(20,24,46,0.92), rgba(8,10,22,0.92));
+  border:1.5px solid rgba(247,201,72,0.42);
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.32),
+    0 0 24px rgba(247,201,72,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  max-width:340px;
+  width:90%;
+  text-align:center;
+  animation: pgbOfferIn10450 0.5s ease-out;
+}
+
+#preGameBoosterOffer10450.active{ display:block; }
+
+@keyframes pgbOfferIn10450{
+  0%{ opacity:0; transform: translateY(8px) scale(0.96); }
+  100%{ opacity:1; transform: translateY(0) scale(1); }
+}
+
+.pgb-row-10450{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.pgb-info-10450{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:1;
+  min-width:0;
+}
+
+.pgb-icon-10450{
+  font-size:1.6em;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, rgba(247,201,72,0.32), rgba(247,201,72,0.08));
+  border:1px solid rgba(247,201,72,0.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  filter:drop-shadow(0 0 8px rgba(247,201,72,0.45));
+}
+
+.pgb-text-10450{
+  text-align:left;
+  flex:1;
+  min-width:0;
+}
+
+.pgb-title-10450{
+  color:#fff;
+  font-size:0.86em;
+  font-weight:900;
+  letter-spacing:0.6px;
+  margin-bottom:2px;
+}
+
+.pgb-subtitle-10450{
+  color:#a8aec8;
+  font-size:0.7em;
+  letter-spacing:0.3px;
+}
+
+.pgb-action-10450{
+  padding:8px 14px;
+  border-radius:999px;
+  background:linear-gradient(135deg, #4CAF50, #76ff8a);
+  color:#0a1a0a;
+  font-size:0.75em;
+  font-weight:950;
+  letter-spacing:1px;
+  border:none;
+  cursor:pointer;
+  white-space:nowrap;
+  flex-shrink:0;
+  box-shadow:0 4px 14px rgba(76,255,138,0.32);
+  transition: all 0.18s ease;
+}
+
+.pgb-action-10450:active{
+  transform:scale(0.94);
+}
+
+.pgb-action-10450.armed{
+  background:linear-gradient(135deg, #f7c948, #ff8c5a);
+  color:#1a1a2e;
+  animation: pgbArmedPulse10450 1.1s ease-in-out infinite;
+  box-shadow:0 4px 18px rgba(247,201,72,0.55), 0 0 22px rgba(247,201,72,0.32);
+}
+
+.pgb-action-10450.ad{
+  background:linear-gradient(135deg, #ff6b35, #f7c948);
+  color:#1a1a2e;
+  animation: pgbAdPulse10450 1.4s ease-in-out infinite;
+}
+
+@keyframes pgbArmedPulse10450{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.06); }
+}
+
+@keyframes pgbAdPulse10450{
+  0%,100%{ transform:scale(1); box-shadow:0 4px 14px rgba(255,107,53,0.4); }
+  50%{ transform:scale(1.04); box-shadow:0 4px 22px rgba(255,107,53,0.6), 0 0 28px rgba(247,201,72,0.3); }
+}
+</style>
+
+<div id="preGameBoosterOffer10450">
+  <div class="pgb-row-10450">
+    <div class="pgb-info-10450">
+      <div class="pgb-icon-10450" id="pgbIcon10450">⚡</div>
+      <div class="pgb-text-10450">
+        <div class="pgb-title-10450" id="pgbTitle10450">EXTRA BALL</div>
+        <div class="pgb-subtitle-10450" id="pgbSubtitle10450">Launch 2 balls on first shot</div>
+      </div>
+    </div>
+    <button class="pgb-action-10450" id="pgbAction10450">USE</button>
+  </div>
+</div>
+
+<script>
+/* ===== PRE-GAME BOOSTER OFFER v1.0.4.50 ===== */
+(function(){
+  if(window.__PRE_GAME_BOOSTER_OFFER_V10450) return;
+  window.__PRE_GAME_BOOSTER_OFFER_V10450 = true;
+
+  function getCount10450(){
+    try{
+      if(typeof save === 'undefined' || !save || !save.boosters10446) return 0;
+      var n = save.boosters10446.extraBall;
+      return (typeof n === 'number') ? n : 0;
+    }catch(e){ return 0; }
+  }
+
+  function injectOfferIntoIntro10450(){
+    try{
+      var screen = document.getElementById('roomIntroS');
+      if(!screen) return;
+
+      var offer = document.getElementById('preGameBoosterOffer10450');
+      if(!offer) return;
+
+      if(offer.parentNode === screen) {
+        offer.classList.add('active');
+        refreshOfferState10450();
+        return;
+      }
+
+      var anchor = document.getElementById('riDots');
+      if(anchor && anchor.parentNode === screen){
+        screen.insertBefore(offer, anchor.nextSibling);
+      }else{
+        screen.appendChild(offer);
+      }
+
+      offer.classList.add('active');
+      refreshOfferState10450();
+    }catch(e){
+      try{ console.warn('[PRE-GAME BOOSTER v10450] inject failed', e); }catch(_){}
+    }
+  }
+
+  function hideOffer10450(){
+    try{
+      var offer = document.getElementById('preGameBoosterOffer10450');
+      if(offer) offer.classList.remove('active');
+    }catch(e){}
+  }
+
+  function refreshOfferState10450(){
+    try{
+      var btn = document.getElementById('pgbAction10450');
+      var subtitle = document.getElementById('pgbSubtitle10450');
+      if(!btn) return;
+
+      var count = getCount10450();
+      var armed = !!window.__preGameBoosterArmed10450;
+
+      if(armed){
+        btn.classList.remove('ad');
+        btn.classList.add('armed');
+        btn.textContent = '✓ ARMED';
+        if(subtitle) subtitle.textContent = 'Will activate on first shot';
+      }else if(count > 0){
+        btn.classList.remove('armed', 'ad');
+        btn.textContent = 'USE (' + count + ')';
+        if(subtitle) subtitle.textContent = 'Launch 2 balls on first shot';
+      }else{
+        btn.classList.remove('armed');
+        btn.classList.add('ad');
+        btn.innerHTML = '🎬 WATCH AD';
+        if(subtitle) subtitle.textContent = 'Get 1 free Extra Ball';
+      }
+    }catch(e){}
+  }
+
+  function handleOfferTap10450(){
+    try{
+      var count = getCount10450();
+      var armed = !!window.__preGameBoosterArmed10450;
+
+      if(armed){
+        window.__preGameBoosterArmed10450 = false;
+        try{ if(typeof sndUITap10444 === 'function') sndUITap10444(); }catch(e){}
+        refreshOfferState10450();
+        return;
+      }
+
+      if(count > 0){
+        window.__preGameBoosterArmed10450 = true;
+        try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+        try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+        refreshOfferState10450();
+        return;
+      }
+
+      try{
+        if(typeof showRewardedAd === 'function'){
+          showRewardedAd('grantPreGameBoosterAd10450');
+        }
+      }catch(e){}
+    }catch(e){
+      try{ console.warn('[PRE-GAME BOOSTER v10450] tap failed', e); }catch(_){}
+    }
+  }
+
+  window.grantPreGameBoosterAd10450 = function(){
+    try{
+      if(typeof window.grantExtraBall10446 === 'function'){
+        window.grantExtraBall10446();
+      }
+      window.__preGameBoosterArmed10450 = true;
+      refreshOfferState10450();
+    }catch(e){}
+  };
+
+  function wireOfferTap10450(){
+    try{
+      var btn = document.getElementById('pgbAction10450');
+      if(!btn || btn.dataset.wired10450) return;
+
+      var newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      newBtn.dataset.wired10450 = '1';
+      newBtn.addEventListener('click', function(e){
+        try{ if(e && typeof e.stopPropagation === 'function') e.stopPropagation(); }catch(_){}
+        handleOfferTap10450();
+      });
+    }catch(e){}
+  }
+
+  function consumePreGameBooster10450(){
+    try{
+      if(!window.__preGameBoosterArmed10450) return;
+      window.__preGameBoosterArmed10450 = false;
+      window.__extraBallArmed10446 = true;
+
+      var btnEl = document.getElementById('extraBallBooster10446');
+      if(btnEl) btnEl.classList.add('armed');
+
+      try{
+        if(typeof save !== 'undefined' && save && save.boosters10446 &&
+           typeof save.boosters10446.extraBall === 'number'){
+          if(save.boosters10446.extraBall > 0){
+            save.boosters10446.extraBall = save.boosters10446.extraBall - 1;
+            try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+          }
+        }
+      }catch(e){}
+    }catch(e){
+      try{ console.warn('[PRE-GAME BOOSTER v10450] consume failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10450 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10450.apply(this, arguments);
+      try{
+        if(id === 'roomIntroS'){
+          window.__preGameBoosterArmed10450 = false;
+          setTimeout(function(){
+            injectOfferIntoIntro10450();
+            wireOfferTap10450();
+          }, 60);
+        }else{
+          hideOffer10450();
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(typeof window.startRoomLevel === 'function'){
+    var oldStartRoomLevel10450 = window.startRoomLevel;
+    window.startRoomLevel = function(){
+      consumePreGameBooster10450();
+      hideOffer10450();
+      return oldStartRoomLevel10450.apply(this, arguments);
+    };
+  }
+
+  try{ console.log('[PRE-GAME BOOSTER OFFER v1.0.4.50] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
