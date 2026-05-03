@@ -10378,7 +10378,7 @@ body.non-game-screen-active #hud{
         if(typeof save !== 'undefined' && save && save.boosters10446 &&
            typeof save.boosters10446.extraBall === 'number'){
           if(save.boosters10446.extraBall > 0){
-            save.boosters10446.extraBall = save.boosters10446.extraBall - 1;
+            /* v1.0.4.50.1 DOUBLE DECREMENT FIX applied: v46 shoot wrap handles decrement */
             try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
           }
         }
