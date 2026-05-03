@@ -10419,5 +10419,400 @@ body.non-game-screen-active #hud{
   try{ console.log('[PRE-GAME BOOSTER OFFER v1.0.4.50] active'); }catch(e){}
 })();
 </script>
+<style>
+/* ===== IAP COMPLETE FIX v1.0.4.51 ===== */
+
+.iap-hero-10451{
+  grid-column:span 3 !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:14px !important;
+  padding:18px 16px !important;
+  border-radius:18px !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.20), transparent 55%),
+    linear-gradient(180deg, rgba(40,30,12,0.94), rgba(20,15,6,0.94)) !important;
+  border:1.5px solid rgba(247,201,72,0.55) !important;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.45),
+    0 0 32px rgba(247,201,72,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.10) !important;
+  position:relative !important;
+  overflow:visible !important;
+  margin-bottom:6px !important;
+}
+
+.iap-hero-badge-10451{
+  position:absolute;
+  top:-9px;
+  right:14px;
+  background:linear-gradient(135deg, #ff6b35, #f7c948);
+  color:#1a1a2e;
+  font-size:0.62em;
+  font-weight:950;
+  letter-spacing:1.2px;
+  padding:4px 10px;
+  border-radius:999px;
+  box-shadow:0 4px 12px rgba(255,107,53,0.4);
+}
+
+.iap-hero-icon-10451{
+  font-size:2.6em;
+  filter:drop-shadow(0 0 12px rgba(247,201,72,0.55));
+  flex-shrink:0;
+}
+
+.iap-hero-text-10451{
+  flex:1;
+  text-align:left;
+}
+
+.iap-hero-title-10451{
+  color:#fff;
+  font-weight:950;
+  font-size:1.0em;
+  letter-spacing:0.8px;
+  margin-bottom:3px;
+}
+
+.iap-hero-desc-10451{
+  color:#c5cdd6;
+  font-size:0.72em;
+  line-height:1.35;
+}
+
+.iap-hero-btn-10451{
+  background:linear-gradient(135deg, #f7c948, #ff8c5a) !important;
+  color:#1a1a2e !important;
+  border:none !important;
+  padding:10px 18px !important;
+  border-radius:12px !important;
+  font-weight:950 !important;
+  font-size:0.85em !important;
+  letter-spacing:0.5px !important;
+  cursor:pointer !important;
+  box-shadow:0 6px 18px rgba(247,201,72,0.45) !important;
+  flex-shrink:0 !important;
+  animation: iapHeroPulse10451 1.6s ease-in-out infinite;
+}
+
+.iap-hero-btn-10451.owned{
+  background:rgba(76,175,80,0.18) !important;
+  color:#76ff8a !important;
+  animation:none;
+  box-shadow:0 4px 14px rgba(76,255,138,0.20) !important;
+  cursor:default !important;
+}
+
+@keyframes iapHeroPulse10451{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.05); }
+}
+
+.iap-pack-10451{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:13px 14px !important;
+  border-radius:14px !important;
+  background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)) !important;
+  border:1px solid rgba(255,255,255,0.10) !important;
+}
+
+.iap-pack-icon-10451{
+  font-size:1.7em;
+  flex-shrink:0;
+}
+
+.iap-pack-text-10451{
+  flex:1;
+  text-align:left;
+}
+
+.iap-pack-name-10451{
+  color:#fff;
+  font-weight:800;
+  font-size:0.85em;
+  margin-bottom:2px;
+}
+
+.iap-pack-desc-10451{
+  color:#a0a8b8;
+  font-size:0.68em;
+}
+
+.iap-pack-btn-10451{
+  background:linear-gradient(135deg, #4CAF50, #76ff8a) !important;
+  color:#0a1a0a !important;
+  border:none !important;
+  padding:8px 14px !important;
+  border-radius:10px !important;
+  font-weight:900 !important;
+  font-size:0.78em !important;
+  cursor:pointer !important;
+  box-shadow:0 4px 12px rgba(76,255,138,0.30) !important;
+  flex-shrink:0 !important;
+}
+
+.iap-restore-row-10451{
+  grid-column:span 3 !important;
+  text-align:center !important;
+  margin-top:14px !important;
+  padding-top:14px !important;
+  border-top:1px solid rgba(255,255,255,0.08) !important;
+}
+
+.iap-restore-btn-10451{
+  background:rgba(255,255,255,0.06) !important;
+  color:#a0a8b8 !important;
+  border:1px solid rgba(255,255,255,0.14) !important;
+  padding:8px 22px !important;
+  border-radius:10px !important;
+  font-size:0.75em !important;
+  font-weight:700 !important;
+  letter-spacing:0.4px !important;
+  cursor:pointer !important;
+}
+</style>
+
+<script>
+/* ===== IAP COMPLETE FIX v1.0.4.51 =====
+   1. Restore _isPremium from save on startup
+   2. Override onPurchaseComplete with coin grant + persist
+   3. Override shopTab('vip') to render polished IAP UI with real ASC product IDs
+*/
+(function(){
+  if(window.__IAP_COMPLETE_FIX_V10451) return;
+  window.__IAP_COMPLETE_FIX_V10451 = true;
+
+  var PRODUCTS_10451 = {
+    NO_ADS:    'com.primequantumstudios.boomchain.noads',
+    COINS_100: 'com.primequantumstudios.boomchain.coins100',
+    COINS_500: 'com.primequantumstudios.boomchain.coins500'
+  };
+
+  var COIN_GRANTS_10451 = {};
+  COIN_GRANTS_10451[PRODUCTS_10451.COINS_100] = 100;
+  COIN_GRANTS_10451[PRODUCTS_10451.COINS_500] = 500;
+
+  function restorePremiumOnStartup10451(){
+    try{
+      if(typeof save !== 'undefined' && save && save.isPremium === true){
+        window._isPremium = true;
+      }
+    }catch(e){}
+  }
+
+  function applyPurchaseCompleteOverride10451(){
+    try{
+      if(window.__purchaseOverrideApplied10451) return;
+      window.__purchaseOverrideApplied10451 = true;
+
+      window.onPurchaseComplete = function(result){
+        try{
+          if(!result || !result.success){
+            try{ alert('Purchase failed. Please try again.'); }catch(e){}
+            return;
+          }
+
+          var txId = result.transactionId || result.orderId || (result.productId + '_' + Date.now());
+          var processedTx = [];
+          try{ processedTx = JSON.parse(localStorage.getItem('processed_tx') || '[]'); }catch(e){}
+          if(processedTx.indexOf(txId) !== -1) return;
+          processedTx.push(txId);
+          if(processedTx.length > 100) processedTx = processedTx.slice(-100);
+          try{ localStorage.setItem('processed_tx', JSON.stringify(processedTx)); }catch(e){}
+
+          var productId = result.productId || '';
+          var grantedMsg = '';
+
+          if(result.isPremium === true || productId === PRODUCTS_10451.NO_ADS){
+            window._isPremium = true;
+            try{
+              if(typeof save !== 'undefined' && save){
+                save.isPremium = true;
+                if(typeof saveSave === 'function') saveSave();
+              }
+            }catch(e){}
+            grantedMsg = '\u{1F389} Ads removed forever! Enjoy Boom Chain ad-free!';
+          } else if(COIN_GRANTS_10451[productId] !== undefined){
+            var amount = COIN_GRANTS_10451[productId];
+            try{
+              if(typeof coins !== 'undefined'){
+                coins += amount;
+                if(typeof saveSave === 'function') saveSave();
+              }
+            }catch(e){}
+            grantedMsg = '\u{1FA99} +' + amount + ' coins added to your account!';
+          } else {
+            grantedMsg = result.isPremium ? '\u{1F389} Ads removed!' : '\u{1FA99} Coins added!';
+          }
+
+          try{ if(typeof sndWin === 'function') sndWin(); }catch(e){}
+          try{ if(typeof spawnConfetti === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined') spawnConfetti(W/2, H/2, 50); }catch(e){}
+
+          try{ alert(grantedMsg); }catch(e){}
+          try{ if(typeof closeShop === 'function') closeShop(); }catch(e){}
+
+          try{
+            var coinsEl = document.getElementById('shopCoins');
+            if(coinsEl && typeof coins !== 'undefined' && typeof COIN !== 'undefined'){
+              coinsEl.textContent = COIN + ' ' + coins;
+            }
+          }catch(e){}
+        }catch(e){
+          try{ console.warn('[IAP FIX v10451] purchase complete failed', e); }catch(_){}
+        }
+      };
+
+      window.onRestoreComplete = function(result){
+        try{
+          if(result && result.success && result.isPremium){
+            window._isPremium = true;
+            try{
+              if(typeof save !== 'undefined' && save){
+                save.isPremium = true;
+                if(typeof saveSave === 'function') saveSave();
+              }
+            }catch(e){}
+            try{ alert('\u2705 Purchases restored! Ads removed.'); }catch(e){}
+          } else {
+            try{ alert('No previous purchases found.'); }catch(e){}
+          }
+        }catch(e){}
+      };
+    }catch(e){
+      try{ console.warn('[IAP FIX v10451] override failed', e); }catch(_){}
+    }
+  }
+
+  function renderPolishedVipTab10451(){
+    try{
+      var grid = document.getElementById('shopGrid');
+      if(!grid) return;
+
+      grid.innerHTML = '';
+
+      var isPremium = !!(window._isPremium ||
+                          (typeof save !== 'undefined' && save && save.isPremium === true));
+
+      var heroCard = document.createElement('div');
+      heroCard.className = 'iap-hero-10451';
+      heroCard.innerHTML =
+        '<div class="iap-hero-badge-10451">BEST VALUE</div>' +
+        '<div class="iap-hero-icon-10451">\u{1F6AB}</div>' +
+        '<div class="iap-hero-text-10451">' +
+          '<div class="iap-hero-title-10451">NO ADS \u2014 LIFETIME</div>' +
+          '<div class="iap-hero-desc-10451">' +
+            (isPremium
+              ? 'You own this. Enjoy ad-free play forever.'
+              : 'Remove all banner & interstitial ads. Premium experience, one-time purchase.') +
+          '</div>' +
+        '</div>' +
+        (isPremium
+          ? '<button class="iap-hero-btn-10451 owned" disabled>\u2713 OWNED</button>'
+          : '<button class="iap-hero-btn-10451" id="iapNoAdsBtn10451">\u00A32.99</button>');
+      grid.appendChild(heroCard);
+
+      var pack100 = document.createElement('div');
+      pack100.className = 'shop-item iap-pack-10451';
+      pack100.style.gridColumn = 'span 3';
+      pack100.innerHTML =
+        '<div class="iap-pack-icon-10451">\u{1FA99}</div>' +
+        '<div class="iap-pack-text-10451">' +
+          '<div class="iap-pack-name-10451">100 COINS</div>' +
+          '<div class="iap-pack-desc-10451">Quick boost for shop or gear.</div>' +
+        '</div>' +
+        '<button class="iap-pack-btn-10451" id="iapCoins100Btn10451">\u00A30.99</button>';
+      grid.appendChild(pack100);
+
+      var pack500 = document.createElement('div');
+      pack500.className = 'shop-item iap-pack-10451';
+      pack500.style.gridColumn = 'span 3';
+      pack500.innerHTML =
+        '<div class="iap-pack-icon-10451">\u{1F4B0}</div>' +
+        '<div class="iap-pack-text-10451">' +
+          '<div class="iap-pack-name-10451">500 COINS</div>' +
+          '<div class="iap-pack-desc-10451">Unlock premium cosmetics faster.</div>' +
+        '</div>' +
+        '<button class="iap-pack-btn-10451" id="iapCoins500Btn10451">\u00A33.99</button>';
+      grid.appendChild(pack500);
+
+      var restoreRow = document.createElement('div');
+      restoreRow.className = 'iap-restore-row-10451';
+      restoreRow.innerHTML =
+        '<button class="iap-restore-btn-10451" id="iapRestoreBtn10451">Restore Purchases</button>';
+      grid.appendChild(restoreRow);
+
+      function wireBtn(id, productId){
+        try{
+          var btn = document.getElementById(id);
+          if(!btn) return;
+          btn.addEventListener('click', function(e){
+            try{ if(e && e.stopPropagation) e.stopPropagation(); }catch(_){}
+            try{ if(typeof buyItem === 'function') buyItem(productId); }catch(_){}
+          });
+        }catch(e){}
+      }
+
+      if(!isPremium) wireBtn('iapNoAdsBtn10451', PRODUCTS_10451.NO_ADS);
+      wireBtn('iapCoins100Btn10451', PRODUCTS_10451.COINS_100);
+      wireBtn('iapCoins500Btn10451', PRODUCTS_10451.COINS_500);
+
+      try{
+        var rb = document.getElementById('iapRestoreBtn10451');
+        if(rb){
+          rb.addEventListener('click', function(){
+            try{ if(typeof restorePurchases === 'function') restorePurchases(); }catch(e){}
+          });
+        }
+      }catch(e){}
+    }catch(e){
+      try{ console.warn('[IAP FIX v10451] vip render failed', e); }catch(_){}
+    }
+  }
+
+  function applyShopTabOverride10451(){
+    try{
+      if(window.__shopTabOverrideApplied10451) return;
+      if(typeof window.shopTab !== 'function') return;
+      window.__shopTabOverrideApplied10451 = true;
+
+      var oldShopTab10451 = window.shopTab;
+      window.shopTab = function(tab){
+        if(tab === 'vip'){
+          try{
+            var tabBtns = document.querySelectorAll('#shopTabs .tab-btn');
+            tabBtns.forEach(function(b, i){
+              b.classList.toggle('active', i === 3);
+            });
+          }catch(e){}
+          renderPolishedVipTab10451();
+          return;
+        }
+        return oldShopTab10451.apply(this, arguments);
+      };
+    }catch(e){
+      try{ console.warn('[IAP FIX v10451] shop tab override failed', e); }catch(_){}
+    }
+  }
+
+  function initIapFix10451(){
+    restorePremiumOnStartup10451();
+    applyPurchaseCompleteOverride10451();
+    applyShopTabOverride10451();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initIapFix10451);
+  } else {
+    initIapFix10451();
+  }
+  setTimeout(initIapFix10451, 500);
+  setTimeout(initIapFix10451, 1500);
+
+  try{ console.log('[IAP COMPLETE FIX v1.0.4.51] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
