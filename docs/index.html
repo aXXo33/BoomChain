@@ -10394,7 +10394,7 @@ body.non-game-screen-active #hud{
       var r = oldShowScreen10450.apply(this, arguments);
       try{
         if(id === 'roomIntroS'){
-          window.__preGameBoosterArmed10450 = false;
+          /* v1.0.4.53.2 ARMED PERSIST FIX: do NOT reset armed state on roomIntroS show - player earned it (Watch Ad/USE), let it persist until consume on first shot */
           setTimeout(function(){
             injectOfferIntoIntro10450();
             wireOfferTap10450();
