@@ -10872,5 +10872,131 @@ body.non-game-screen-active #hud{
   try{ console.log('[CONFETTI RESET v1.0.4.52] active'); }catch(e){}
 })();
 </script>
+<script>
+/* ===== VISUAL POLISH HARDENING v1.0.4.53 =====
+   Closes 4 potential leak points:
+   1. trailParticles cleanup (v52 missed this)
+   2. Pre-game booster ARMED state reset on MAP/menu return
+   3. Booster panel hide guarantee on non-game screens
+   4. Stronger body class enforcement
+*/
+(function(){
+  if(window.__VISUAL_POLISH_V10453) return;
+  window.__VISUAL_POLISH_V10453 = true;
+
+  var NON_GAME_SCREENS = [
+    'menuS', 'worldMapS', 'shopS', 'achieveS', 'statsS',
+    'dailySpinS', 'dailyStreakS', 'leaderboardS', 'seasonPassS',
+    'levelCompleteS', 'gameOverS', 'bossClearS', 'tutorialS', 'roomIntroS'
+  ];
+
+  function clearAllVisualResidue10453(){
+    try{
+      if(typeof trailParticles !== 'undefined' && Array.isArray(trailParticles)){
+        trailParticles.length = 0;
+      }
+      if(typeof confetti !== 'undefined' && Array.isArray(confetti)){
+        confetti.length = 0;
+      }
+      if(typeof particles !== 'undefined' && Array.isArray(particles)){
+        particles.length = 0;
+      }
+      if(typeof shockwaves !== 'undefined' && Array.isArray(shockwaves)){
+        shockwaves.length = 0;
+      }
+      if(typeof textPops !== 'undefined' && Array.isArray(textPops)){
+        textPops.length = 0;
+      }
+
+      try{
+        var cc = document.getElementById('confettiCanvas');
+        if(cc){
+          var cctx2 = cc.getContext('2d');
+          if(cctx2 && typeof W !== 'undefined' && typeof H !== 'undefined'){
+            cctx2.clearRect(0, 0, W, H);
+          }
+        }
+      }catch(e){}
+    }catch(e){}
+  }
+
+  function resetPreGameBoosterState10453(){
+    try{
+      if(window.__preGameBoosterArmed10450){
+        window.__preGameBoosterArmed10450 = false;
+      }
+      if(window.__extraBallArmed10446){
+        window.__extraBallArmed10446 = false;
+      }
+      var btnEl = document.getElementById('extraBallBooster10446');
+      if(btnEl){
+        btnEl.classList.remove('armed');
+      }
+      var armedBanner = document.getElementById('extraBallArmedBanner10462');
+      if(armedBanner){
+        armedBanner.classList.remove('active');
+      }
+
+      var pgbBtn = document.getElementById('pgbAction10450');
+      if(pgbBtn){
+        pgbBtn.classList.remove('armed');
+      }
+    }catch(e){}
+  }
+
+  function forceBoosterPanelHidden10453(){
+    try{
+      var panel = document.getElementById('boosterPanel10446');
+      if(panel){
+        panel.classList.remove('active');
+      }
+    }catch(e){}
+  }
+
+  function isNonGameScreen10453(id){
+    return NON_GAME_SCREENS.indexOf(id) !== -1;
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10453 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10453.apply(this, arguments);
+      try{
+        if(isNonGameScreen10453(id)){
+          forceBoosterPanelHidden10453();
+
+          if(id === 'menuS' || id === 'worldMapS'){
+            resetPreGameBoosterState10453();
+            clearAllVisualResidue10453();
+          }
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(typeof window.showMenu === 'function'){
+    var oldShowMenu10453 = window.showMenu;
+    window.showMenu = function(){
+      clearAllVisualResidue10453();
+      resetPreGameBoosterState10453();
+      forceBoosterPanelHidden10453();
+      return oldShowMenu10453.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.startWorldMap === 'function'){
+    var oldStartWorldMap10453 = window.startWorldMap;
+    window.startWorldMap = function(){
+      clearAllVisualResidue10453();
+      resetPreGameBoosterState10453();
+      forceBoosterPanelHidden10453();
+      return oldStartWorldMap10453.apply(this, arguments);
+    };
+  }
+
+  try{ console.log('[VISUAL POLISH HARDENING v1.0.4.53] active'); }catch(e){}
+})();
+</script>
 </body>
 </html>
