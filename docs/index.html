@@ -14271,5 +14271,282 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END PROFILE HUB v1.0.4.73 ===== -->
 
+
+<!-- ===== STREAK SAVER v1.0.4.74 ===== -->
+<style>
+.ss-overlay-10474{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.78);
+  z-index: 99998;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.ss-overlay-10474.active-10474{ display:flex; }
+.ss-card-10474{
+  width:92%;
+  max-width:340px;
+  padding:28px 22px 24px;
+  border-radius:24px;
+  background:linear-gradient(135deg, #ff6b35 0%, #ff5ea8 50%, #b15bff 100%);
+  color:#0a0a1a;
+  text-align:center;
+  font-weight:950;
+  letter-spacing:0.5px;
+  box-shadow:0 16px 48px rgba(255,107,53,0.55), 0 0 64px rgba(255,94,168,0.35), inset 0 1px 0 rgba(255,255,255,0.45);
+  border: 2px solid rgba(255,255,255,0.30);
+  position:relative;
+  overflow:hidden;
+  animation: ssCardIn10474 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ss-card-10474::before{
+  content:"";
+  position:absolute;
+  top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(circle, rgba(255,255,255,0.30) 0%, transparent 65%);
+  animation: ssShine10474 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+.ss-icon-10474{
+  font-size:4.0em;
+  display:block;
+  margin-bottom:6px;
+  filter: drop-shadow(0 2px 12px rgba(255,213,79,0.55));
+  animation: ssFlame10474 1.4s ease-in-out infinite;
+}
+.ss-tag-10474{
+  display:inline-block;
+  background:rgba(0,0,0,0.32);
+  color:#fff;
+  font-size:0.62em;
+  font-weight:950;
+  padding:4px 11px;
+  border-radius:9px;
+  letter-spacing:1.6px;
+  margin-bottom:10px;
+}
+.ss-title-10474{
+  font-size:1.55em;
+  font-weight:950;
+  letter-spacing:0.8px;
+  margin-bottom:6px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.18);
+}
+.ss-sub-10474{
+  font-size:0.84em;
+  font-weight:700;
+  opacity:0.85;
+  margin-bottom:18px;
+  letter-spacing:0.4px;
+}
+.ss-watch-10474{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:14px 16px;
+  background:#0a0a1a;
+  color:#fff;
+  font-size:0.94em;
+  font-weight:950;
+  letter-spacing:0.6px;
+  border-radius:16px;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  cursor:pointer;
+  margin-bottom:8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.30);
+  transition: transform 0.15s ease;
+}
+.ss-watch-10474:active{ transform: scale(0.96); }
+.ss-skip-10474{
+  width:100%;
+  padding:10px 14px;
+  background:rgba(0,0,0,0.20);
+  color:rgba(255,255,255,0.70);
+  font-size:0.74em;
+  font-weight:800;
+  letter-spacing:1.2px;
+  border-radius:12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor:pointer;
+}
+@keyframes ssCardIn10474{
+  from{ opacity:0; transform: scale(0.55); }
+  to{ opacity:1; transform: scale(1); }
+}
+@keyframes ssShine10474{
+  0%,100%{ opacity:0.45; transform:rotate(0deg); }
+  50%{ opacity:0.75; transform:rotate(180deg); }
+}
+@keyframes ssFlame10474{
+  0%,100%{ transform: scale(1) rotate(-2deg); }
+  50%{ transform: scale(1.08) rotate(2deg); }
+}
+</style>
+<script>
+/* ===== STREAK SAVER v1.0.4.74 ===== */
+(function(){
+  if(window.__STREAK_SAVER_V10474) return;
+  window.__STREAK_SAVER_V10474 = true;
+
+  var MIN_STREAK_FOR_SAVE_10474 = 3;
+
+  function getYesterdayKey10474(){
+    return new Date(Date.now() - 86400000).toDateString();
+  }
+
+  function shouldOfferSaver10474(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      var today = new Date().toDateString();
+      var lastPlay = save.lastPlay || '';
+      var streak = save.streak || 0;
+      var yesterday = getYesterdayKey10474();
+      /* Already played today: nothing to save */
+      if(lastPlay === today) return false;
+      /* Played yesterday: streak still alive, no saver needed */
+      if(lastPlay === yesterday) return false;
+      /* Streak too small to be worth saving */
+      if(streak < MIN_STREAK_FOR_SAVE_10474) return false;
+      /* Already attempted saver today (idempotent) */
+      if(save.streakSaverAttemptedDate === today) return false;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function continueWithCheckStreak10474(saved){
+    try{
+      if(saved){
+        /* Set lastPlay to YESTERDAY so checkStreak adds +1 (streak preserved) */
+        save.lastPlay = getYesterdayKey10474();
+        try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+      }
+      /* Mark as attempted today regardless of save/skip */
+      save.streakSaverAttemptedDate = new Date().toDateString();
+      try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+      /* Now run original checkStreak */
+      if(typeof window.__origCheckStreak10474 === 'function'){
+        window.__origCheckStreak10474.apply(window, []);
+      }
+    }catch(e){
+      try{ console.warn('[STREAK SAVER v10474] continue failed', e); }catch(_){}
+    }
+  }
+
+  function closeStreakSaver10474(){
+    try{
+      var ov = document.getElementById('streakSaverOverlay10474');
+      if(ov){
+        ov.classList.remove('active-10474');
+        ov.style.display = 'none';
+      }
+    }catch(e){}
+  }
+
+  function showStreakSaverModal10474(streak){
+    try{
+      /* Build overlay if missing */
+      var ov = document.getElementById('streakSaverOverlay10474');
+      if(!ov){
+        ov = document.createElement('div');
+        ov.id = 'streakSaverOverlay10474';
+        ov.className = 'ss-overlay-10474';
+        document.body.appendChild(ov);
+      }
+      ov.innerHTML =
+        '<div class="ss-card-10474">' +
+          '<span class="ss-icon-10474">\u{1F525}</span>' +
+          '<div class="ss-tag-10474">STREAK IN DANGER</div>' +
+          '<div class="ss-title-10474">Save your ' + streak + '-day streak!</div>' +
+          '<div class="ss-sub-10474">Watch a quick ad to keep your streak alive. Skip and it resets to 1.</div>' +
+          '<button id="ssWatchBtn10474" class="ss-watch-10474">\u{1F3AC} WATCH AD TO KEEP</button>' +
+          '<button id="ssSkipBtn10474" class="ss-skip-10474">SKIP \u00B7 LET IT RESET</button>' +
+        '</div>';
+
+      ov.classList.add('active-10474');
+      ov.style.display = 'flex';
+
+      var watchBtn = document.getElementById('ssWatchBtn10474');
+      var skipBtn = document.getElementById('ssSkipBtn10474');
+
+      if(watchBtn){
+        watchBtn.addEventListener('click', function(){
+          try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+          /* Set up grant callback */
+          window.grantStreakSave10474 = function(){
+            closeStreakSaver10474();
+            continueWithCheckStreak10474(true);
+          };
+          try{
+            if(typeof showRewardedAd === 'function'){
+              showRewardedAd('grantStreakSave10474');
+            } else {
+              /* Fallback: no ad available, save anyway */
+              window.grantStreakSave10474();
+            }
+          }catch(e){
+            window.grantStreakSave10474();
+          }
+        });
+      }
+      if(skipBtn){
+        skipBtn.addEventListener('click', function(){
+          try{ if(typeof hapticLight === 'function') hapticLight(); }catch(e){}
+          closeStreakSaver10474();
+          continueWithCheckStreak10474(false);
+        });
+      }
+
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[STREAK SAVER v10474] modal failed', e); }catch(_){}
+      /* Fallback: skip path */
+      continueWithCheckStreak10474(false);
+    }
+  }
+
+  /* Wrap checkStreak: intercept BEFORE reset happens */
+  function wrapCheckStreak10474(){
+    try{
+      if(typeof window.checkStreak !== 'function') return false;
+      if(window.__checkStreak10474Wrapped) return true;
+      window.__origCheckStreak10474 = window.checkStreak;
+      window.checkStreak = function(){
+        try{
+          if(shouldOfferSaver10474()){
+            var streak = save.streak || 0;
+            showStreakSaverModal10474(streak);
+            return; /* Don't run orig until user decides */
+          }
+        }catch(e){}
+        /* Default: run original */
+        return window.__origCheckStreak10474.apply(this, arguments);
+      };
+      window.__checkStreak10474Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapCheckStreak10474);
+  } else {
+    wrapCheckStreak10474();
+  }
+  setTimeout(wrapCheckStreak10474, 600);
+  setTimeout(wrapCheckStreak10474, 1500);
+  setTimeout(wrapCheckStreak10474, 3000);
+
+  try{ console.log('[STREAK SAVER v1.0.4.74] active - intercepts streak reset, offers Watch Ad save'); }catch(e){}
+})();
+</script>
+<!-- ===== END STREAK SAVER v1.0.4.74 ===== -->
+
 </body>
 </html>
