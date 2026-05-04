@@ -12588,5 +12588,434 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END FRAGMENTS v1.0.4.65 ===== -->
 
+
+<!-- ===== WORKSHOP SCREEN v1.0.4.66 ===== -->
+<style>
+.ws-overlay-10466{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:18px 14px 24px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ws-overlay-10466.active-10466{ display:flex; }
+.ws-header-10466{
+  width:96%;
+  max-width:380px;
+  text-align:center;
+  margin-bottom:12px;
+  padding-top:6px;
+}
+.ws-title-10466{
+  font-size:1.55em;
+  font-weight:950;
+  color:#fff;
+  letter-spacing:1px;
+  margin-bottom:5px;
+  text-shadow: 0 2px 12px rgba(76,201,247,0.40);
+}
+.ws-cores-10466{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:linear-gradient(135deg, rgba(76,201,247,0.25), rgba(118,255,138,0.22));
+  border: 1.4px solid rgba(76,201,247,0.55);
+  color:#fff;
+  font-size:0.86em;
+  font-weight:900;
+  padding:6px 14px;
+  border-radius:14px;
+  letter-spacing:0.6px;
+  box-shadow: 0 0 18px rgba(76,201,247,0.30);
+}
+.ws-subtitle-10466{
+  color:#9aa5b8;
+  font-size:0.72em;
+  font-weight:700;
+  letter-spacing:1px;
+  margin-top:6px;
+  text-transform:uppercase;
+}
+.ws-card-10466{
+  width:96%;
+  max-width:380px;
+  background:linear-gradient(135deg, rgba(76,201,247,0.10), rgba(177,91,255,0.08));
+  border: 1.3px solid rgba(76,201,247,0.30);
+  border-radius:18px;
+  padding:13px 14px;
+  margin-bottom:9px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  position:relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.ws-card-10466.owned-10466{
+  background:linear-gradient(135deg, rgba(118,255,138,0.14), rgba(76,201,247,0.10));
+  border-color: rgba(118,255,138,0.55);
+}
+.ws-card-10466.affordable-10466{
+  border-color: rgba(76,201,247,0.65);
+  box-shadow: 0 0 18px rgba(76,201,247,0.25);
+}
+.ws-icon-10466{
+  font-size:2.0em;
+  flex:0 0 auto;
+  width:48px;
+  text-align:center;
+  filter: drop-shadow(0 2px 6px rgba(76,201,247,0.30));
+}
+.ws-info-10466{
+  flex:1 1 auto;
+  min-width:0;
+  text-align:left;
+}
+.ws-name-10466{
+  color:#fff;
+  font-size:0.94em;
+  font-weight:950;
+  letter-spacing:0.4px;
+  margin-bottom:2px;
+}
+.ws-desc-10466{
+  color:#9aa5b8;
+  font-size:0.68em;
+  font-weight:700;
+  letter-spacing:0.3px;
+  line-height:1.3;
+}
+.ws-action-10466{
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:3px;
+}
+.ws-cost-10466{
+  background:#0a0a1a;
+  color:#4cc9f7;
+  font-size:0.74em;
+  font-weight:900;
+  padding:4px 9px;
+  border-radius:10px;
+  letter-spacing:0.4px;
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  cursor:pointer;
+  border: 1.2px solid rgba(76,201,247,0.40);
+  transition: all 0.16s ease;
+}
+.ws-cost-10466.affordable-10466{
+  background:linear-gradient(135deg, #4cc9f7, #76ff8a);
+  color:#0a1a0a;
+  border-color: rgba(255,255,255,0.40);
+  box-shadow: 0 4px 12px rgba(76,201,247,0.40);
+}
+.ws-cost-10466.affordable-10466:active{ transform: scale(0.94); }
+.ws-cost-10466.locked-10466{
+  background:rgba(40,40,55,0.55);
+  color:#5a6268;
+  border-color: rgba(90,98,104,0.40);
+  cursor:not-allowed;
+}
+.ws-owned-tag-10466{
+  background:linear-gradient(135deg, #76ff8a, #4cc9f7);
+  color:#0a1a0a;
+  font-size:0.70em;
+  font-weight:950;
+  padding:4px 10px;
+  border-radius:10px;
+  letter-spacing:1px;
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+}
+.ws-back-10466{
+  width:auto;
+  margin-top:14px;
+  padding:9px 22px;
+  background: rgba(40,40,55,0.60);
+  color: #fff;
+  font-size:0.84em;
+  font-weight:900;
+  letter-spacing:1.2px;
+  border-radius:12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  cursor:pointer;
+}
+.ws-menu-btn-10466{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  margin-top:5px;
+  background:linear-gradient(135deg, #4cc9f7 0%, #b15bff 50%, #ff5ea8 100%);
+  color:#0a0a1a;
+  font-weight:950;
+  letter-spacing:0.5px;
+  box-shadow:0 4px 14px rgba(177,91,255,0.40), 0 0 22px rgba(76,201,247,0.25);
+  animation: wsBtnBreath10466 2.4s ease-in-out infinite;
+}
+@keyframes wsBtnBreath10466{
+  0%,100%{ box-shadow:0 4px 14px rgba(177,91,255,0.40), 0 0 22px rgba(76,201,247,0.25); }
+  50%{ box-shadow:0 6px 20px rgba(177,91,255,0.55), 0 0 30px rgba(76,201,247,0.40); }
+}
+.ws-buy-popup-10466{
+  position:fixed;
+  top:30%;
+  left:50%;
+  transform:translateX(-50%) translateY(-12px);
+  z-index: 99999;
+  pointer-events:none;
+  padding:13px 22px;
+  border-radius:16px;
+  background:linear-gradient(135deg, #76ff8a, #4cc9f7);
+  color:#0a1a0a;
+  font-weight:950;
+  font-size:0.92em;
+  letter-spacing:0.6px;
+  box-shadow:0 10px 30px rgba(76,201,247,0.55), 0 0 32px rgba(118,255,138,0.40);
+  border: 1.4px solid rgba(255,255,255,0.40);
+  opacity:0;
+  animation: wsBuyIn10466 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, wsBuyOut10466 0.45s ease-in 2.2s forwards;
+}
+@keyframes wsBuyIn10466{
+  from{ opacity:0; transform:translateX(-50%) translateY(-24px); }
+  to{ opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes wsBuyOut10466{
+  from{ opacity:1; transform:translateX(-50%) translateY(0); }
+  to{ opacity:0; transform:translateX(-50%) translateY(-12px); }
+}
+</style>
+<script>
+/* ===== WORKSHOP SCREEN v1.0.4.66 ===== */
+(function(){
+  if(window.__WORKSHOP_V10466) return;
+  window.__WORKSHOP_V10466 = true;
+
+  var UPGRADES_10466 = [
+    { id:'sharperAim',    icon:'\u{1F3AF}', name:'SHARPER AIM',     desc:'Aim guide line stays visible 20% longer',     cost: 5  },
+    { id:'extraBallSlot', icon:'\u26A1',     name:'EXTRA BALL SLOT', desc:'Booster inventory expands from 5 to 6 slots', cost: 8  },
+    { id:'coinMagnet',    icon:'\u{1F4B0}', name:'COIN MAGNET',     desc:'+15% coins from every level completed',       cost: 6  },
+    { id:'luckyStreak',   icon:'\u{1F31F}', name:'LUCKY STREAK',    desc:'Day 7 Daily Streak reward is doubled',        cost: 10 },
+    { id:'comboMaster',   icon:'\u{1F525}', name:'COMBO MASTER',    desc:'Perfect Chain bonus: +25 \u2192 +50 coins',    cost: 12 }
+  ];
+
+  function ensureSchema10466(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      if(!save.workshopUpgrades || typeof save.workshopUpgrades !== 'object'){
+        save.workshopUpgrades = {};
+      }
+      for(var i = 0; i < UPGRADES_10466.length; i++){
+        var u = UPGRADES_10466[i];
+        if(typeof save.workshopUpgrades[u.id] !== 'boolean'){
+          save.workshopUpgrades[u.id] = false;
+        }
+      }
+      /* Spent cores tracker (deduct from total pool virtually) */
+      if(typeof save.workshopCoresSpent !== 'number'){
+        save.workshopCoresSpent = 0;
+      }
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function getTotalCores10466(){
+    try{
+      if(typeof save === 'undefined' || !save) return 0;
+      if(!Array.isArray(save.energyCores)) return 0;
+      var total = 0;
+      for(var i = 0; i < save.energyCores.length; i++){
+        total += (save.energyCores[i] || 0);
+      }
+      return total;
+    }catch(e){ return 0; }
+  }
+
+  function getAvailableCores10466(){
+    var total = getTotalCores10466();
+    var spent = (save && typeof save.workshopCoresSpent === 'number') ? save.workshopCoresSpent : 0;
+    return Math.max(0, total - spent);
+  }
+
+  function showBuyPopup10466(text){
+    try{
+      var pop = document.createElement('div');
+      pop.className = 'ws-buy-popup-10466';
+      pop.textContent = text;
+      document.body.appendChild(pop);
+      setTimeout(function(){
+        try{ if(pop && pop.parentNode) pop.parentNode.removeChild(pop); }catch(e){}
+      }, 2700);
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    }catch(e){}
+  }
+
+  window.buyWorkshopUpgrade10466 = function(id){
+    try{
+      if(!ensureSchema10466()) return;
+      var u = null;
+      for(var i = 0; i < UPGRADES_10466.length; i++){
+        if(UPGRADES_10466[i].id === id){ u = UPGRADES_10466[i]; break; }
+      }
+      if(!u) return;
+      if(save.workshopUpgrades[u.id]) return;
+      var avail = getAvailableCores10466();
+      if(avail < u.cost){
+        try{ if(typeof hapticLight === 'function') hapticLight(); }catch(e){}
+        return;
+      }
+      save.workshopUpgrades[u.id] = true;
+      save.workshopCoresSpent = (save.workshopCoresSpent || 0) + u.cost;
+      try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+      showBuyPopup10466('\u2728 ' + u.name + ' UNLOCKED');
+      renderWorkshop10466();
+    }catch(e){
+      try{ console.warn('[WORKSHOP v10466] buy failed', e); }catch(_){}
+    }
+  };
+
+  function renderWorkshop10466(){
+    try{
+      ensureSchema10466();
+      var screen = document.getElementById('workshopS10466');
+      if(!screen) return;
+      var avail = getAvailableCores10466();
+      var totalSpent = (save && typeof save.workshopCoresSpent === 'number') ? save.workshopCoresSpent : 0;
+      var totalEarned = getTotalCores10466();
+
+      var html = '';
+      html += '<div class="ws-header-10466">';
+      html += '<div class="ws-title-10466">\u2699\uFE0F WORKSHOP</div>';
+      html += '<div class="ws-cores-10466">\u26A1 ' + avail + ' available \u00B7 ' + totalEarned + '/36 earned</div>';
+      html += '<div class="ws-subtitle-10466">Permanent upgrades \u00B7 Earned by Perfect Chains</div>';
+      html += '</div>';
+
+      for(var i = 0; i < UPGRADES_10466.length; i++){
+        var u = UPGRADES_10466[i];
+        var owned = save.workshopUpgrades[u.id] === true;
+        var canAfford = !owned && avail >= u.cost;
+        var cardCls = 'ws-card-10466';
+        if(owned) cardCls += ' owned-10466';
+        else if(canAfford) cardCls += ' affordable-10466';
+
+        html += '<div class="' + cardCls + '">';
+        html += '<div class="ws-icon-10466">' + u.icon + '</div>';
+        html += '<div class="ws-info-10466">';
+        html += '<div class="ws-name-10466">' + u.name + '</div>';
+        html += '<div class="ws-desc-10466">' + u.desc + '</div>';
+        html += '</div>';
+        html += '<div class="ws-action-10466">';
+        if(owned){
+          html += '<div class="ws-owned-tag-10466">\u2705 OWNED</div>';
+        } else {
+          var costCls = canAfford ? 'ws-cost-10466 affordable-10466' : 'ws-cost-10466 locked-10466';
+          html += '<div class="' + costCls + '" data-buy-id="' + u.id + '">\u26A1 ' + u.cost + '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+      }
+
+      html += '<button class="ws-back-10466" onclick="closeWorkshop10466()">\u2190 BACK</button>';
+      screen.innerHTML = html;
+
+      /* Wire buy handlers */
+      var btns = screen.querySelectorAll('[data-buy-id]');
+      for(var j = 0; j < btns.length; j++){
+        (function(btn){
+          btn.addEventListener('click', function(){
+            var id = btn.getAttribute('data-buy-id');
+            if(btn.classList.contains('affordable-10466')){
+              window.buyWorkshopUpgrade10466(id);
+            }
+          });
+        })(btns[j]);
+      }
+    }catch(e){
+      try{ console.warn('[WORKSHOP v10466] render failed', e); }catch(_){}
+    }
+  }
+
+  window.openWorkshop10466 = function(){
+    try{
+      ensureSchema10466();
+      /* Create overlay if missing */
+      var screen = document.getElementById('workshopS10466');
+      if(!screen){
+        screen = document.createElement('div');
+        screen.id = 'workshopS10466';
+        screen.className = 'overlay ws-overlay-10466';
+        document.body.appendChild(screen);
+      }
+      /* Hide all other overlays */
+      try{ if(typeof hideAll === 'function') hideAll(); }catch(e){}
+      screen.classList.add('active','active-10466');
+      screen.style.display = 'flex';
+      renderWorkshop10466();
+      try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[WORKSHOP v10466] open failed', e); }catch(_){}
+    }
+  };
+
+  window.closeWorkshop10466 = function(){
+    try{
+      var screen = document.getElementById('workshopS10466');
+      if(screen){
+        screen.classList.remove('active','active-10466');
+        screen.style.display = 'none';
+      }
+      try{ if(typeof showScreen === 'function') showScreen('menuS'); }catch(e){}
+    }catch(e){}
+  };
+
+  function injectMenuButton10466(){
+    try{
+      if(document.getElementById('workshopMenuBtn10466')) return;
+      var menu = document.getElementById('menuS');
+      if(!menu) return;
+      var dcBtn = menu.querySelector('button[onclick="startDailyChallenge()"]');
+      var infoBefore = document.getElementById('dailyChallengeInfo10462');
+      var anchor = infoBefore || dcBtn;
+      if(!anchor) return;
+      var btn = document.createElement('button');
+      btn.id = 'workshopMenuBtn10466';
+      btn.className = 'btn btn-secondary btn-small ws-menu-btn-10466';
+      btn.innerHTML = '\u2699\uFE0F WORKSHOP';
+      btn.addEventListener('click', function(){
+        try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+        try{ window.openWorkshop10466(); }catch(e){}
+      });
+      anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+    }catch(e){
+      try{ console.warn('[WORKSHOP v10466] menu inject failed', e); }catch(_){}
+    }
+  }
+
+  function applyAll10466(){
+    ensureSchema10466();
+    injectMenuButton10466();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10466);
+  } else {
+    applyAll10466();
+  }
+  setTimeout(applyAll10466, 600);
+  setTimeout(applyAll10466, 1500);
+  setTimeout(applyAll10466, 3000);
+
+  try{ console.log('[WORKSHOP SCREEN v1.0.4.66] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END WORKSHOP v1.0.4.66 ===== -->
+
 </body>
 </html>
