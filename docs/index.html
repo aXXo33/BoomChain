@@ -13574,5 +13574,136 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END COMBO MASTER v1.0.4.69 ===== -->
 
+
+<!-- ===== LUCKY STREAK EFFECT v1.0.4.70 ===== -->
+<style>
+.ls-bonus-toast-10470{
+  position:fixed;
+  top:38%;
+  left:50%;
+  transform:translateX(-50%) translateY(-12px);
+  z-index: 99999;
+  pointer-events:none;
+  padding:10px 16px;
+  border-radius:14px;
+  background:linear-gradient(135deg, rgba(255,213,79,0.95), rgba(118,255,138,0.95));
+  color:#0a0a1a;
+  font-weight:950;
+  font-size:0.84em;
+  letter-spacing:0.5px;
+  box-shadow:0 8px 24px rgba(255,213,79,0.55), 0 0 28px rgba(118,255,138,0.40);
+  border: 1.4px solid rgba(255,255,255,0.45);
+  display:flex;
+  align-items:center;
+  gap:7px;
+  opacity:0;
+  animation: lsBonusIn10470 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, lsBonusOut10470 0.45s ease-in 3.0s forwards;
+}
+@keyframes lsBonusIn10470{
+  from{ opacity:0; transform:translateX(-50%) translateY(-26px); }
+  to{ opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes lsBonusOut10470{
+  from{ opacity:1; transform:translateX(-50%) translateY(0); }
+  to{ opacity:0; transform:translateX(-50%) translateY(-12px); }
+}
+</style>
+<script>
+/* ===== LUCKY STREAK EFFECT v1.0.4.70 ===== */
+(function(){
+  if(window.__LUCKY_STREAK_V10470) return;
+  window.__LUCKY_STREAK_V10470 = true;
+
+  function isLuckyStreakOwned10470(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      if(!save.workshopUpgrades || typeof save.workshopUpgrades !== 'object') return false;
+      return save.workshopUpgrades.luckyStreak === true;
+    }catch(e){ return false; }
+  }
+
+  function showLuckyBonusToast10470(amount){
+    try{
+      var toast = document.createElement('div');
+      toast.className = 'ls-bonus-toast-10470';
+      toast.innerHTML = '\u{1F31F} <span>+' + amount + ' LUCKY STREAK BONUS</span>';
+      document.body.appendChild(toast);
+      setTimeout(function(){
+        try{ if(toast && toast.parentNode) toast.parentNode.removeChild(toast); }catch(e){}
+      }, 3500);
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    }catch(e){}
+  }
+
+  /* Wrap claimDailyStreak10445: if Day 7 + Lucky Streak owned, add 2x bonus */
+  function wrapClaimDaily10470(){
+    try{
+      if(typeof window.claimDailyStreak10445 !== 'function') return false;
+      if(window.__claimDailyStreak10470Wrapped) return true;
+      var _origClaim10470 = window.claimDailyStreak10445;
+      window.claimDailyStreak10445 = function(){
+        /* Capture pre-claim state */
+        var idxBefore = -1;
+        try{
+          if(typeof getStreakDayIndex10445 === 'function'){
+            idxBefore = getStreakDayIndex10445();
+          }
+        }catch(e){}
+        var coinsBefore = (typeof coins === 'number') ? coins : 0;
+        var alreadyClaimed = false;
+        try{
+          if(typeof isDayClaimedToday10445 === 'function'){
+            alreadyClaimed = isDayClaimedToday10445();
+          }
+        }catch(e){}
+
+        var r = _origClaim10470.apply(this, arguments);
+
+        try{
+          /* Only act on Day 7 (idx=6), Lucky Streak owned, and claim actually happened */
+          if(!alreadyClaimed && idxBefore === 6 && isLuckyStreakOwned10470()){
+            var coinsAfter = (typeof coins === 'number') ? coins : 0;
+            var earned = coinsAfter - coinsBefore;
+            if(earned > 0){
+              /* Double the effect: add the same amount as bonus (2x total) */
+              var bonus = earned;
+              coins = (coins || 0) + bonus;
+              try{ if(typeof updateHUD === 'function') updateHUD(); }catch(e){}
+              try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+              /* Show toast after orig confetti completes */
+              setTimeout(function(){
+                try{
+                  if(typeof showCoinFly === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+                    showCoinFly(W/2, H/3, bonus);
+                  }
+                }catch(e){}
+                showLuckyBonusToast10470(bonus);
+              }, 1200);
+            }
+          }
+        }catch(e){
+          try{ console.warn('[LUCKY STREAK v10470] post-claim failed', e); }catch(_){}
+        }
+        return r;
+      };
+      window.__claimDailyStreak10470Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapClaimDaily10470);
+  } else {
+    wrapClaimDaily10470();
+  }
+  setTimeout(wrapClaimDaily10470, 600);
+  setTimeout(wrapClaimDaily10470, 1500);
+  setTimeout(wrapClaimDaily10470, 3000);
+
+  try{ console.log('[LUCKY STREAK EFFECT v1.0.4.70] active - Day 7 reward 2x (when owned)'); }catch(e){}
+})();
+</script>
+<!-- ===== END LUCKY STREAK v1.0.4.70 ===== -->
+
 </body>
 </html>
