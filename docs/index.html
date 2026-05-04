@@ -11896,5 +11896,216 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END DAILY CHALLENGE VIS v1.0.4.62 ===== -->
 
+
+<!-- ===== SHOP NO ADS HERO BANNER v1.0.4.63 ===== -->
+<style>
+.noads-banner-10463{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:92%;
+  max-width:340px;
+  margin:10px auto 14px;
+  padding:13px 15px;
+  border-radius:18px;
+  background:linear-gradient(135deg, #4cc9f7 0%, #b15bff 50%, #ff5ea8 100%);
+  color:#0a0a1a;
+  font-weight:900;
+  letter-spacing:0.3px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 8px 26px rgba(177,91,255,0.45), 0 0 32px rgba(76,201,247,0.30), inset 0 1px 0 rgba(255,255,255,0.35);
+  animation: noadsBreath10463 2.6s ease-in-out infinite;
+  border: 1.5px solid rgba(255,255,255,0.22);
+}
+.noads-banner-10463::before{
+  content:"";
+  position:absolute;
+  top:0; left:-100%;
+  width:55%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  animation: noadsShine10463 3.4s ease-in-out infinite;
+  pointer-events:none;
+}
+.noads-banner-10463:active{
+  transform: scale(0.97);
+  box-shadow:0 4px 16px rgba(177,91,255,0.32);
+}
+.noads-banner-10463 .nb-left-10463{
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-width:0;
+  text-align:left;
+}
+.noads-banner-10463 .nb-tag-10463{
+  display:inline-block;
+  background:rgba(0,0,0,0.32);
+  color:#ffffff;
+  font-size:0.62em;
+  font-weight:950;
+  padding:2px 7px;
+  border-radius:6px;
+  letter-spacing:1.2px;
+  margin-bottom:3px;
+  width:fit-content;
+}
+.noads-banner-10463 .nb-title-10463{
+  font-size:0.96em;
+  font-weight:950;
+  letter-spacing:0.4px;
+  margin-bottom:1px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.noads-banner-10463 .nb-sub-10463{
+  font-size:0.66em;
+  font-weight:700;
+  opacity:0.78;
+  letter-spacing:0.6px;
+}
+.noads-banner-10463 .nb-right-10463{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:3px;
+  flex:0 0 auto;
+}
+.noads-banner-10463 .nb-price-10463{
+  background:#0a0a1a;
+  color:#fff;
+  font-size:0.82em;
+  font-weight:950;
+  padding:6px 12px;
+  border-radius:10px;
+  letter-spacing:0.5px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+}
+.noads-banner-10463 .nb-cta-10463{
+  font-size:0.58em;
+  font-weight:900;
+  letter-spacing:1.3px;
+  opacity:0.78;
+  margin-top:1px;
+}
+@keyframes noadsBreath10463{
+  0%,100%{
+    box-shadow:0 8px 26px rgba(177,91,255,0.45), 0 0 32px rgba(76,201,247,0.30), inset 0 1px 0 rgba(255,255,255,0.35);
+    transform: scale(1);
+  }
+  50%{
+    box-shadow:0 10px 32px rgba(177,91,255,0.60), 0 0 42px rgba(255,94,168,0.40), inset 0 1px 0 rgba(255,255,255,0.45);
+    transform: scale(1.012);
+  }
+}
+@keyframes noadsShine10463{
+  0%{ left:-100%; }
+  60%,100%{ left:130%; }
+}
+</style>
+<script>
+/* ===== SHOP NO ADS HERO BANNER v1.0.4.63 ===== */
+(function(){
+  if(window.__SHOP_NOADS_V10463) return;
+  window.__SHOP_NOADS_V10463 = true;
+
+  function isPremium10463(){
+    try{
+      if(window._isPremium === true) return true;
+      if(typeof save !== 'undefined' && save && save.premium === true) return true;
+    }catch(e){}
+    return false;
+  }
+
+  function injectNoAdsBanner10463(){
+    try{
+      var screen = document.getElementById('shopS');
+      if(!screen) return;
+
+      /* Remove existing if present (state could have changed) */
+      var existing = document.getElementById('noAdsBanner10463');
+
+      /* Hide if premium */
+      if(isPremium10463()){
+        if(existing) existing.remove();
+        return;
+      }
+
+      if(existing) return; /* Already injected, not premium */
+
+      var banner = document.createElement('div');
+      banner.id = 'noAdsBanner10463';
+      banner.className = 'noads-banner-10463';
+      banner.setAttribute('role','button');
+      banner.setAttribute('aria-label','Get No Ads for £2.99');
+      banner.innerHTML =
+        '<div class="nb-left-10463">' +
+          '<span class="nb-tag-10463">BEST DEAL</span>' +
+          '<div class="nb-title-10463">\u{1F680} REMOVE ALL ADS</div>' +
+          '<div class="nb-sub-10463">One-time \u00b7 Forever</div>' +
+        '</div>' +
+        '<div class="nb-right-10463">' +
+          '<div class="nb-price-10463">\u00a32.99</div>' +
+          '<div class="nb-cta-10463">TAP TO BUY</div>' +
+        '</div>';
+
+      banner.addEventListener('click', function(){
+        try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+        try{
+          if(typeof buyItem === 'function'){
+            buyItem('$rc_lifetime');
+          }
+        }catch(e){
+          try{ console.warn('[NO ADS BANNER v10463] buy failed', e); }catch(_){}
+        }
+      });
+
+      /* Insert at top of shopS, before tab buttons */
+      var firstChild = screen.firstElementChild;
+      if(firstChild){
+        screen.insertBefore(banner, firstChild);
+      } else {
+        screen.appendChild(banner);
+      }
+    }catch(e){
+      try{ console.warn('[NO ADS BANNER v10463] inject failed', e); }catch(_){}
+    }
+  }
+
+  /* Hook into showScreen to detect shopS open */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10463 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10463.apply(this, arguments);
+      try{
+        if(id === 'shopS'){
+          setTimeout(injectNoAdsBanner10463, 60);
+          setTimeout(injectNoAdsBanner10463, 400);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  /* Initial attempts in case shop is opened on load */
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(injectNoAdsBanner10463, 600);
+    });
+  } else {
+    setTimeout(injectNoAdsBanner10463, 600);
+  }
+  setTimeout(injectNoAdsBanner10463, 1500);
+  setTimeout(injectNoAdsBanner10463, 3000);
+
+  try{ console.log('[SHOP NO ADS HERO BANNER v1.0.4.63] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END SHOP NO ADS BANNER v1.0.4.63 ===== -->
+
 </body>
 </html>
