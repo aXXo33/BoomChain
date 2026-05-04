@@ -481,6 +481,124 @@ canvas{display:block}
 </style>
 </head>
 <body>
+<!-- ===== LOADING SPLASH v1.0.4.55 ===== -->
+<style>
+#splashScreen10455{
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  z-index:999999;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(76,201,247,0.18), transparent 60%),
+    radial-gradient(circle at 50% 70%, rgba(247,201,72,0.10), transparent 60%),
+    linear-gradient(180deg, #0a0e1c 0%, #050810 100%);
+  opacity:1;
+  transition: opacity 0.55s ease-out;
+  pointer-events:auto;
+}
+#splashScreen10455.fade-out-10455{
+  opacity:0;
+  pointer-events:none;
+}
+.splash-logo-10455{
+  font-size:5.5em;
+  filter:drop-shadow(0 0 28px rgba(76,201,247,0.55)) drop-shadow(0 0 48px rgba(247,201,72,0.25));
+  animation: splashPulse10455 1.8s ease-in-out infinite;
+  margin-bottom:18px;
+}
+.splash-title-10455{
+  font-size:2.2em;
+  font-weight:950;
+  letter-spacing:2px;
+  background:linear-gradient(135deg, #4cc9f7 0%, #f7c948 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-align:center;
+  margin-bottom:6px;
+  text-shadow:0 0 30px rgba(76,201,247,0.25);
+}
+.splash-subtitle-10455{
+  font-size:0.85em;
+  color:#7f8392;
+  letter-spacing:6px;
+  font-weight:700;
+  margin-bottom:34px;
+}
+.splash-bar-10455{
+  width:140px;
+  height:3px;
+  background:rgba(255,255,255,0.06);
+  border-radius:2px;
+  overflow:hidden;
+  position:relative;
+}
+.splash-bar-10455::after{
+  content:"";
+  position:absolute;
+  top:0; left:-50%;
+  width:50%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, #4cc9f7, #f7c948, transparent);
+  animation: splashBar10455 1.4s ease-in-out infinite;
+  box-shadow:0 0 12px rgba(76,201,247,0.55);
+}
+@keyframes splashPulse10455{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.06); }
+}
+@keyframes splashBar10455{
+  0%{ left:-50%; }
+  100%{ left:100%; }
+}
+.splash-studio-10455{
+  position:absolute;
+  bottom:36px;
+  left:0; right:0;
+  text-align:center;
+  color:#3a4252;
+  font-size:0.65em;
+  letter-spacing:3px;
+  font-weight:700;
+}
+</style>
+<div id="splashScreen10455">
+  <div class="splash-logo-10455">&#x1F52C;</div>
+  <div class="splash-title-10455">BOOM CHAIN</div>
+  <div class="splash-subtitle-10455">BLAST &amp; BOUNCE</div>
+  <div class="splash-bar-10455"></div>
+  <div class="splash-studio-10455">PRIME QUANTUM STUDIOS</div>
+</div>
+<script>
+/* ===== LOADING SPLASH v1.0.4.55 ===== */
+(function(){
+  if(window.__SPLASH_V10455) return;
+  window.__SPLASH_V10455 = true;
+  function dismissSplash10455(){
+    try{
+      var s = document.getElementById('splashScreen10455');
+      if(!s) return;
+      s.classList.add('fade-out-10455');
+      setTimeout(function(){
+        try{ if(s && s.parentNode) s.parentNode.removeChild(s); }catch(e){}
+      }, 700);
+    }catch(e){}
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(dismissSplash10455, 1800);
+    });
+  } else {
+    setTimeout(dismissSplash10455, 1800);
+  }
+  setTimeout(dismissSplash10455, 4500);
+  try{ console.log('[LOADING SPLASH v1.0.4.55] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END LOADING SPLASH v1.0.4.55 ===== -->
 <canvas id="confettiCanvas"></canvas>
 <canvas id="gameCanvas"></canvas>
 <div id="menuS" class="overlay" style="display:flex">
