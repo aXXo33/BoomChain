@@ -13451,5 +13451,128 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END COIN MAGNET v1.0.4.68 ===== -->
 
+
+<!-- ===== COMBO MASTER EFFECT v1.0.4.69 ===== -->
+<style>
+.combo-bonus-toast-10469{
+  position:fixed;
+  top:42%;
+  left:50%;
+  transform:translateX(-50%) translateY(-12px);
+  z-index: 99998;
+  pointer-events:none;
+  padding:8px 14px;
+  border-radius:12px;
+  background:linear-gradient(135deg, rgba(255,107,53,0.95), rgba(255,94,168,0.92));
+  color:#0a0a1a;
+  font-weight:950;
+  font-size:0.78em;
+  letter-spacing:0.5px;
+  box-shadow:0 6px 20px rgba(255,107,53,0.45), 0 0 22px rgba(255,94,168,0.30);
+  border: 1.2px solid rgba(255,255,255,0.40);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  opacity:0;
+  animation: comboBonusIn10469 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, comboBonusOut10469 0.4s ease-in 2.3s forwards;
+}
+@keyframes comboBonusIn10469{
+  from{ opacity:0; transform:translateX(-50%) translateY(-22px); }
+  to{ opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes comboBonusOut10469{
+  from{ opacity:1; transform:translateX(-50%) translateY(0); }
+  to{ opacity:0; transform:translateX(-50%) translateY(-12px); }
+}
+</style>
+<script>
+/* ===== COMBO MASTER EFFECT v1.0.4.69 ===== */
+(function(){
+  if(window.__COMBO_MASTER_V10469) return;
+  window.__COMBO_MASTER_V10469 = true;
+
+  var BONUS_AMOUNT_10469 = 28; /* 50 - 22 = 28 (Combo Master upgrades Perfect bonus from 22 to 50) */
+
+  function isComboMasterOwned10469(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      if(!save.workshopUpgrades || typeof save.workshopUpgrades !== 'object') return false;
+      return save.workshopUpgrades.comboMaster === true;
+    }catch(e){ return false; }
+  }
+
+  function isPerfectShot10469(){
+    try{
+      var perfect = document.getElementById('lcPerfect');
+      if(!perfect) return false;
+      var visible = perfect.style.display !== 'none';
+      var hasText = perfect.textContent && perfect.textContent.length > 0;
+      return visible && hasText;
+    }catch(e){ return false; }
+  }
+
+  function showComboBonusToast10469(amount){
+    try{
+      var toast = document.createElement('div');
+      toast.className = 'combo-bonus-toast-10469';
+      toast.innerHTML = '\u{1F525} <span>+' + amount + ' COMBO MASTER BONUS</span>';
+      document.body.appendChild(toast);
+      setTimeout(function(){
+        try{ if(toast && toast.parentNode) toast.parentNode.removeChild(toast); }catch(e){}
+      }, 2800);
+      try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+    }catch(e){}
+  }
+
+  /* Wrap levelComplete: detect Perfect Shot via DOM, apply +28 if Combo Master owned */
+  function wrapLevelComplete10469(){
+    try{
+      if(typeof window.levelComplete !== 'function') return false;
+      if(window.__levelComplete10469Wrapped) return true;
+      var _origLC10469 = window.levelComplete;
+      window.levelComplete = function(){
+        var r = _origLC10469.apply(this, arguments);
+        try{
+          /* Slight delay so lcPerfect DOM is updated by orig levelComplete first */
+          setTimeout(function(){
+            try{
+              if(isComboMasterOwned10469() && isPerfectShot10469()){
+                var bonus = BONUS_AMOUNT_10469;
+                if(typeof coins === 'number'){
+                  coins = (coins || 0) + bonus;
+                  try{ if(typeof updateHUD === 'function') updateHUD(); }catch(e){}
+                  try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+                  try{
+                    if(typeof showCoinFly === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+                      showCoinFly(W/2, H/2.5, bonus);
+                    }
+                  }catch(e){}
+                  showComboBonusToast10469(bonus);
+                }
+              }
+            }catch(e){}
+          }, 750);
+        }catch(e){}
+        return r;
+      };
+      window.__levelComplete10469Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapLevelComplete10469);
+  } else {
+    wrapLevelComplete10469();
+  }
+  setTimeout(wrapLevelComplete10469, 600);
+  setTimeout(wrapLevelComplete10469, 1500);
+  setTimeout(wrapLevelComplete10469, 3000);
+
+  try{ console.log('[COMBO MASTER EFFECT v1.0.4.69] active - +28 coins on Perfect Shot (when owned)'); }catch(e){}
+})();
+</script>
+<!-- ===== END COMBO MASTER v1.0.4.69 ===== -->
+
 </body>
 </html>
