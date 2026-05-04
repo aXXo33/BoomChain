@@ -11347,5 +11347,94 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END IAP FUNNEL v1.0.4.56 ===== -->
 
+
+<!-- ===== COIN TAP-TO-SHOP v1.0.4.57 ===== -->
+<style>
+.hud-coin.coin-tap-10457{
+  cursor:pointer;
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px 6px 12px;
+  border-radius:14px;
+  background:linear-gradient(135deg, rgba(247,201,72,0.10), rgba(247,201,72,0.04));
+  border:1px solid rgba(247,201,72,0.22);
+  transition: all 0.2s ease;
+}
+.hud-coin.coin-tap-10457::after{
+  content:"+";
+  display:inline-block;
+  margin-left:4px;
+  width:18px;
+  height:18px;
+  line-height:17px;
+  text-align:center;
+  border-radius:50%;
+  background:linear-gradient(135deg, #f7c948, #ff8c5a);
+  color:#1a1a2e;
+  font-weight:950;
+  font-size:0.85em;
+  box-shadow:0 0 8px rgba(247,201,72,0.4);
+}
+.hud-coin.coin-tap-10457:hover,
+.hud-coin.coin-tap-10457:active{
+  background:linear-gradient(135deg, rgba(247,201,72,0.20), rgba(247,201,72,0.08));
+  border-color:rgba(247,201,72,0.45);
+  transform: scale(1.04);
+  box-shadow:0 0 16px rgba(247,201,72,0.25);
+}
+.hud-coin.coin-tap-10457:active{
+  transform: scale(0.97);
+}
+@keyframes coinPulse10457{
+  0%,100%{ box-shadow:0 0 0 rgba(247,201,72,0); }
+  50%{ box-shadow:0 0 14px rgba(247,201,72,0.35); }
+}
+.hud-coin.coin-tap-10457{
+  animation: coinPulse10457 2.4s ease-in-out infinite;
+}
+</style>
+<script>
+/* ===== COIN TAP-TO-SHOP v1.0.4.57 ===== */
+(function(){
+  if(window.__COIN_TAP_V10457) return;
+  window.__COIN_TAP_V10457 = true;
+
+  function wireCoinTap10457(){
+    try{
+      var ids = ['menuCoins', 'mapCoins'];
+      for(var i=0; i<ids.length; i++){
+        var el = document.getElementById(ids[i]);
+        if(!el) continue;
+        if(el.dataset.coinTapWired10457) continue;
+        el.dataset.coinTapWired10457 = '1';
+        el.classList.add('coin-tap-10457');
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', 'Open shop to buy coins');
+        el.addEventListener('click', function(ev){
+          try{ if(ev && typeof ev.stopPropagation === 'function') ev.stopPropagation(); }catch(_){}
+          try{ if(typeof hapticLight === 'function') hapticLight(); }catch(e){}
+          try{ if(typeof sndUITap10444 === 'function') sndUITap10444(); }catch(e){}
+          try{ if(typeof openShop === 'function') openShop(); }catch(e){}
+        });
+      }
+    }catch(e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wireCoinTap10457);
+  } else {
+    wireCoinTap10457();
+  }
+  setTimeout(wireCoinTap10457, 600);
+  setTimeout(wireCoinTap10457, 1500);
+  setTimeout(wireCoinTap10457, 3000);
+
+  try{ console.log('[COIN TAP-TO-SHOP v1.0.4.57] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END COIN TAP-TO-SHOP v1.0.4.57 ===== -->
+
 </body>
 </html>
