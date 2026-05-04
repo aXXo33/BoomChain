@@ -13017,5 +13017,323 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END WORKSHOP v1.0.4.66 ===== -->
 
+
+<!-- ===== MASTERY STARS TRACKER v1.0.4.67 ===== -->
+<style>
+.mastery-badge-10467{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  width:auto;
+  margin:6px auto 0;
+  padding:6px 13px;
+  border-radius:14px;
+  background:linear-gradient(135deg, rgba(255,213,79,0.22), rgba(255,107,53,0.18));
+  border: 1.4px solid rgba(255,213,79,0.55);
+  color:#fff;
+  font-size:0.78em;
+  font-weight:900;
+  letter-spacing:0.5px;
+  box-shadow: 0 0 14px rgba(255,213,79,0.20);
+  cursor:pointer;
+}
+.mastery-badge-10467 .mb-icon-10467{
+  font-size:1.1em;
+  filter: drop-shadow(0 1px 3px rgba(255,213,79,0.40));
+}
+.mastery-badge-10467 .mb-text-10467{
+  color:#ffd54f;
+}
+.mastery-badge-10467 .mb-meter-10467{
+  display:inline-block;
+  width:40px;
+  height:5px;
+  border-radius:3px;
+  background:rgba(0,0,0,0.30);
+  position:relative;
+  overflow:hidden;
+}
+.mastery-badge-10467 .mb-fill-10467{
+  position:absolute;
+  top:0; left:0;
+  height:100%;
+  background:linear-gradient(90deg, #ffd54f, #ff6b35);
+  border-radius:3px;
+  transition: width 0.6s ease;
+}
+
+.mastery-popup-10467{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%) scale(0.7);
+  z-index: 99999;
+  pointer-events:none;
+  width:88%;
+  max-width:340px;
+  padding:24px 18px 22px;
+  border-radius:24px;
+  background:linear-gradient(135deg, #ffd54f 0%, #ff9c41 50%, #ff5ea8 100%);
+  color:#0a0a1a;
+  text-align:center;
+  font-weight:950;
+  letter-spacing:0.5px;
+  box-shadow:0 14px 44px rgba(255,154,65,0.55), 0 0 64px rgba(255,213,79,0.45), inset 0 1px 0 rgba(255,255,255,0.55);
+  border: 2px solid rgba(255,255,255,0.30);
+  opacity:0;
+  animation: msPopIn10467 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, msPopOut10467 0.55s ease-in 4.3s forwards;
+  overflow:hidden;
+}
+.mastery-popup-10467::before{
+  content:"";
+  position:absolute;
+  top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(circle, rgba(255,255,255,0.30) 0%, transparent 65%);
+  animation: msShine10467 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+.mp-icon-10467{
+  font-size:3.6em;
+  display:block;
+  margin-bottom:6px;
+}
+.mp-tag-10467{
+  display:inline-block;
+  background:rgba(0,0,0,0.32);
+  color:#fff;
+  font-size:0.62em;
+  font-weight:950;
+  padding:3px 9px;
+  border-radius:8px;
+  letter-spacing:1.6px;
+  margin-bottom:8px;
+}
+.mp-title-10467{
+  font-size:1.35em;
+  font-weight:950;
+  letter-spacing:0.8px;
+  margin-bottom:5px;
+}
+.mp-sub-10467{
+  font-size:0.78em;
+  font-weight:700;
+  opacity:0.78;
+  margin-bottom:12px;
+  letter-spacing:0.7px;
+}
+.mp-reward-10467{
+  background:#0a0a1a;
+  color:#ffd54f;
+  font-size:1.0em;
+  font-weight:950;
+  padding:8px 16px;
+  border-radius:12px;
+  letter-spacing:0.7px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+@keyframes msPopIn10467{
+  from{ opacity:0; transform:translate(-50%, -50%) scale(0.55); }
+  to{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+}
+@keyframes msPopOut10467{
+  from{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+  to{ opacity:0; transform:translate(-50%, -50%) scale(1.15); }
+}
+@keyframes msShine10467{
+  0%,100%{ opacity:0.45; transform:rotate(0deg); }
+  50%{ opacity:0.75; transform:rotate(180deg); }
+}
+</style>
+<script>
+/* ===== MASTERY STARS TRACKER v1.0.4.67 ===== */
+(function(){
+  if(window.__MASTERY_V10467) return;
+  window.__MASTERY_V10467 = true;
+
+  var MAX_STARS_10467 = 216; /* 6 sectors * 12 levels * 3 stars */
+
+  var TIERS_10467 = [
+    { stars: 50,  reward: 500,   icon: '\u{1F949}', title: 'EXPLORER',     tag: 'MASTERY TIER' },
+    { stars: 100, reward: 1500,  icon: '\u{1F948}', title: 'ADEPT',        tag: 'MASTERY TIER' },
+    { stars: 160, reward: 3000,  icon: '\u{1F947}', title: 'MASTER',       tag: 'MASTERY TIER' },
+    { stars: 216, reward: 10000, icon: '\u{1F451}', title: 'GRANDMASTER',  tag: 'LEGENDARY' }
+  ];
+
+  function ensureSchema10467(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      if(!Array.isArray(save.masteryTiersClaimed)){
+        save.masteryTiersClaimed = [];
+      }
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function calcTotalStars10467(){
+    try{
+      if(typeof save === 'undefined' || !save) return 0;
+      if(!Array.isArray(save.roomProgress)) return 0;
+      var total = 0;
+      for(var i = 0; i < save.roomProgress.length; i++){
+        var rp = save.roomProgress[i];
+        if(!rp || !Array.isArray(rp.levels)) continue;
+        for(var j = 0; j < rp.levels.length; j++){
+          var s = rp.levels[j];
+          if(typeof s === 'number' && s > 0) total += s;
+        }
+      }
+      return total;
+    }catch(e){ return 0; }
+  }
+
+  function showMasteryPopup10467(tier){
+    try{
+      var pop = document.createElement('div');
+      pop.className = 'mastery-popup-10467';
+      pop.innerHTML =
+        '<span class="mp-icon-10467">' + tier.icon + '</span>' +
+        '<div class="mp-tag-10467">' + tier.tag + ' UNLOCKED</div>' +
+        '<div class="mp-title-10467">' + tier.title + '</div>' +
+        '<div class="mp-sub-10467">Reached ' + tier.stars + ' Mastery Stars</div>' +
+        '<div class="mp-reward-10467">\u{1F4B0} +' + tier.reward + ' COINS</div>';
+      document.body.appendChild(pop);
+      setTimeout(function(){
+        try{ if(pop && pop.parentNode) pop.parentNode.removeChild(pop); }catch(e){}
+      }, 5100);
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    }catch(e){}
+  }
+
+  function checkAndClaimTiers10467(){
+    try{
+      ensureSchema10467();
+      var total = calcTotalStars10467();
+      var newlyUnlocked = [];
+      for(var i = 0; i < TIERS_10467.length; i++){
+        var t = TIERS_10467[i];
+        if(total >= t.stars && save.masteryTiersClaimed.indexOf(t.stars) === -1){
+          save.masteryTiersClaimed.push(t.stars);
+          newlyUnlocked.push(t);
+          try{
+            if(typeof coins !== 'undefined'){
+              coins = (coins || 0) + t.reward;
+              try{ if(typeof updateHUD === 'function') updateHUD(); }catch(e){}
+              try{
+                if(typeof showCoinFly === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+                  showCoinFly(W/2, H/2, t.reward);
+                }
+              }catch(e){}
+            }
+          }catch(e){}
+        }
+      }
+      if(newlyUnlocked.length > 0){
+        try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+        newlyUnlocked.forEach(function(t, idx){
+          setTimeout(function(){ showMasteryPopup10467(t); }, idx * 5400 + 1500);
+        });
+      }
+      renderMasteryBadge10467();
+    }catch(e){
+      try{ console.warn('[MASTERY v10467] check failed', e); }catch(_){}
+    }
+  }
+
+  function renderMasteryBadge10467(){
+    try{
+      var badge = document.getElementById('masteryBadge10467');
+      if(!badge) return;
+      var total = calcTotalStars10467();
+      var pct = Math.min(100, Math.round((total / MAX_STARS_10467) * 100));
+      badge.innerHTML =
+        '<span class="mb-icon-10467">\u2B50</span>' +
+        '<span class="mb-text-10467">MASTERY: ' + total + '/' + MAX_STARS_10467 + '</span>' +
+        '<span class="mb-meter-10467"><span class="mb-fill-10467" style="width:' + pct + '%"></span></span>';
+    }catch(e){}
+  }
+
+  function injectMasteryBadge10467(){
+    try{
+      if(document.getElementById('masteryBadge10467')) {
+        renderMasteryBadge10467();
+        return;
+      }
+      var menu = document.getElementById('menuS');
+      if(!menu) return;
+      /* Prefer to inject after streakInfo (top of menu); fallback to before first child */
+      var streakInfo = document.getElementById('streakInfo');
+      var badge = document.createElement('div');
+      badge.id = 'masteryBadge10467';
+      badge.className = 'mastery-badge-10467';
+      if(streakInfo && streakInfo.parentNode){
+        streakInfo.parentNode.insertBefore(badge, streakInfo.nextSibling);
+      } else {
+        menu.insertBefore(badge, menu.firstElementChild);
+      }
+      renderMasteryBadge10467();
+    }catch(e){
+      try{ console.warn('[MASTERY v10467] inject failed', e); }catch(_){}
+    }
+  }
+
+  /* Wrap levelComplete: check tiers after level win */
+  function wrapLevelComplete10467(){
+    try{
+      if(typeof window.levelComplete !== 'function') return false;
+      if(window.__levelComplete10467Wrapped) return true;
+      var _origLC10467 = window.levelComplete;
+      window.levelComplete = function(){
+        var r = _origLC10467.apply(this, arguments);
+        try{
+          /* Slight delay so save is updated by orig levelComplete first */
+          setTimeout(checkAndClaimTiers10467, 300);
+        }catch(e){}
+        return r;
+      };
+      window.__levelComplete10467Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  /* Wrap showScreen to refresh badge on menu open */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10467 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10467.apply(this, arguments);
+      try{
+        if(id === 'menuS'){
+          setTimeout(injectMasteryBadge10467, 50);
+          setTimeout(injectMasteryBadge10467, 400);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  function applyAll10467(){
+    ensureSchema10467();
+    injectMasteryBadge10467();
+    wrapLevelComplete10467();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10467);
+  } else {
+    applyAll10467();
+  }
+  setTimeout(applyAll10467, 600);
+  setTimeout(applyAll10467, 1500);
+  setTimeout(applyAll10467, 3000);
+
+  try{ console.log('[MASTERY STARS v1.0.4.67] active - max 216 stars (6x12x3)'); }catch(e){}
+})();
+</script>
+<!-- ===== END MASTERY STARS v1.0.4.67 ===== -->
+
 </body>
 </html>
