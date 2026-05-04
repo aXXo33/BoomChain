@@ -9147,11 +9147,8 @@ body.non-game-screen-active #hud{
   function buyWithCoins10446(){
     if(typeof coins === 'undefined') return;
     if(coins < EXTRA_BALL_COIN_PRICE){
-      var warn = document.createElement('div');
-      warn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ff1744;color:#fff;padding:14px 24px;border-radius:14px;z-index:320;font-weight:900;font-size:0.95em;animation:popIn 0.3s;';
-      warn.textContent = 'Not enough coins!';
-      document.body.appendChild(warn);
-      setTimeout(function(){ try{ warn.remove(); }catch(e){} }, 1500);
+      /* v1.0.4.56 IAP FUNNEL: route to coin shortage modal */
+      try{ if(typeof showCoinShortageModal10456 === 'function') showCoinShortageModal10456(); }catch(e){}
       return;
     }
     coins -= EXTRA_BALL_COIN_PRICE;
@@ -9763,11 +9760,8 @@ body.non-game-screen-active #hud{
                 window.grantExtraBall10446();
               }
             }else{
-              var warn = document.createElement('div');
-              warn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ff1744;color:#fff;padding:14px 24px;border-radius:14px;z-index:320;font-weight:900;font-size:0.95em;';
-              warn.textContent = 'Not enough coins!';
-              document.body.appendChild(warn);
-              setTimeout(function(){ try{ warn.remove(); }catch(e){} }, 1500);
+              /* v1.0.4.56 IAP FUNNEL: route to coin shortage modal */
+      try{ if(typeof showCoinShortageModal10456 === 'function') showCoinShortageModal10456(); }catch(e){}
             }
           }catch(e){}
         });
@@ -11108,5 +11102,250 @@ body.non-game-screen-active #hud{
   try{ console.log('[VISUAL POLISH HARDENING v1.0.4.53] active'); }catch(e){}
 })();
 </script>
+
+<!-- ===== IAP FUNNEL MODAL v1.0.4.56 ===== -->
+<style>
+#coinShortageModal10456{
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  z-index:500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.78);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+#coinShortageModal10456.active{ display:flex; }
+.csm-card-10456{
+  width:88%;
+  max-width:340px;
+  background:linear-gradient(180deg, rgba(28,32,54,0.98), rgba(12,15,28,0.98));
+  border:1.5px solid rgba(247,201,72,0.42);
+  border-radius:22px;
+  padding:22px 18px 18px;
+  text-align:center;
+  box-shadow:0 14px 50px rgba(0,0,0,0.6), 0 0 36px rgba(247,201,72,0.18);
+  animation: csmIn10456 0.32s ease-out;
+}
+@keyframes csmIn10456{
+  0%{ opacity:0; transform: translateY(12px) scale(0.95); }
+  100%{ opacity:1; transform: translateY(0) scale(1); }
+}
+.csm-icon-10456{ font-size:2.4em; margin-bottom:6px; }
+.csm-title-10456{
+  color:#fff;
+  font-weight:950;
+  font-size:1.15em;
+  letter-spacing:0.6px;
+  margin-bottom:4px;
+}
+.csm-sub-10456{
+  color:#a0a8b8;
+  font-size:0.78em;
+  margin-bottom:16px;
+}
+.csm-row-10456{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 13px;
+  margin-bottom:9px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:14px;
+}
+.csm-row-10456.hero{
+  border:1.5px solid rgba(247,201,72,0.55);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(247,201,72,0.16), transparent 55%),
+    linear-gradient(180deg, rgba(40,30,12,0.85), rgba(20,15,6,0.85));
+  box-shadow:0 0 22px rgba(247,201,72,0.18);
+}
+.csm-row-icon-10456{ font-size:1.55em; flex-shrink:0; }
+.csm-row-text-10456{ flex:1; text-align:left; }
+.csm-row-name-10456{ color:#fff; font-weight:900; font-size:0.86em; }
+.csm-row-desc-10456{ color:#a0a8b8; font-size:0.66em; }
+.csm-btn-10456{
+  background:linear-gradient(135deg, #f7c948, #ff8c5a);
+  color:#1a1a2e;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+  font-weight:950;
+  font-size:0.78em;
+  cursor:pointer;
+  flex-shrink:0;
+  box-shadow:0 4px 12px rgba(247,201,72,0.35);
+}
+.csm-btn-10456.ad{
+  background:linear-gradient(135deg, #4CAF50, #76ff8a);
+  color:#0a1a0a;
+  box-shadow:0 4px 12px rgba(76,255,138,0.30);
+}
+.csm-cancel-10456{
+  margin-top:10px;
+  background:transparent;
+  color:#7f8392;
+  border:1px solid rgba(255,255,255,0.14);
+  padding:7px 18px;
+  border-radius:10px;
+  font-size:0.75em;
+  cursor:pointer;
+  letter-spacing:0.4px;
+}
+</style>
+<div id="coinShortageModal10456">
+  <div class="csm-card-10456">
+    <div class="csm-icon-10456">&#x1FA99;</div>
+    <div class="csm-title-10456">NEED MORE COINS?</div>
+    <div class="csm-sub-10456">Choose a quick top-up to keep playing</div>
+    <div class="csm-row-10456 hero">
+      <div class="csm-row-icon-10456">&#x1F4B0;</div>
+      <div class="csm-row-text-10456">
+        <div class="csm-row-name-10456">500 COINS</div>
+        <div class="csm-row-desc-10456">Best value pack</div>
+      </div>
+      <button class="csm-btn-10456" id="csmBuy500_10456">&#xA3;3.99</button>
+    </div>
+    <div class="csm-row-10456">
+      <div class="csm-row-icon-10456">&#x1FA99;</div>
+      <div class="csm-row-text-10456">
+        <div class="csm-row-name-10456">100 COINS</div>
+        <div class="csm-row-desc-10456">Quick boost</div>
+      </div>
+      <button class="csm-btn-10456" id="csmBuy100_10456">&#xA3;0.99</button>
+    </div>
+    <div class="csm-row-10456">
+      <div class="csm-row-icon-10456">&#x1F3AC;</div>
+      <div class="csm-row-text-10456">
+        <div class="csm-row-name-10456">+25 FREE COINS</div>
+        <div class="csm-row-desc-10456">Watch a short ad</div>
+      </div>
+      <button class="csm-btn-10456 ad" id="csmWatchAd_10456">FREE</button>
+    </div>
+    <button class="csm-cancel-10456" id="csmCancel_10456">CANCEL</button>
+  </div>
+</div>
+<script>
+/* ===== IAP FUNNEL v1.0.4.56 ===== */
+(function(){
+  if(window.__IAP_FUNNEL_V10456) return;
+  window.__IAP_FUNNEL_V10456 = true;
+
+  function hideCoinShortageModal10456(){
+    try{
+      var m = document.getElementById('coinShortageModal10456');
+      if(m) m.classList.remove('active');
+    }catch(e){}
+  }
+
+  window.showCoinShortageModal10456 = function(){
+    try{
+      var m = document.getElementById('coinShortageModal10456');
+      if(!m) return;
+      m.classList.add('active');
+      try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+    }catch(e){}
+  };
+
+  window.grantFreeCoinsViaAd10456 = function(){
+    try{
+      if(typeof coins !== 'undefined'){
+        coins = (coins || 0) + 25;
+        try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+        try{ if(typeof sndCoin === 'function') sndCoin(); }catch(e){}
+      }
+      hideCoinShortageModal10456();
+      try{
+        var coinsEl = document.getElementById('shopCoins');
+        if(coinsEl && typeof COIN !== 'undefined'){
+          coinsEl.textContent = COIN + ' ' + coins;
+        }
+      }catch(e){}
+    }catch(e){}
+  };
+
+  function wireCoinShortageButtons10456(){
+    try{
+      var b500 = document.getElementById('csmBuy500_10456');
+      var b100 = document.getElementById('csmBuy100_10456');
+      var bAd  = document.getElementById('csmWatchAd_10456');
+      var bCx  = document.getElementById('csmCancel_10456');
+
+      if(b500 && !b500.dataset.wired10456){
+        b500.dataset.wired10456 = '1';
+        b500.addEventListener('click', function(){
+          hideCoinShortageModal10456();
+          try{ if(typeof buyItem === 'function') buyItem('coins_500'); }catch(e){}
+        });
+      }
+      if(b100 && !b100.dataset.wired10456){
+        b100.dataset.wired10456 = '1';
+        b100.addEventListener('click', function(){
+          hideCoinShortageModal10456();
+          try{ if(typeof buyItem === 'function') buyItem('coins_100'); }catch(e){}
+        });
+      }
+      if(bAd && !bAd.dataset.wired10456){
+        bAd.dataset.wired10456 = '1';
+        bAd.addEventListener('click', function(){
+          try{
+            if(typeof showRewardedAd === 'function'){
+              showRewardedAd('grantFreeCoinsViaAd10456');
+            } else {
+              window.grantFreeCoinsViaAd10456();
+            }
+          }catch(e){}
+        });
+      }
+      if(bCx && !bCx.dataset.wired10456){
+        bCx.dataset.wired10456 = '1';
+        bCx.addEventListener('click', hideCoinShortageModal10456);
+      }
+    }catch(e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wireCoinShortageButtons10456);
+  } else {
+    wireCoinShortageButtons10456();
+  }
+  setTimeout(wireCoinShortageButtons10456, 600);
+  setTimeout(wireCoinShortageButtons10456, 2000);
+
+  function injectGameOverIapButton10456(){
+    try{
+      var screen = document.getElementById('gameOverS');
+      if(!screen) return;
+      if(document.getElementById('goIapBtn10456')) return;
+      var adBtn = screen.querySelector('button[onclick="watchAdExtraShot()"]');
+      if(!adBtn) return;
+      var iapBtn = document.createElement('button');
+      iapBtn.id = 'goIapBtn10456';
+      iapBtn.className = 'btn btn-gold btn-small';
+      iapBtn.style.cssText = 'margin-bottom:5px;background:linear-gradient(135deg,#f7c948,#ff8c5a);color:#1a1a2e;font-weight:900;';
+      iapBtn.innerHTML = '\u{1FA99} +100 COINS \u00A30.99';
+      iapBtn.addEventListener('click', function(){
+        try{ if(typeof buyItem === 'function') buyItem('coins_100'); }catch(e){}
+      });
+      adBtn.parentNode.insertBefore(iapBtn, adBtn.nextSibling);
+    }catch(e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', injectGameOverIapButton10456);
+  } else {
+    injectGameOverIapButton10456();
+  }
+  setTimeout(injectGameOverIapButton10456, 800);
+  setTimeout(injectGameOverIapButton10456, 2500);
+
+  try{ console.log('[IAP FUNNEL v1.0.4.56] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END IAP FUNNEL v1.0.4.56 ===== -->
+
 </body>
 </html>
