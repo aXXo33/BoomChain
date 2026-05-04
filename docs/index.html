@@ -12311,5 +12311,282 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END ENDLESS MILESTONES v1.0.4.64 ===== -->
 
+
+<!-- ===== PERFECT CHAIN FRAGMENT SYSTEM v1.0.4.65 ===== -->
+<style>
+.frag-toast-10465{
+  position:fixed;
+  top:18%;
+  left:50%;
+  transform:translateX(-50%) translateY(-18px);
+  z-index: 99998;
+  pointer-events:none;
+  padding:9px 16px 8px;
+  border-radius:14px;
+  background:linear-gradient(135deg, rgba(76,201,247,0.92), rgba(118,255,138,0.92));
+  color:#0a1a0a;
+  font-weight:950;
+  font-size:0.86em;
+  letter-spacing:0.5px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  box-shadow:0 8px 26px rgba(76,201,247,0.50), 0 0 24px rgba(118,255,138,0.30);
+  border: 1.2px solid rgba(255,255,255,0.30);
+  opacity:0;
+  animation: fragToastIn10465 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, fragToastOut10465 0.4s ease-in 2.6s forwards;
+}
+.frag-toast-10465 .ft-icon-10465{
+  font-size:1.15em;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.20));
+}
+.frag-toast-10465 .ft-meter-10465{
+  display:inline-flex;
+  gap:3px;
+  margin-left:4px;
+}
+.frag-toast-10465 .ft-pip-10465{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background: rgba(0,0,0,0.18);
+}
+.frag-toast-10465 .ft-pip-10465.filled-10465{
+  background:#0a1a0a;
+  box-shadow: 0 0 6px rgba(255,255,255,0.45);
+}
+
+.core-popup-10465{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%) scale(0.7);
+  z-index: 99999;
+  pointer-events:none;
+  width:88%;
+  max-width:340px;
+  padding:24px 18px 22px;
+  border-radius:24px;
+  background:linear-gradient(135deg, #4cc9f7 0%, #b15bff 50%, #ff5ea8 100%);
+  color:#0a0a1a;
+  text-align:center;
+  font-weight:950;
+  letter-spacing:0.5px;
+  box-shadow:0 14px 44px rgba(177,91,255,0.55), 0 0 64px rgba(76,201,247,0.45), inset 0 1px 0 rgba(255,255,255,0.55);
+  border: 2px solid rgba(255,255,255,0.30);
+  opacity:0;
+  animation: corePopIn10465 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, corePopOut10465 0.55s ease-in 4.3s forwards;
+  overflow:hidden;
+}
+.core-popup-10465::before{
+  content:"";
+  position:absolute;
+  top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(circle, rgba(255,255,255,0.30) 0%, transparent 65%);
+  animation: coreShine10465 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+.cp-icon-10465{
+  font-size:3.6em;
+  display:block;
+  margin-bottom:6px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.20));
+}
+.cp-tag-10465{
+  display:inline-block;
+  background:rgba(0,0,0,0.32);
+  color:#fff;
+  font-size:0.62em;
+  font-weight:950;
+  padding:3px 9px;
+  border-radius:8px;
+  letter-spacing:1.6px;
+  margin-bottom:8px;
+}
+.cp-title-10465{
+  font-size:1.30em;
+  font-weight:950;
+  letter-spacing:0.8px;
+  margin-bottom:5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.cp-sub-10465{
+  font-size:0.78em;
+  font-weight:700;
+  opacity:0.78;
+  margin-bottom:12px;
+  letter-spacing:0.7px;
+}
+.cp-progress-10465{
+  background:#0a0a1a;
+  color:#4cc9f7;
+  font-size:0.92em;
+  font-weight:950;
+  padding:8px 16px;
+  border-radius:12px;
+  letter-spacing:0.8px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+@keyframes fragToastIn10465{
+  from{ opacity:0; transform:translateX(-50%) translateY(-32px); }
+  to{ opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes fragToastOut10465{
+  from{ opacity:1; transform:translateX(-50%) translateY(0); }
+  to{ opacity:0; transform:translateX(-50%) translateY(-12px); }
+}
+@keyframes corePopIn10465{
+  from{ opacity:0; transform:translate(-50%, -50%) scale(0.55); }
+  to{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+}
+@keyframes corePopOut10465{
+  from{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+  to{ opacity:0; transform:translate(-50%, -50%) scale(1.15); }
+}
+@keyframes coreShine10465{
+  0%,100%{ opacity:0.45; transform:rotate(0deg); }
+  50%{ opacity:0.75; transform:rotate(180deg); }
+}
+</style>
+<script>
+/* ===== PERFECT CHAIN FRAGMENT SYSTEM v1.0.4.65 ===== */
+(function(){
+  if(window.__FRAGMENTS_V10465) return;
+  window.__FRAGMENTS_V10465 = true;
+
+  var SECTOR_NAMES_10465 = ['Glass Lab','Gravity Lab','Chaos Lab','Neon Lab','Void Lab','Endless Lab'];
+  var FRAGMENTS_PER_CORE_10465 = 6;
+  var CORES_PER_SECTOR_MAX_10465 = 6;
+
+  function ensureSchema10465(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      if(!Array.isArray(save.coreFragments) || save.coreFragments.length < 6){
+        save.coreFragments = [0,0,0,0,0,0];
+      }
+      if(!Array.isArray(save.energyCores) || save.energyCores.length < 6){
+        save.energyCores = [0,0,0,0,0,0];
+      }
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function showFragmentToast10465(sectorIdx, fragmentCount){
+    try{
+      var toast = document.createElement('div');
+      toast.className = 'frag-toast-10465';
+      var pips = '';
+      for(var i = 0; i < FRAGMENTS_PER_CORE_10465; i++){
+        var cls = (i < fragmentCount) ? 'ft-pip-10465 filled-10465' : 'ft-pip-10465';
+        pips += '<span class="' + cls + '"></span>';
+      }
+      toast.innerHTML =
+        '<span class="ft-icon-10465">\u{1F48E}</span>' +
+        '<span>+1 Core Fragment</span>' +
+        '<span class="ft-meter-10465">' + pips + '</span>';
+      document.body.appendChild(toast);
+      setTimeout(function(){
+        try{ if(toast && toast.parentNode) toast.parentNode.removeChild(toast); }catch(e){}
+      }, 3200);
+      try{ if(typeof hapticLight === 'function') hapticLight(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[FRAG v10465] toast failed', e); }catch(_){}
+    }
+  }
+
+  function showCoreUnlockPopup10465(sectorIdx, totalCoresInSector){
+    try{
+      var sectorName = SECTOR_NAMES_10465[sectorIdx] || ('Sector ' + (sectorIdx + 1));
+      var pop = document.createElement('div');
+      pop.className = 'core-popup-10465';
+      pop.innerHTML =
+        '<span class="cp-icon-10465">\u26A1</span>' +
+        '<div class="cp-tag-10465">ENERGY CORE UNLOCKED</div>' +
+        '<div class="cp-title-10465">' + sectorName + '</div>' +
+        '<div class="cp-sub-10465">' + totalCoresInSector + '/' + CORES_PER_SECTOR_MAX_10465 + ' cores collected</div>' +
+        '<div class="cp-progress-10465">\u{1F50B} Powering the Chain</div>';
+      document.body.appendChild(pop);
+      setTimeout(function(){
+        try{ if(pop && pop.parentNode) pop.parentNode.removeChild(pop); }catch(e){}
+      }, 5100);
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[FRAG v10465] core popup failed', e); }catch(_){}
+    }
+  }
+
+  function awardFragment10465(){
+    try{
+      if(!ensureSchema10465()) return;
+
+      var sector = (typeof currentRoom === 'number') ? currentRoom : 0;
+      if(sector < 0 || sector > 5) return;
+
+      /* Skip if sector core max already reached */
+      if(save.energyCores[sector] >= CORES_PER_SECTOR_MAX_10465) return;
+
+      save.coreFragments[sector] = (save.coreFragments[sector] || 0) + 1;
+
+      if(save.coreFragments[sector] >= FRAGMENTS_PER_CORE_10465){
+        save.coreFragments[sector] = 0;
+        save.energyCores[sector] = (save.energyCores[sector] || 0) + 1;
+        try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+        /* Epic popup: core unlocked */
+        setTimeout(function(){
+          showCoreUnlockPopup10465(sector, save.energyCores[sector]);
+        }, 1400);
+      } else {
+        try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+        /* Small toast: fragment progress */
+        setTimeout(function(){
+          showFragmentToast10465(sector, save.coreFragments[sector]);
+        }, 1100);
+      }
+    }catch(e){
+      try{ console.warn('[FRAG v10465] award failed', e); }catch(_){}
+    }
+  }
+
+  /* Wrap levelComplete: award fragment if Perfect Chain (shotsLeft > 0 and not Daily) */
+  function wrapLevelComplete10465(){
+    try{
+      if(typeof window.levelComplete !== 'function') return false;
+      if(window.__levelComplete10465Wrapped) return true;
+      var _origLC10465 = window.levelComplete;
+      window.levelComplete = function(){
+        var r = _origLC10465.apply(this, arguments);
+        try{
+          /* Perfect Chain definition: shotsLeft > 0 at win + not Daily Challenge */
+          var perfect = (typeof shotsLeft === 'number') && (shotsLeft > 0);
+          var notDaily = !window.isDailyChallenge;
+          if(perfect && notDaily){
+            awardFragment10465();
+          }
+        }catch(e){}
+        return r;
+      };
+      window.__levelComplete10465Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapLevelComplete10465);
+  } else {
+    wrapLevelComplete10465();
+  }
+  setTimeout(wrapLevelComplete10465, 600);
+  setTimeout(wrapLevelComplete10465, 1500);
+  setTimeout(wrapLevelComplete10465, 3000);
+
+  try{ console.log('[PERFECT CHAIN FRAGMENTS v1.0.4.65] active - shotsLeft>0 = Perfect Chain'); }catch(e){}
+})();
+</script>
+<!-- ===== END FRAGMENTS v1.0.4.65 ===== -->
+
 </body>
 </html>
