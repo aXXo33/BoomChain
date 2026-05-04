@@ -13826,5 +13826,450 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END EXTRA BALL GRANT v1.0.4.72 ===== -->
 
+
+<!-- ===== PROFILE HUB v1.0.4.73 ===== -->
+<style>
+.ph-overlay-10473{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:18px 14px 28px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ph-overlay-10473.active-10473{ display:flex; }
+
+.ph-header-10473{
+  width:96%;
+  max-width:380px;
+  text-align:center;
+  margin-bottom:14px;
+  padding:18px 14px 14px;
+  border-radius:20px;
+  background:linear-gradient(135deg, rgba(76,201,247,0.12), rgba(177,91,255,0.12), rgba(255,94,168,0.10));
+  border: 1.4px solid rgba(76,201,247,0.40);
+  box-shadow: 0 0 22px rgba(76,201,247,0.22);
+}
+.ph-avatar-10473{
+  font-size:3.5em;
+  display:block;
+  margin-bottom:4px;
+  filter: drop-shadow(0 2px 8px rgba(76,201,247,0.45));
+}
+.ph-title-10473{
+  font-size:1.30em;
+  font-weight:950;
+  color:#fff;
+  letter-spacing:0.8px;
+  margin-bottom:3px;
+}
+.ph-tier-10473{
+  display:inline-block;
+  background:linear-gradient(135deg, #ffd54f, #ff9c41);
+  color:#0a0a1a;
+  font-size:0.66em;
+  font-weight:950;
+  padding:3px 11px;
+  border-radius:10px;
+  letter-spacing:1.4px;
+  margin-top:3px;
+}
+
+.ph-section-10473{
+  width:96%;
+  max-width:380px;
+  background:rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:13px 14px;
+  margin-bottom:9px;
+}
+.ph-section-title-10473{
+  color:#9aa5b8;
+  font-size:0.66em;
+  font-weight:900;
+  letter-spacing:1.5px;
+  margin-bottom:10px;
+  text-transform:uppercase;
+}
+
+.ph-stat-row-10473{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.ph-stat-row-10473:last-child{ border-bottom: none; }
+.ph-stat-label-10473{
+  color:#bec4d6;
+  font-size:0.82em;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.ph-stat-value-10473{
+  color:#fff;
+  font-size:0.92em;
+  font-weight:950;
+  letter-spacing:0.4px;
+}
+
+.ph-progress-bar-10473{
+  width:100%;
+  height:8px;
+  background:rgba(0,0,0,0.30);
+  border-radius:4px;
+  overflow:hidden;
+  margin-top:6px;
+}
+.ph-progress-fill-10473{
+  height:100%;
+  border-radius:4px;
+  transition: width 0.6s ease;
+}
+.ph-progress-mastery-10473{ background:linear-gradient(90deg, #ffd54f, #ff6b35); }
+.ph-progress-cores-10473{ background:linear-gradient(90deg, #4cc9f7, #76ff8a); }
+.ph-progress-streak-10473{ background:linear-gradient(90deg, #ff6b35, #ff5ea8); }
+
+.ph-workshop-grid-10473{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:6px;
+  margin-top:6px;
+}
+.ph-workshop-item-10473{
+  text-align:center;
+  padding:8px 4px;
+  border-radius:10px;
+  background:rgba(40,40,55,0.50);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.ph-workshop-item-10473.owned-10473{
+  background:linear-gradient(135deg, rgba(76,201,247,0.18), rgba(118,255,138,0.16));
+  border-color: rgba(118,255,138,0.55);
+}
+.ph-ws-icon-10473{ font-size:1.4em; display:block; margin-bottom:2px; }
+.ph-ws-status-10473{
+  font-size:0.55em;
+  font-weight:900;
+  color:#9aa5b8;
+  letter-spacing:1px;
+}
+.ph-workshop-item-10473.owned-10473 .ph-ws-status-10473{ color:#76ff8a; }
+
+.ph-back-btn-10473{
+  width:auto;
+  margin-top:14px;
+  padding:10px 24px;
+  background: rgba(40,40,55,0.60);
+  color: #fff;
+  font-size:0.86em;
+  font-weight:900;
+  letter-spacing:1.2px;
+  border-radius:12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  cursor:pointer;
+}
+
+.ph-menu-btn-10473{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  margin-top:5px;
+  background:linear-gradient(135deg, rgba(76,201,247,0.20), rgba(177,91,255,0.20));
+  border: 1.3px solid rgba(76,201,247,0.50);
+  color:#fff;
+  font-weight:900;
+  letter-spacing:0.5px;
+  box-shadow: 0 0 14px rgba(76,201,247,0.20);
+}
+</style>
+<script>
+/* ===== PROFILE HUB v1.0.4.73 ===== */
+(function(){
+  if(window.__PROFILE_HUB_V10473) return;
+  window.__PROFILE_HUB_V10473 = true;
+
+  var WORKSHOP_ITEMS_10473 = [
+    { id:'sharperAim',    icon:'\u{1F3AF}', name:'Aim'     },
+    { id:'extraBallSlot', icon:'\u26A1',     name:'Ball'    },
+    { id:'coinMagnet',    icon:'\u{1F4B0}', name:'Coin'    },
+    { id:'luckyStreak',   icon:'\u{1F31F}', name:'Streak'  },
+    { id:'comboMaster',   icon:'\u{1F525}', name:'Combo'   }
+  ];
+
+  var SECTOR_NAMES_10473 = ['Glass','Gravity','Chaos','Neon','Void','Endless'];
+  var MAX_STARS_10473 = 216;
+  var MAX_CORES_10473 = 36;
+
+  function getMasteryStars10473(){
+    try{
+      if(typeof save === 'undefined' || !save) return 0;
+      if(!Array.isArray(save.roomProgress)) return 0;
+      var total = 0;
+      for(var i = 0; i < save.roomProgress.length; i++){
+        var rp = save.roomProgress[i];
+        if(!rp || !Array.isArray(rp.levels)) continue;
+        for(var j = 0; j < rp.levels.length; j++){
+          var s = rp.levels[j];
+          if(typeof s === 'number' && s > 0) total += s;
+        }
+      }
+      return total;
+    }catch(e){ return 0; }
+  }
+
+  function getEnergyCores10473(){
+    try{
+      if(typeof save === 'undefined' || !save) return 0;
+      if(!Array.isArray(save.energyCores)) return 0;
+      var total = 0;
+      for(var i = 0; i < save.energyCores.length; i++){
+        total += (save.energyCores[i] || 0);
+      }
+      return total;
+    }catch(e){ return 0; }
+  }
+
+  function getMasteryTier10473(stars){
+    if(stars >= 216) return 'GRANDMASTER';
+    if(stars >= 160) return 'MASTER';
+    if(stars >= 100) return 'ADEPT';
+    if(stars >= 50)  return 'EXPLORER';
+    return 'NOVICE';
+  }
+
+  function getAchievementsCount10473(){
+    try{
+      var unlocked = (typeof save !== 'undefined' && save && Array.isArray(save.achievements)) ? save.achievements.length : 0;
+      var total = (typeof ACHIEVEMENTS !== 'undefined' && Array.isArray(ACHIEVEMENTS)) ? ACHIEVEMENTS.length : 0;
+      return { unlocked: unlocked, total: total };
+    }catch(e){ return { unlocked: 0, total: 0 }; }
+  }
+
+  function getEndlessBest10473(){
+    try{
+      if(typeof save === 'undefined' || !save) return 0;
+      if(!save.endlessHighLevel) return 0;
+      return Math.max(0, save.endlessHighLevel - 25);
+    }catch(e){ return 0; }
+  }
+
+  function getSectorStars10473(sectorIdx){
+    try{
+      if(typeof save === 'undefined' || !save) return 0;
+      if(!Array.isArray(save.roomProgress)) return 0;
+      var rp = save.roomProgress[sectorIdx];
+      if(!rp || !Array.isArray(rp.levels)) return 0;
+      var total = 0;
+      for(var j = 0; j < rp.levels.length; j++){
+        if(typeof rp.levels[j] === 'number') total += rp.levels[j];
+      }
+      return total;
+    }catch(e){ return 0; }
+  }
+
+  function getSectorMaxStars10473(sectorIdx){
+    /* Standard: 12 levels x 3 stars = 36 per sector. Endless: cap-based, treat as "any" */
+    return 36;
+  }
+
+  function renderProfile10473(){
+    try{
+      var screen = document.getElementById('profileS10473');
+      if(!screen) return;
+
+      var stars = getMasteryStars10473();
+      var cores = getEnergyCores10473();
+      var tier = getMasteryTier10473(stars);
+      var streak = (typeof save !== 'undefined' && save && save.streak) ? save.streak : 0;
+      var endlessBest = getEndlessBest10473();
+      var achv = getAchievementsCount10473();
+      var totalPerfects = (typeof save !== 'undefined' && save && save.totalPerfects) ? save.totalPerfects : 0;
+      var totalCoins = (typeof coins === 'number') ? coins : 0;
+
+      var html = '';
+
+      /* HEADER */
+      html += '<div class="ph-header-10473">';
+      html += '<span class="ph-avatar-10473">\u{1F3AE}</span>';
+      html += '<div class="ph-title-10473">CHAIN MASTER</div>';
+      html += '<span class="ph-tier-10473">' + tier + ' \u00B7 ' + stars + ' STARS</span>';
+      html += '</div>';
+
+      /* PROGRESS */
+      html += '<div class="ph-section-10473">';
+      html += '<div class="ph-section-title-10473">\u2B50 Progress</div>';
+
+      /* Mastery bar */
+      var pctStars = Math.min(100, Math.round((stars / MAX_STARS_10473) * 100));
+      html += '<div class="ph-stat-row-10473"><span class="ph-stat-label-10473">\u2B50 Mastery Stars</span><span class="ph-stat-value-10473">' + stars + '/' + MAX_STARS_10473 + '</span></div>';
+      html += '<div class="ph-progress-bar-10473"><div class="ph-progress-fill-10473 ph-progress-mastery-10473" style="width:' + pctStars + '%"></div></div>';
+
+      /* Cores bar */
+      var pctCores = Math.min(100, Math.round((cores / MAX_CORES_10473) * 100));
+      html += '<div class="ph-stat-row-10473" style="margin-top:8px"><span class="ph-stat-label-10473">\u26A1 Energy Cores</span><span class="ph-stat-value-10473">' + cores + '/' + MAX_CORES_10473 + '</span></div>';
+      html += '<div class="ph-progress-bar-10473"><div class="ph-progress-fill-10473 ph-progress-cores-10473" style="width:' + pctCores + '%"></div></div>';
+
+      /* Streak bar (cap 7) */
+      var pctStreak = Math.min(100, Math.round((Math.min(streak, 7) / 7) * 100));
+      html += '<div class="ph-stat-row-10473" style="margin-top:8px"><span class="ph-stat-label-10473">\u{1F525} Daily Streak</span><span class="ph-stat-value-10473">' + streak + ' day' + (streak === 1 ? '' : 's') + '</span></div>';
+      html += '<div class="ph-progress-bar-10473"><div class="ph-progress-fill-10473 ph-progress-streak-10473" style="width:' + pctStreak + '%"></div></div>';
+
+      html += '</div>';
+
+      /* SECTORS */
+      html += '<div class="ph-section-10473">';
+      html += '<div class="ph-section-title-10473">\u{1F30C} Sectors</div>';
+      for(var i = 0; i < 6; i++){
+        var sn = SECTOR_NAMES_10473[i];
+        if(i === 5){
+          html += '<div class="ph-stat-row-10473"><span class="ph-stat-label-10473">\u267E\uFE0F ' + sn + ' Lab</span><span class="ph-stat-value-10473">Best: Lvl ' + endlessBest + '</span></div>';
+        } else {
+          var sectorStars = getSectorStars10473(i);
+          var sectorMax = getSectorMaxStars10473(i);
+          html += '<div class="ph-stat-row-10473"><span class="ph-stat-label-10473">\u2B50 ' + sn + ' Lab</span><span class="ph-stat-value-10473">' + sectorStars + '/' + sectorMax + '</span></div>';
+        }
+      }
+      html += '</div>';
+
+      /* WORKSHOP */
+      html += '<div class="ph-section-10473">';
+      html += '<div class="ph-section-title-10473">\u2699\uFE0F Workshop</div>';
+      html += '<div class="ph-workshop-grid-10473">';
+      for(var k = 0; k < WORKSHOP_ITEMS_10473.length; k++){
+        var it = WORKSHOP_ITEMS_10473[k];
+        var owned = (typeof save !== 'undefined' && save && save.workshopUpgrades && save.workshopUpgrades[it.id] === true);
+        var cls = owned ? 'ph-workshop-item-10473 owned-10473' : 'ph-workshop-item-10473';
+        html += '<div class="' + cls + '">';
+        html += '<span class="ph-ws-icon-10473">' + it.icon + '</span>';
+        html += '<span class="ph-ws-status-10473">' + (owned ? '\u2705' : '\u{1F512}') + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+
+      /* STATS */
+      html += '<div class="ph-section-10473">';
+      html += '<div class="ph-section-title-10473">\u{1F4CA} Statistics</div>';
+      html += '<div class="ph-stat-row-10473"><span class="ph-stat-label-10473">\u{1F3C6} Achievements</span><span class="ph-stat-value-10473">' + achv.unlocked + '/' + achv.total + '</span></div>';
+      html += '<div class="ph-stat-row-10473"><span class="ph-stat-label-10473">\u{1F4A5} Perfect Shots</span><span class="ph-stat-value-10473">' + totalPerfects + '</span></div>';
+      html += '<div class="ph-stat-row-10473"><span class="ph-stat-label-10473">\u{1FA99} Coins</span><span class="ph-stat-value-10473">' + totalCoins.toLocaleString() + '</span></div>';
+      html += '</div>';
+
+      html += '<button class="ph-back-btn-10473" onclick="closeProfile10473()">\u2190 BACK</button>';
+
+      screen.innerHTML = html;
+    }catch(e){
+      try{ console.warn('[PROFILE HUB v10473] render failed', e); }catch(_){}
+    }
+  }
+
+  window.openProfile10473 = function(){
+    try{
+      var screen = document.getElementById('profileS10473');
+      if(!screen){
+        screen = document.createElement('div');
+        screen.id = 'profileS10473';
+        screen.className = 'overlay ph-overlay-10473';
+        document.body.appendChild(screen);
+      }
+      try{ if(typeof hideAll === 'function') hideAll(); }catch(e){}
+      screen.classList.add('active','active-10473');
+      screen.style.display = 'flex';
+      renderProfile10473();
+      try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[PROFILE HUB v10473] open failed', e); }catch(_){}
+    }
+  };
+
+  window.closeProfile10473 = function(){
+    try{
+      var screen = document.getElementById('profileS10473');
+      if(screen){
+        screen.classList.remove('active','active-10473');
+        screen.style.display = 'none';
+      }
+      try{ if(typeof showScreen === 'function') showScreen('menuS'); }catch(e){}
+    }catch(e){}
+  };
+
+  function injectMenuButton10473(){
+    try{
+      if(document.getElementById('profileMenuBtn10473')) return;
+      var menu = document.getElementById('menuS');
+      if(!menu) return;
+      /* Inject after Mastery badge if present, else after streakInfo, else top of menu */
+      var anchor = document.getElementById('masteryBadge10467')
+                || document.getElementById('streakInfo')
+                || menu.firstElementChild;
+      if(!anchor) return;
+      var btn = document.createElement('button');
+      btn.id = 'profileMenuBtn10473';
+      btn.className = 'btn btn-secondary btn-small ph-menu-btn-10473';
+      btn.innerHTML = '\u{1F464} PROFILE';
+      btn.addEventListener('click', function(){
+        try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+        try{ window.openProfile10473(); }catch(e){}
+      });
+      anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+    }catch(e){
+      try{ console.warn('[PROFILE HUB v10473] menu inject failed', e); }catch(_){}
+    }
+  }
+
+  /* Mastery badge clickable */
+  function makeMasteryClickable10473(){
+    try{
+      var badge = document.getElementById('masteryBadge10467');
+      if(!badge) return;
+      if(badge.dataset.profileWired10473 === '1') return;
+      badge.dataset.profileWired10473 = '1';
+      badge.style.cursor = 'pointer';
+      badge.addEventListener('click', function(){
+        try{ if(typeof hapticLight === 'function') hapticLight(); }catch(e){}
+        try{ window.openProfile10473(); }catch(e){}
+      });
+    }catch(e){}
+  }
+
+  function applyAll10473(){
+    injectMenuButton10473();
+    makeMasteryClickable10473();
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10473 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10473.apply(this, arguments);
+      try{
+        if(id === 'menuS'){
+          setTimeout(applyAll10473, 60);
+          setTimeout(applyAll10473, 400);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10473);
+  } else {
+    applyAll10473();
+  }
+  setTimeout(applyAll10473, 600);
+  setTimeout(applyAll10473, 1500);
+  setTimeout(applyAll10473, 3000);
+
+  try{ console.log('[PROFILE HUB v1.0.4.73] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END PROFILE HUB v1.0.4.73 ===== -->
+
 </body>
 </html>
