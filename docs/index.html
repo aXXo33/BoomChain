@@ -13705,5 +13705,126 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END LUCKY STREAK v1.0.4.70 ===== -->
 
+
+<!-- ===== EXTRA BALL GRANT ON BUY v1.0.4.72 ===== -->
+<style>
+.eb-grant-toast-10472{
+  position:fixed;
+  top:32%;
+  left:50%;
+  transform:translateX(-50%) translateY(-12px);
+  z-index: 99999;
+  pointer-events:none;
+  padding:10px 18px;
+  border-radius:14px;
+  background:linear-gradient(135deg, rgba(76,201,247,0.95), rgba(118,255,138,0.95));
+  color:#0a1a0a;
+  font-weight:950;
+  font-size:0.86em;
+  letter-spacing:0.5px;
+  box-shadow:0 8px 24px rgba(76,201,247,0.55), 0 0 28px rgba(118,255,138,0.40);
+  border: 1.4px solid rgba(255,255,255,0.45);
+  display:flex;
+  align-items:center;
+  gap:7px;
+  opacity:0;
+  animation: ebGrantIn10472 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, ebGrantOut10472 0.45s ease-in 2.5s forwards;
+}
+@keyframes ebGrantIn10472{
+  from{ opacity:0; transform:translateX(-50%) translateY(-26px); }
+  to{ opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes ebGrantOut10472{
+  from{ opacity:1; transform:translateX(-50%) translateY(0); }
+  to{ opacity:0; transform:translateX(-50%) translateY(-12px); }
+}
+</style>
+<script>
+/* ===== EXTRA BALL GRANT ON BUY v1.0.4.72 ===== */
+(function(){
+  if(window.__EXTRA_BALL_GRANT_V10472) return;
+  window.__EXTRA_BALL_GRANT_V10472 = true;
+
+  function showExtraBallToast10472(){
+    try{
+      var toast = document.createElement('div');
+      toast.className = 'eb-grant-toast-10472';
+      toast.innerHTML = '\u{1F3B1} <span>+1 EXTRA BALL GRANTED</span>';
+      document.body.appendChild(toast);
+      setTimeout(function(){
+        try{ if(toast && toast.parentNode) toast.parentNode.removeChild(toast); }catch(e){}
+      }, 2900);
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+    }catch(e){}
+  }
+
+  function grantExtraBall10472(){
+    try{
+      if(typeof getExtraBallCount10446 !== 'function' || typeof setExtraBallCount10446 !== 'function'){
+        return false;
+      }
+      var current = getExtraBallCount10446();
+      setExtraBallCount10446(current + 1);
+      showExtraBallToast10472();
+      return true;
+    }catch(e){
+      try{ console.warn('[EXTRA BALL v10472] grant failed', e); }catch(_){}
+      return false;
+    }
+  }
+
+  /* Wrap buyWorkshopUpgrade10466 to grant +1 extra ball when Extra Ball Slot is purchased */
+  function wrapBuyWorkshop10472(){
+    try{
+      if(typeof window.buyWorkshopUpgrade10466 !== 'function') return false;
+      if(window.__buyWorkshop10472Wrapped) return true;
+      var _origBuy10472 = window.buyWorkshopUpgrade10466;
+      window.buyWorkshopUpgrade10466 = function(id){
+        var wasOwnedBefore = false;
+        try{
+          if(typeof save !== 'undefined' && save && save.workshopUpgrades){
+            wasOwnedBefore = save.workshopUpgrades[id] === true;
+          }
+        }catch(e){}
+        var r = _origBuy10472.apply(this, arguments);
+        try{
+          if(id === 'extraBallSlot' && !wasOwnedBefore){
+            /* Check if purchase actually went through */
+            var nowOwned = false;
+            try{
+              if(typeof save !== 'undefined' && save && save.workshopUpgrades){
+                nowOwned = save.workshopUpgrades.extraBallSlot === true;
+              }
+            }catch(e){}
+            if(nowOwned){
+              /* Slight delay so the original buy popup shows first */
+              setTimeout(function(){
+                grantExtraBall10472();
+              }, 1200);
+            }
+          }
+        }catch(e){}
+        return r;
+      };
+      window.__buyWorkshop10472Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapBuyWorkshop10472);
+  } else {
+    wrapBuyWorkshop10472();
+  }
+  setTimeout(wrapBuyWorkshop10472, 600);
+  setTimeout(wrapBuyWorkshop10472, 1500);
+  setTimeout(wrapBuyWorkshop10472, 3000);
+
+  try{ console.log('[EXTRA BALL GRANT v1.0.4.72] active - +1 extra ball on Workshop "Extra Ball Slot" purchase'); }catch(e){}
+})();
+</script>
+<!-- ===== END EXTRA BALL GRANT v1.0.4.72 ===== -->
+
 </body>
 </html>
