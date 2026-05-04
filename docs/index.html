@@ -484,6 +484,23 @@ canvas{display:block}
   }
 }
 </style>
+
+<!-- ===== PRODUCTION LOGGING CLEANUP v1.0.4.60 ===== -->
+<script>
+/* Disables console.log in production. console.warn and console.error preserved for error tracking. */
+/* Set window.__BOOMCHAIN_DEV = true BEFORE this script loads to keep dev logs. */
+(function(){
+  try{
+    if(typeof console !== 'undefined' && !window.__BOOMCHAIN_DEV){
+      var _noop = function(){};
+      console.log = _noop;
+      console.debug = _noop;
+      console.info = _noop;
+    }
+  }catch(e){}
+})();
+</script>
+<!-- ===== END LOGGING CLEANUP v1.0.4.60 ===== -->
 </head>
 <body>
 <!-- ===== LOADING SPLASH v1.0.4.55 ===== -->
