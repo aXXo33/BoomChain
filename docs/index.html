@@ -11603,5 +11603,154 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END LC IAP TEASER v1.0.4.58 ===== -->
 
+
+<!-- ===== ENDLESS CONTINUE RUN v1.0.4.61 ===== -->
+<style>
+.endless-continue-10461{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:88%;
+  max-width:300px;
+  margin:6px auto 5px;
+  padding:11px 16px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  background:linear-gradient(135deg, #4cc9f7 0%, #76ff8a 100%);
+  color:#0a1a0a;
+  font-weight:950;
+  font-size:0.92em;
+  letter-spacing:0.5px;
+  box-shadow:0 6px 20px rgba(76,201,247,0.40), 0 0 28px rgba(118,255,138,0.22), inset 0 1px 0 rgba(255,255,255,0.30);
+  animation: endlessPulse10461 2.2s ease-in-out infinite;
+  position:relative;
+  overflow:hidden;
+}
+.endless-continue-10461::before{
+  content:"";
+  position:absolute;
+  top:0; left:-100%;
+  width:55%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.40), transparent);
+  animation: endlessShine10461 2.8s ease-in-out infinite;
+}
+.endless-continue-10461:active{
+  transform: scale(0.97);
+  box-shadow:0 3px 12px rgba(76,201,247,0.30);
+}
+.endless-info-10461{
+  color:#76ff8a;
+  font-size:0.78em;
+  font-weight:800;
+  margin:4px 0 2px;
+  letter-spacing:1px;
+  text-shadow:0 0 8px rgba(118,255,138,0.40);
+}
+@keyframes endlessPulse10461{
+  0%,100%{ box-shadow:0 6px 20px rgba(76,201,247,0.40), 0 0 28px rgba(118,255,138,0.22), inset 0 1px 0 rgba(255,255,255,0.30); }
+  50%{ box-shadow:0 8px 28px rgba(76,201,247,0.55), 0 0 36px rgba(118,255,138,0.35), inset 0 1px 0 rgba(255,255,255,0.40); }
+}
+@keyframes endlessShine10461{
+  0%{ left:-100%; }
+  60%,100%{ left:130%; }
+}
+</style>
+<script>
+/* ===== ENDLESS CONTINUE RUN v1.0.4.61 ===== */
+(function(){
+  if(window.__ENDLESS_CONTINUE_V10461) return;
+  window.__ENDLESS_CONTINUE_V10461 = true;
+
+  /* Grant +1 shot for endless continue (rewarded ad callback) */
+  window.grantEndlessContinueShot10461 = function(){
+    try{
+      if(typeof shotsLeft === 'number'){
+        shotsLeft = (shotsLeft || 0) + 1;
+        try{ if(typeof updateHUD === 'function') updateHUD(); }catch(e){}
+      }
+      try{
+        var go = document.getElementById('gameOverS');
+        if(go) go.classList.remove('active');
+      }catch(e){}
+      try{ if(typeof gameActive !== 'undefined') gameActive = true; }catch(e){}
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    }catch(e){}
+  };
+
+  /* Watch ad to continue endless run */
+  window.watchAdEndlessContinue10461 = function(){
+    try{
+      if(typeof showRewardedAd === 'function'){
+        showRewardedAd('grantEndlessContinueShot10461');
+      } else {
+        window.grantEndlessContinueShot10461();
+      }
+    }catch(e){}
+  };
+
+  function injectEndlessContinue10461(){
+    try{
+      var screen = document.getElementById('gameOverS');
+      if(!screen) return;
+      if(typeof currentRoom === 'undefined' || currentRoom !== 5) return;
+
+      /* Remove if exists (re-render safe) */
+      var existing = document.getElementById('endlessContinueBtn10461');
+      if(existing) existing.remove();
+      var existingInfo = document.getElementById('endlessInfoLine10461');
+      if(existingInfo) existingInfo.remove();
+
+      /* Insert at top of buttons - find first button (usually watchAdExtraShot) */
+      var firstBtn = screen.querySelector('button');
+      if(!firstBtn) return;
+
+      /* Info line: "Endless Run: Level X" */
+      var info = document.createElement('div');
+      info.id = 'endlessInfoLine10461';
+      info.className = 'endless-info-10461';
+      var lvl = (typeof currentRoomLevel === 'number') ? (currentRoomLevel + 1) : 1;
+      info.textContent = '\u221E ENDLESS LEVEL ' + lvl;
+
+      /* Continue button */
+      var btn = document.createElement('button');
+      btn.id = 'endlessContinueBtn10461';
+      btn.className = 'endless-continue-10461';
+      btn.innerHTML = '\u{1F3AC} CONTINUE RUN +1 SHOT';
+      btn.addEventListener('click', function(){
+        try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+        try{ window.watchAdEndlessContinue10461(); }catch(e){}
+      });
+
+      firstBtn.parentNode.insertBefore(info, firstBtn);
+      firstBtn.parentNode.insertBefore(btn, firstBtn);
+    }catch(e){
+      try{ console.warn('[ENDLESS CONTINUE v10461] inject failed', e); }catch(_){}
+    }
+  }
+
+  /* Hook into showScreen to detect gameOverS open */
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10461 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10461.apply(this, arguments);
+      try{
+        if(id === 'gameOverS'){
+          setTimeout(injectEndlessContinue10461, 90);
+          setTimeout(injectEndlessContinue10461, 450);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  try{ console.log('[ENDLESS CONTINUE v1.0.4.61] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END ENDLESS CONTINUE v1.0.4.61 ===== -->
+
 </body>
 </html>
