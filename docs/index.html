@@ -12107,5 +12107,209 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END SHOP NO ADS BANNER v1.0.4.63 ===== -->
 
+
+<!-- ===== ENDLESS MILESTONE REWARDS v1.0.4.64 ===== -->
+<style>
+.milestone-popup-10464{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%) scale(0.8);
+  z-index: 99999;
+  pointer-events:none;
+  width:88%;
+  max-width:340px;
+  padding:22px 18px 20px;
+  border-radius:24px;
+  background:linear-gradient(135deg, #ffd54f 0%, #ff9c41 50%, #ff5ea8 100%);
+  color:#0a0a1a;
+  text-align:center;
+  font-weight:950;
+  letter-spacing:0.5px;
+  box-shadow:0 14px 40px rgba(255,154,65,0.55), 0 0 60px rgba(255,213,79,0.45), inset 0 1px 0 rgba(255,255,255,0.55);
+  border: 2px solid rgba(255,255,255,0.30);
+  opacity:0;
+  animation: msPopIn10464 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, msPopOut10464 0.55s ease-in 4.0s forwards;
+  overflow:hidden;
+}
+.milestone-popup-10464::before{
+  content:"";
+  position:absolute;
+  top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(circle, rgba(255,255,255,0.30) 0%, transparent 65%);
+  animation: msShine10464 2.2s ease-in-out infinite;
+  pointer-events:none;
+}
+.ms-icon-10464{
+  font-size:3.4em;
+  display:block;
+  margin-bottom:6px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.20));
+}
+.ms-tag-10464{
+  display:inline-block;
+  background:rgba(0,0,0,0.30);
+  color:#fff;
+  font-size:0.62em;
+  font-weight:950;
+  padding:3px 9px;
+  border-radius:8px;
+  letter-spacing:1.6px;
+  margin-bottom:8px;
+}
+.ms-title-10464{
+  font-size:1.35em;
+  font-weight:950;
+  letter-spacing:0.8px;
+  margin-bottom:5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.ms-sub-10464{
+  font-size:0.78em;
+  font-weight:700;
+  opacity:0.78;
+  margin-bottom:12px;
+  letter-spacing:0.8px;
+}
+.ms-reward-10464{
+  background:#0a0a1a;
+  color:#ffd54f;
+  font-size:1.05em;
+  font-weight:950;
+  padding:9px 16px;
+  border-radius:14px;
+  letter-spacing:0.8px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,213,79,0.35);
+}
+@keyframes msPopIn10464{
+  from{ opacity:0; transform:translate(-50%, -50%) scale(0.55); }
+  to{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+}
+@keyframes msPopOut10464{
+  from{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+  to{ opacity:0; transform:translate(-50%, -50%) scale(1.15); }
+}
+@keyframes msShine10464{
+  0%,100%{ opacity:0.45; transform:rotate(0deg); }
+  50%{ opacity:0.75; transform:rotate(180deg); }
+}
+</style>
+<script>
+/* ===== ENDLESS MILESTONE REWARDS v1.0.4.64 ===== */
+(function(){
+  if(window.__ENDLESS_MS_V10464) return;
+  window.__ENDLESS_MS_V10464 = true;
+
+  var MILESTONES_10464 = [
+    { lvl: 10,  reward: 250,  icon: '\u{1F396}\uFE0F', title: 'ENDLESS EXPLORER',  tag: 'MILESTONE' },
+    { lvl: 25,  reward: 500,  icon: '\u{1F451}',       title: 'ENDLESS MASTER',    tag: 'MILESTONE' },
+    { lvl: 50,  reward: 1500, icon: '\u{1F31F}',       title: 'ENDLESS LEGEND',    tag: 'MILESTONE' },
+    { lvl: 100, reward: 5000, icon: '\u267E\uFE0F',    title: 'INFINITE MASTER',   tag: 'LEGENDARY' }
+  ];
+
+  function getClaimedSet10464(){
+    try{
+      if(typeof save === 'undefined' || !save) return [];
+      if(!Array.isArray(save.endlessMilestonesClaimed)) save.endlessMilestonesClaimed = [];
+      return save.endlessMilestonesClaimed;
+    }catch(e){ return []; }
+  }
+
+  function showMilestonePopup10464(ms){
+    try{
+      var pop = document.createElement('div');
+      pop.className = 'milestone-popup-10464';
+      pop.innerHTML =
+        '<span class="ms-icon-10464">' + ms.icon + '</span>' +
+        '<div class="ms-tag-10464">' + ms.tag + ' UNLOCKED</div>' +
+        '<div class="ms-title-10464">' + ms.title + '</div>' +
+        '<div class="ms-sub-10464">Reached Endless Level ' + ms.lvl + '</div>' +
+        '<div class="ms-reward-10464">\u{1F4B0} +' + ms.reward + ' COINS</div>';
+      document.body.appendChild(pop);
+      setTimeout(function(){
+        try{ if(pop && pop.parentNode) pop.parentNode.removeChild(pop); }catch(e){}
+      }, 4800);
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[ENDLESS MS v10464] popup failed', e); }catch(_){}
+    }
+  }
+
+  function checkAndClaimMilestones10464(reachedLvl){
+    try{
+      if(typeof save === 'undefined' || !save) return;
+      var claimed = getClaimedSet10464();
+      var newlyUnlocked = [];
+      for(var i = 0; i < MILESTONES_10464.length; i++){
+        var ms = MILESTONES_10464[i];
+        if(reachedLvl >= ms.lvl && claimed.indexOf(ms.lvl) === -1){
+          claimed.push(ms.lvl);
+          newlyUnlocked.push(ms);
+          try{
+            if(typeof coins !== 'undefined'){
+              coins = (coins || 0) + ms.reward;
+              try{ if(typeof updateHUD === 'function') updateHUD(); }catch(e){}
+              try{
+                if(typeof showCoinFly === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+                  showCoinFly(W/2, H/2, ms.reward);
+                }
+              }catch(e){}
+            }
+          }catch(e){}
+        }
+      }
+      if(newlyUnlocked.length > 0){
+        try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+        /* Show popups one by one with delay */
+        newlyUnlocked.forEach(function(ms, idx){
+          setTimeout(function(){ showMilestonePopup10464(ms); }, idx * 5400);
+        });
+      }
+    }catch(e){
+      try{ console.warn('[ENDLESS MS v10464] check failed', e); }catch(_){}
+    }
+  }
+
+  /* Wrap levelComplete: trigger milestone check on Endless win */
+  function wrapLevelComplete10464(){
+    try{
+      if(typeof window.levelComplete !== 'function') return false;
+      if(window.__levelComplete10464Wrapped) return true;
+      var _origLC10464 = window.levelComplete;
+      window.levelComplete = function(){
+        var r = _origLC10464.apply(this, arguments);
+        try{
+          if(typeof currentRoom !== 'undefined' && currentRoom === 5){
+            var lvl = (typeof currentRoomLevel === 'number') ? (currentRoomLevel + 1) : 1;
+            /* Slight delay so original popup completes first */
+            setTimeout(function(){ checkAndClaimMilestones10464(lvl); }, 1200);
+          }
+        }catch(e){}
+        return r;
+      };
+      window.__levelComplete10464Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapLevelComplete10464);
+  } else {
+    wrapLevelComplete10464();
+  }
+  setTimeout(wrapLevelComplete10464, 600);
+  setTimeout(wrapLevelComplete10464, 1500);
+  setTimeout(wrapLevelComplete10464, 3000);
+
+  try{ console.log('[ENDLESS MILESTONES v1.0.4.64] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END ENDLESS MILESTONES v1.0.4.64 ===== -->
+
 </body>
 </html>
