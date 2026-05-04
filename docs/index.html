@@ -13335,5 +13335,121 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END MASTERY STARS v1.0.4.67 ===== -->
 
+
+<!-- ===== COIN MAGNET EFFECT v1.0.4.68 ===== -->
+<style>
+.cm-bonus-toast-10468{
+  position:fixed;
+  top:36%;
+  left:50%;
+  transform:translateX(-50%) translateY(-12px);
+  z-index: 99998;
+  pointer-events:none;
+  padding:8px 14px;
+  border-radius:12px;
+  background:linear-gradient(135deg, rgba(255,213,79,0.92), rgba(255,154,65,0.92));
+  color:#0a0a1a;
+  font-weight:950;
+  font-size:0.78em;
+  letter-spacing:0.5px;
+  box-shadow:0 6px 20px rgba(255,154,65,0.45), 0 0 22px rgba(255,213,79,0.30);
+  border: 1.2px solid rgba(255,255,255,0.35);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  opacity:0;
+  animation: cmBonusIn10468 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, cmBonusOut10468 0.4s ease-in 2.3s forwards;
+}
+@keyframes cmBonusIn10468{
+  from{ opacity:0; transform:translateX(-50%) translateY(-22px); }
+  to{ opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes cmBonusOut10468{
+  from{ opacity:1; transform:translateX(-50%) translateY(0); }
+  to{ opacity:0; transform:translateX(-50%) translateY(-12px); }
+}
+</style>
+<script>
+/* ===== COIN MAGNET EFFECT v1.0.4.68 ===== */
+(function(){
+  if(window.__COIN_MAGNET_V10468) return;
+  window.__COIN_MAGNET_V10468 = true;
+
+  var BONUS_RATE_10468 = 0.15;
+
+  function isCoinMagnetOwned10468(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      if(!save.workshopUpgrades || typeof save.workshopUpgrades !== 'object') return false;
+      return save.workshopUpgrades.coinMagnet === true;
+    }catch(e){ return false; }
+  }
+
+  function showBonusToast10468(amount){
+    try{
+      var toast = document.createElement('div');
+      toast.className = 'cm-bonus-toast-10468';
+      toast.innerHTML = '\u{1F9F2} <span>+' + amount + ' COIN MAGNET BONUS</span>';
+      document.body.appendChild(toast);
+      setTimeout(function(){
+        try{ if(toast && toast.parentNode) toast.parentNode.removeChild(toast); }catch(e){}
+      }, 2800);
+      try{ if(typeof hapticLight === 'function') hapticLight(); }catch(e){}
+    }catch(e){}
+  }
+
+  /* Wrap levelComplete: detect coin grant delta, apply 15% bonus if upgrade owned */
+  function wrapLevelComplete10468(){
+    try{
+      if(typeof window.levelComplete !== 'function') return false;
+      if(window.__levelComplete10468Wrapped) return true;
+      var _origLC10468 = window.levelComplete;
+      window.levelComplete = function(){
+        var before = (typeof coins === 'number') ? coins : 0;
+        var r = _origLC10468.apply(this, arguments);
+        try{
+          if(isCoinMagnetOwned10468()){
+            var after = (typeof coins === 'number') ? coins : 0;
+            var earned = after - before;
+            if(earned > 0){
+              var bonus = Math.round(earned * BONUS_RATE_10468);
+              if(bonus > 0){
+                coins = (coins || 0) + bonus;
+                try{ if(typeof updateHUD === 'function') updateHUD(); }catch(e){}
+                try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+                /* Show fly animation + toast (delayed so it appears AFTER orig coin fly) */
+                setTimeout(function(){
+                  try{
+                    if(typeof showCoinFly === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+                      showCoinFly(W/2, H/3, bonus);
+                    }
+                  }catch(e){}
+                  showBonusToast10468(bonus);
+                }, 600);
+              }
+            }
+          }
+        }catch(e){}
+        return r;
+      };
+      window.__levelComplete10468Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapLevelComplete10468);
+  } else {
+    wrapLevelComplete10468();
+  }
+  setTimeout(wrapLevelComplete10468, 600);
+  setTimeout(wrapLevelComplete10468, 1500);
+  setTimeout(wrapLevelComplete10468, 3000);
+
+  try{ console.log('[COIN MAGNET EFFECT v1.0.4.68] active - +15% coins on level complete (when owned)'); }catch(e){}
+})();
+</script>
+<!-- ===== END COIN MAGNET v1.0.4.68 ===== -->
+
 </body>
 </html>
