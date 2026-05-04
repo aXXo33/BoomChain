@@ -11752,5 +11752,149 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END ENDLESS CONTINUE v1.0.4.61 ===== -->
 
+
+<!-- ===== DAILY CHALLENGE VISIBILITY v1.0.4.62 ===== -->
+<style>
+.dc-info-10462{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:88%;
+  max-width:300px;
+  margin:6px auto 0;
+  padding:7px 14px;
+  border-radius:12px;
+  font-weight:900;
+  font-size:0.78em;
+  letter-spacing:0.6px;
+  text-align:center;
+  position:relative;
+}
+.dc-info-10462.available-10462{
+  background:linear-gradient(135deg, rgba(255,23,68,0.20), rgba(255,107,53,0.20));
+  border:1.2px solid rgba(255,107,53,0.55);
+  color:#ff8a65;
+  box-shadow:0 0 14px rgba(255,107,53,0.30);
+  animation: dcPulse10462 1.8s ease-in-out infinite;
+}
+.dc-info-10462.completed-10462{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.10);
+  color:#5a6268;
+  opacity:0.78;
+}
+@keyframes dcPulse10462{
+  0%,100%{ box-shadow:0 0 14px rgba(255,107,53,0.30); transform:scale(1); }
+  50%{ box-shadow:0 0 22px rgba(255,107,53,0.55); transform:scale(1.025); }
+}
+.dc-icon-10462{ font-size:1.05em; }
+</style>
+<script>
+/* ===== DAILY CHALLENGE VISIBILITY v1.0.4.62 ===== */
+(function(){
+  if(window.__DC_VIS_V10462) return;
+  window.__DC_VIS_V10462 = true;
+
+  function isDcCompletedToday10462(){
+    try{
+      if(typeof save === 'undefined' || !save) return false;
+      var today = new Date().toDateString();
+      return save.dailyChallengeCompletedDate === today;
+    }catch(e){ return false; }
+  }
+
+  function renderDcInfo10462(){
+    try{
+      var el = document.getElementById('dailyChallengeInfo10462');
+      if(!el) return;
+      var done = isDcCompletedToday10462();
+      el.classList.remove('available-10462','completed-10462');
+      if(done){
+        el.classList.add('completed-10462');
+        el.innerHTML = '<span class="dc-icon-10462">\u2705</span><span>Today\u2019s challenge completed</span>';
+      } else {
+        el.classList.add('available-10462');
+        el.innerHTML = '<span class="dc-icon-10462">\u{1F381}</span><span>Daily Impossible: +500 COINS</span>';
+      }
+    }catch(e){}
+  }
+
+  function injectDcInfo10462(){
+    try{
+      if(document.getElementById('dailyChallengeInfo10462')) {
+        renderDcInfo10462();
+        return;
+      }
+      var menu = document.getElementById('menuS');
+      if(!menu) return;
+      var dcBtn = menu.querySelector('button[onclick="startDailyChallenge()"]');
+      if(!dcBtn) return;
+      var info = document.createElement('div');
+      info.id = 'dailyChallengeInfo10462';
+      info.className = 'dc-info-10462';
+      dcBtn.parentNode.insertBefore(info, dcBtn.nextSibling);
+      renderDcInfo10462();
+    }catch(e){
+      try{ console.warn('[DC VIS v10462] inject failed', e); }catch(_){}
+    }
+  }
+
+  /* Wrap levelComplete: mark daily challenge done on win */
+  function wrapLevelComplete10462(){
+    try{
+      if(typeof window.levelComplete !== 'function') return false;
+      if(window.__levelComplete10462Wrapped) return true;
+      var _origLC10462 = window.levelComplete;
+      window.levelComplete = function(){
+        try{
+          if(window.isDailyChallenge && typeof save !== 'undefined' && save){
+            save.dailyChallengeCompletedDate = new Date().toDateString();
+            try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+          }
+        }catch(e){}
+        var r = _origLC10462.apply(this, arguments);
+        try{ setTimeout(renderDcInfo10462, 100); }catch(e){}
+        return r;
+      };
+      window.__levelComplete10462Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  /* Wrap showMenu / showScreen to refresh state */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10462 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10462.apply(this, arguments);
+      try{
+        if(id === 'menuS'){
+          setTimeout(injectDcInfo10462, 50);
+          setTimeout(injectDcInfo10462, 400);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  function applyAll10462(){
+    injectDcInfo10462();
+    wrapLevelComplete10462();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10462);
+  } else {
+    applyAll10462();
+  }
+  setTimeout(applyAll10462, 600);
+  setTimeout(applyAll10462, 1500);
+  setTimeout(applyAll10462, 3000);
+
+  try{ console.log('[DAILY CHALLENGE VIS v1.0.4.62] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END DAILY CHALLENGE VIS v1.0.4.62 ===== -->
+
 </body>
 </html>
