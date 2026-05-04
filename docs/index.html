@@ -11436,5 +11436,150 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END COIN TAP-TO-SHOP v1.0.4.57 ===== -->
 
+
+<!-- ===== LC IAP TEASER v1.0.4.58 ===== -->
+<style>
+.lc-iap-teaser-10458{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:88%;
+  max-width:300px;
+  margin:6px auto 8px;
+  padding:10px 14px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  background:linear-gradient(135deg, #f7c948 0%, #ff8c5a 50%, #ff6b9d 100%);
+  color:#1a1a2e;
+  font-weight:950;
+  text-align:left;
+  box-shadow:0 6px 20px rgba(247,201,72,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+  animation: lcTeaserPulse10458 2.6s ease-in-out infinite;
+  position:relative;
+  overflow:hidden;
+}
+.lc-iap-teaser-10458::before{
+  content:"";
+  position:absolute;
+  top:0; left:-100%;
+  width:60%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  animation: lcTeaserShine10458 3.2s ease-in-out infinite;
+}
+.lc-iap-teaser-10458:active{
+  transform: scale(0.97);
+  box-shadow:0 3px 10px rgba(247,201,72,0.30);
+}
+.lct-icon-10458{ font-size:1.6em; flex-shrink:0; }
+.lct-text-10458{ flex:1; }
+.lct-name-10458{ font-size:0.92em; font-weight:950; letter-spacing:0.3px; }
+.lct-desc-10458{ font-size:0.65em; opacity:0.78; margin-top:1px; letter-spacing:0.4px; text-transform:uppercase; }
+.lct-price-10458{
+  background:#1a1a2e;
+  color:#f7c948;
+  padding:5px 11px;
+  border-radius:10px;
+  font-size:0.82em;
+  font-weight:950;
+  flex-shrink:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.lct-badge-10458{
+  position:absolute;
+  top:-7px;
+  right:10px;
+  background:#1a1a2e;
+  color:#f7c948;
+  font-size:0.55em;
+  font-weight:950;
+  letter-spacing:1px;
+  padding:2px 7px;
+  border-radius:6px;
+  border:1px solid rgba(247,201,72,0.55);
+}
+@keyframes lcTeaserPulse10458{
+  0%,100%{ box-shadow:0 6px 20px rgba(247,201,72,0.35), inset 0 1px 0 rgba(255,255,255,0.25); }
+  50%{ box-shadow:0 8px 28px rgba(247,201,72,0.55), inset 0 1px 0 rgba(255,255,255,0.30); }
+}
+@keyframes lcTeaserShine10458{
+  0%{ left:-100%; }
+  60%,100%{ left:120%; }
+}
+</style>
+<script>
+/* ===== LC IAP TEASER v1.0.4.58 ===== */
+(function(){
+  if(window.__LC_IAP_TEASER_V10458) return;
+  window.__LC_IAP_TEASER_V10458 = true;
+
+  function injectLcIapTeaser10458(){
+    try{
+      var screen = document.getElementById('levelCompleteS');
+      if(!screen) return;
+      if(document.getElementById('lcIapTeaser10458')) return;
+      var shareBtn = screen.querySelector('button[onclick="shareScore()"]');
+      var doubleBtn = document.getElementById('doubleCoinsBtn');
+      var anchor = shareBtn || doubleBtn;
+      if(!anchor || !anchor.parentNode) return;
+
+      var teaser = document.createElement('button');
+      teaser.id = 'lcIapTeaser10458';
+      teaser.className = 'lc-iap-teaser-10458';
+      teaser.innerHTML = ''
+        + '<span class="lct-badge-10458">BEST VALUE</span>'
+        + '<span class="lct-icon-10458">\u{1F48E}</span>'
+        + '<span class="lct-text-10458">'
+          + '<span class="lct-name-10458">500 COINS</span>'
+          + '<span class="lct-desc-10458">5\u00D7 the daily bonus</span>'
+        + '</span>'
+        + '<span class="lct-price-10458">\u00A33.99</span>';
+
+      teaser.addEventListener('click', function(ev){
+        try{ if(ev && typeof ev.stopPropagation === 'function') ev.stopPropagation(); }catch(_){}
+        try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+        try{ if(typeof sndUITap10444 === 'function') sndUITap10444(); }catch(e){}
+        try{ if(typeof buyItem === 'function') buyItem('coins_500'); }catch(e){}
+      });
+
+      if(shareBtn){
+        anchor.parentNode.insertBefore(teaser, shareBtn);
+      } else {
+        anchor.parentNode.insertBefore(teaser, anchor.nextSibling);
+      }
+    }catch(e){
+      try{ console.warn('[LC IAP TEASER v10458] inject failed', e); }catch(_){}
+    }
+  }
+
+  if(typeof window.showScreen === 'function'){
+    var oldShowScreen10458 = window.showScreen;
+    window.showScreen = function(id){
+      var r = oldShowScreen10458.apply(this, arguments);
+      try{
+        if(id === 'levelCompleteS'){
+          setTimeout(injectLcIapTeaser10458, 80);
+          setTimeout(injectLcIapTeaser10458, 400);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', injectLcIapTeaser10458);
+  } else {
+    injectLcIapTeaser10458();
+  }
+  setTimeout(injectLcIapTeaser10458, 1200);
+  setTimeout(injectLcIapTeaser10458, 3000);
+
+  try{ console.log('[LC IAP TEASER v1.0.4.58] active'); }catch(e){}
+})();
+</script>
+<!-- ===== END LC IAP TEASER v1.0.4.58 ===== -->
+
 </body>
 </html>
