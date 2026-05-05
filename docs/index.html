@@ -15303,5 +15303,292 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END DAILY LOGIN CALENDAR v1.0.4.75 ===== -->
 
+
+<!-- ===== MENU REORGANIZE v1.0.4.76 ===== -->
+<style>
+/* Section wrapper styles */
+.menu-section-10476{
+  width:96%;
+  max-width:380px;
+  margin:7px auto;
+  padding:9px 10px 11px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  align-items:center;
+}
+.menu-section-10476.section-hero-10476{
+  background:linear-gradient(135deg, rgba(76,201,247,0.10), rgba(255,107,53,0.08));
+  border-color: rgba(255,107,53,0.30);
+  padding:13px 12px 13px;
+  gap:8px;
+}
+.menu-section-10476.section-daily-10476{
+  background:linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,23,68,0.06));
+  border-color: rgba(255,107,53,0.22);
+}
+.menu-section-10476.section-progress-10476{
+  background:linear-gradient(135deg, rgba(76,201,247,0.08), rgba(177,91,255,0.08));
+  border-color: rgba(76,201,247,0.22);
+}
+.menu-section-10476.section-explore-10476{
+  background:rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.10);
+}
+.menu-section-10476.section-utility-10476{
+  background:rgba(0,0,0,0.20);
+  border-color: rgba(255,255,255,0.04);
+  opacity:0.78;
+  padding:6px 10px 7px;
+}
+.menu-section-title-10476{
+  font-size:0.58em;
+  font-weight:900;
+  letter-spacing:1.8px;
+  color:#9aa5b8;
+  text-transform:uppercase;
+  margin-bottom:3px;
+  text-align:center;
+  width:100%;
+}
+.menu-section-10476.section-hero-10476 .menu-section-title-10476{ display:none; }
+.menu-section-10476.section-utility-10476 .menu-section-title-10476{
+  font-size:0.5em;
+  letter-spacing:1.4px;
+  margin-bottom:1px;
+}
+
+/* Force buttons inside sections to take consistent layout */
+.menu-section-10476 button.btn{
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Inline button rows inside sections */
+.section-row-10476{
+  display:flex;
+  gap:5px;
+  width:100%;
+  justify-content:center;
+}
+.section-row-10476 > button{ flex:1; }
+
+/* Compact info row (streakInfo + dailyInfo + dailyChallengeInfo) */
+.section-info-10476{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  width:100%;
+  align-items:center;
+}
+.section-info-10476 > *{ margin:0 !important; padding:0; }
+
+/* Mastery badge inside section adjustments */
+.menu-section-10476 .mastery-badge-10467{ margin: 0 auto 4px; }
+
+/* Workshop / Profile / Login Cal / Daily Streak buttons - normalized */
+.menu-section-10476 .ws-menu-btn-10466,
+.menu-section-10476 .ph-menu-btn-10473,
+.menu-section-10476 .lc-menu-btn-10475,
+.menu-section-10476 #dailyStreakBtn10445{
+  margin-top: 0 !important;
+}
+
+/* Smaller utility buttons (compact icon-only feel) */
+.section-utility-10476 button.btn{
+  padding: 6px 9px !important;
+  font-size: 0.72em !important;
+  opacity: 0.82;
+}
+</style>
+<script>
+/* ===== MENU REORGANIZE v1.0.4.76 ===== */
+(function(){
+  if(window.__MENU_REORGANIZE_V10476) return;
+  window.__MENU_REORGANIZE_V10476 = true;
+
+  function makeSection10476(id, titleText, classExtra){
+    var sec = document.createElement('div');
+    sec.id = id;
+    sec.className = 'menu-section-10476 ' + (classExtra || '');
+    if(titleText){
+      var t = document.createElement('div');
+      t.className = 'menu-section-title-10476';
+      t.textContent = titleText;
+      sec.appendChild(t);
+    }
+    return sec;
+  }
+
+  function makeRow10476(){
+    var r = document.createElement('div');
+    r.className = 'section-row-10476';
+    return r;
+  }
+
+  function findStaticButton10476(menu, onclickContains){
+    try{
+      var nodes = menu.querySelectorAll('button.btn');
+      for(var i = 0; i < nodes.length; i++){
+        var n = nodes[i];
+        var oc = n.getAttribute('onclick') || '';
+        if(oc.indexOf(onclickContains) !== -1) return n;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function findStaticById10476(menu, id){
+    try{ return menu.querySelector('#' + id); }catch(e){ return null; }
+  }
+
+  function moveIfFound10476(target, source){
+    if(target && source){
+      try{ target.appendChild(source); return true; }catch(e){}
+    }
+    return false;
+  }
+
+  function reorganizeMenu10476(){
+    try{
+      var menu = document.getElementById('menuS');
+      if(!menu) return;
+      if(menu.dataset.restructured10476 === '1') return;
+
+      /* 1. Locate all static buttons by their onclick or id */
+      var btnPlay     = findStaticButton10476(menu, 'startWorldMap');
+      var btnSpin     = findStaticButton10476(menu, 'openDailyReward');
+      var btnImposs   = findStaticButton10476(menu, 'startDailyChallenge');
+      var btnWeekly   = findStaticButton10476(menu, 'startWeeklyChallenge');
+      var btnSeason   = findStaticButton10476(menu, 'openSeasonPass');
+      var btnShop     = findStaticButton10476(menu, 'openShop');
+      var btnBadges   = findStaticButton10476(menu, 'openAchievements');
+      var btnRank     = findStaticButton10476(menu, 'openLeaderboard');
+      var btnMusic    = findStaticById10476(menu, 'musicToggle');
+      var btnStats    = findStaticButton10476(menu, 'showStats');
+      var btnNotif    = findStaticById10476(menu, 'notifBtn');
+
+      var streakInfo  = findStaticById10476(menu, 'streakInfo');
+      var dailyInfo   = findStaticById10476(menu, 'dailyInfo');
+
+      /* Dynamic injects (already present after first openings) */
+      var dailyStreakBtn  = findStaticById10476(menu, 'dailyStreakBtn10445');
+      var dailyChInfo     = findStaticById10476(menu, 'dailyChallengeInfo10462');
+      var wsBtn           = findStaticById10476(menu, 'wsMenuBtn10466');
+      var masteryBadge    = findStaticById10476(menu, 'masteryBadge10467');
+      var profileBtn      = findStaticById10476(menu, 'profileMenuBtn10473');
+      var loginCalBtn     = findStaticById10476(menu, 'loginCalMenuBtn10475');
+
+      /* Find anchors to KEEP (logo, title, subtitle, coins) - these stay at top untouched */
+      /* Build sections */
+      var secHero    = makeSection10476('menuSecHero10476',    null,         'section-hero-10476');
+      var secDaily   = makeSection10476('menuSecDaily10476',   'DAILY',      'section-daily-10476');
+      var secProgress= makeSection10476('menuSecProgress10476','PROGRESSION','section-progress-10476');
+      var secExplore = makeSection10476('menuSecExplore10476', 'EXPLORE',    'section-explore-10476');
+      var secUtility = makeSection10476('menuSecUtility10476', 'OPTIONS',    'section-utility-10476');
+
+      /* ============ HERO SECTION ============ */
+      moveIfFound10476(secHero, btnPlay);
+      moveIfFound10476(secHero, btnSpin);
+
+      /* ============ DAILY SECTION ============ */
+      /* Info row: streak + daily + challenge info */
+      var dailyInfoRow = document.createElement('div');
+      dailyInfoRow.className = 'section-info-10476';
+      moveIfFound10476(dailyInfoRow, streakInfo);
+      moveIfFound10476(dailyInfoRow, dailyInfo);
+      moveIfFound10476(dailyInfoRow, dailyChInfo);
+      if(dailyInfoRow.children.length > 0){
+        secDaily.appendChild(dailyInfoRow);
+      }
+      /* Button row 1: Daily Streak | Login Calendar */
+      var dailyRow1 = makeRow10476();
+      moveIfFound10476(dailyRow1, dailyStreakBtn);
+      moveIfFound10476(dailyRow1, loginCalBtn);
+      if(dailyRow1.children.length > 0) secDaily.appendChild(dailyRow1);
+      /* Button row 2: Daily Impossible | Weekly Challenge */
+      var dailyRow2 = makeRow10476();
+      moveIfFound10476(dailyRow2, btnImposs);
+      moveIfFound10476(dailyRow2, btnWeekly);
+      if(dailyRow2.children.length > 0) secDaily.appendChild(dailyRow2);
+
+      /* ============ PROGRESSION SECTION ============ */
+      moveIfFound10476(secProgress, masteryBadge);
+      var progRow1 = makeRow10476();
+      moveIfFound10476(progRow1, profileBtn);
+      moveIfFound10476(progRow1, wsBtn);
+      if(progRow1.children.length > 0) secProgress.appendChild(progRow1);
+      moveIfFound10476(secProgress, btnSeason);
+
+      /* ============ EXPLORE SECTION ============ */
+      var exploreRow = makeRow10476();
+      moveIfFound10476(exploreRow, btnShop);
+      moveIfFound10476(exploreRow, btnBadges);
+      moveIfFound10476(exploreRow, btnRank);
+      if(exploreRow.children.length > 0) secExplore.appendChild(exploreRow);
+
+      /* ============ UTILITY SECTION (compact) ============ */
+      var utilRow = makeRow10476();
+      moveIfFound10476(utilRow, btnMusic);
+      moveIfFound10476(utilRow, btnStats);
+      moveIfFound10476(utilRow, btnNotif);
+      if(utilRow.children.length > 0) secUtility.appendChild(utilRow);
+
+      /* Append all sections to menu (only if section has content) */
+      if(secHero.querySelectorAll('button, .menu-section-title-10476 ~ *').length > 0 || secHero.querySelectorAll('button').length > 0){
+        menu.appendChild(secHero);
+      }
+      if(secDaily.children.length > 1) menu.appendChild(secDaily); /* >1 = title + content */
+      if(secProgress.children.length > 1) menu.appendChild(secProgress);
+      if(secExplore.children.length > 1) menu.appendChild(secExplore);
+      if(secUtility.children.length > 1) menu.appendChild(secUtility);
+
+      menu.dataset.restructured10476 = '1';
+      try{ console.log('[MENU REORGANIZE v10476] applied'); }catch(e){}
+    }catch(e){
+      try{ console.warn('[MENU REORGANIZE v10476] failed', e); }catch(_){}
+    }
+  }
+
+  function applyAll10476(){
+    /* Wait briefly for dynamic injects (Workshop, Profile, etc) to settle */
+    reorganizeMenu10476();
+  }
+
+  /* showScreen wrap to apply on menu open */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10476 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10476.apply(this, arguments);
+      try{
+        if(id === 'menuS'){
+          /* Multiple delayed attempts so dynamic injects can finish first */
+          setTimeout(applyAll10476, 250);
+          setTimeout(applyAll10476, 800);
+          setTimeout(applyAll10476, 1800);
+          setTimeout(applyAll10476, 3500);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10476);
+  } else {
+    applyAll10476();
+  }
+  setTimeout(applyAll10476, 1000);
+  setTimeout(applyAll10476, 2500);
+  setTimeout(applyAll10476, 5000);
+
+  try{ console.log('[MENU REORGANIZE v1.0.4.76] active - sections grouped'); }catch(e){}
+})();
+</script>
+<!-- ===== END MENU REORGANIZE v1.0.4.76 ===== -->
+
 </body>
 </html>
