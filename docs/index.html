@@ -1516,8 +1516,8 @@ function update(){
       b.bounces++;sndBounce();triggerShake(2);spawnParticles(b.x,b.y,'#888',3,2,2);}});
     targets.forEach(function(t){if(!t.alive)return;if(t.type==='ghost'&&!t.ghostVisible)return;
       var dx=b.x-t.x,dy=b.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<b.r+t.r){t.hp--;t.pulse=1;triggerShake(t.type==='boss'?8:4);
-        if(t.hp<=0){t.alive=false;targetsLeft--;combo++;if(combo>maxCombo)maxCombo=combo;
+      if(dist<b.r+t.r){var _v85hit=!window.v85PreHit||window.v85PreHit(t,b);if(_v85hit){t.hp--;}t.pulse=1;triggerShake(t.type==='boss'?8:4);
+        if(t.hp<=0){t.alive=false;if(window.v85DeathHook)window.v85DeathHook(t);targetsLeft--;combo++;if(combo>maxCombo)maxCombo=combo;
           var pts=t.type==='boss'?500:(t.type==='hard'?30:(t.type==='crystal'?40:20));
           pts=pts*Math.max(1,combo);score+=pts;showScoreFly(t.x,t.y-20,pts);
           var coinAmt=Math.max(1,Math.floor(pts/60))+(combo>2?Math.floor(combo/2):0);coins+=coinAmt;showCoinFly(t.x+20,t.y,coinAmt);
@@ -17728,5 +17728,133 @@ body.sector-theme-5-10483{
 </script>
 <!-- ===== END TARGET VARIETY v1.0.4.84 ===== -->
 
+<style id="v85-style">
+.v85-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:8px 18px;border-radius:20px;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;z-index:9999;pointer-events:none;opacity:0;animation:v85ToastIn 1.4s ease-out forwards;}
+.v85-toast.shield{border:1px solid #00d4ff;box-shadow:0 0 16px rgba(0,212,255,0.6);}
+.v85-toast.linked{border:1px solid #ffd700;box-shadow:0 0 16px rgba(255,215,0,0.6);}
+.v85-toast.triangle{border:1px solid #ff6b9d;box-shadow:0 0 16px rgba(255,107,157,0.6);}
+@keyframes v85ToastIn{0%{opacity:0;transform:translate(-50%,-10px) scale(0.85);}18%{opacity:1;transform:translate(-50%,0) scale(1);}82%{opacity:1;transform:translate(-50%,0) scale(1);}100%{opacity:0;transform:translate(-50%,-6px) scale(0.95);}}
+.v85-flash{position:fixed;inset:0;pointer-events:none;z-index:9998;background:radial-gradient(circle,rgba(255,107,157,0.28),transparent 60%);animation:v85Flash 0.35s ease-out forwards;}
+@keyframes v85Flash{0%{opacity:0;}30%{opacity:1;}100%{opacity:0;}}
+.v85-ripple{position:fixed;border:2px solid #ffd700;border-radius:50%;pointer-events:none;z-index:9997;animation:v85Ripple 0.6s ease-out forwards;}
+@keyframes v85Ripple{0%{transform:scale(0.3);opacity:1;}100%{transform:scale(2.6);opacity:0;}}
+.v85-shield-break{position:fixed;width:50px;height:50px;border-radius:50%;border:3px solid #00d4ff;pointer-events:none;z-index:9997;animation:v85ShieldBreak 0.5s ease-out forwards;}
+@keyframes v85ShieldBreak{0%{transform:scale(1);opacity:1;}100%{transform:scale(2.2);opacity:0;}}
+</style>
+<script id="v85-script">
+/* v85 Target Variety: Shield + Linked + Triangle (Sector 2+) — coin reward YOK */
+(function(){
+  var SHIELD_RATE=0.04, TRIANGLE_RATE=0.04, LINKED_RATE=0.04;
+  function toast(kind,msg){var d=document.createElement('div');d.className='v85-toast '+kind;d.textContent=msg;document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},1400);}
+  function ripple(x,y){var d=document.createElement('div');d.className='v85-ripple';d.style.left=(x-20)+'px';d.style.top=(y-20)+'px';d.style.width='40px';d.style.height='40px';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},600);}
+  function flash(){var d=document.createElement('div');d.className='v85-flash';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},350);}
+  function shieldBreak(x,y){var d=document.createElement('div');d.className='v85-shield-break';d.style.left=(x-25)+'px';d.style.top=(y-25)+'px';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},500);}
+  // SPAWN — generateLevel wrap (3rd layer after v82+v84)
+  var _origGen=window.generateLevel;
+  if(typeof _origGen==='function'){
+    window.generateLevel=function(){
+      var r=_origGen.apply(this,arguments);
+      try{
+        var sec=(typeof currentSector!=='undefined')?currentSector:0;
+        if(sec>=2&&typeof targets!=='undefined'){
+          for(var i=0;i<targets.length;i++){
+            var t=targets[i];
+            if(t.type==='boss'||t.shape)continue;
+            var roll=Math.random();
+            if(roll<SHIELD_RATE){
+              t.shape='shield';t.hp=2;t.maxHp=2;t.shieldOn=true;
+            } else if(roll<SHIELD_RATE+TRIANGLE_RATE){
+              t.shape='triangle';
+            } else if(roll<SHIELD_RATE+TRIANGLE_RATE+LINKED_RATE&&i+1<targets.length){
+              var p=targets[i+1];
+              if(p&&!p.shape&&p.type!=='boss'){
+                var pid='v85_'+Date.now()+'_'+i;
+                t.shape='linked';t.linkId=pid;
+                p.shape='linked';p.linkId=pid;
+                i++;
+              }
+            }
+          }
+        }
+      }catch(e){console.warn('[v85] spawn',e);}
+      return r;
+    };
+  }
+  // PRE-HIT HOOK — Shield phase + Triangle apex reflect
+  window.v85PreHit=function(t,b){
+    if(!t||!t.shape)return true;
+    if(t.shape==='triangle'){
+      var dy=b.y-t.y;
+      if(b.vy>0&&dy<-t.r*0.3){flash();return true;}
+      b.vy=-Math.abs(b.vy)*0.85;b.vx=b.vx*0.9;
+      return false;
+    }
+    if(t.shape==='shield'&&t.shieldOn){
+      t.shieldOn=false;shieldBreak(t.x,t.y);
+      toast('shield','🛡️ Shield broken!');
+      return true;
+    }
+    return true;
+  };
+  // DEATH HOOK — Linked auto-trigger
+  window.v85DeathHook=function(t){
+    if(!t||!t.shape)return;
+    if(t.shape==='linked'&&t.linkId&&typeof targets!=='undefined'){
+      for(var i=0;i<targets.length;i++){
+        var o=targets[i];
+        if(o!==t&&o.alive&&o.linkId===t.linkId){
+          o.hp=0;o.alive=false;
+          if(typeof targetsLeft!=='undefined')targetsLeft--;
+          if(typeof spawnConfetti==='function')spawnConfetti(o.x,o.y,12);
+          ripple(o.x,o.y);
+          toast('linked','🔗 Linked chain!');
+        }
+      }
+    }
+    if(t.shape==='triangle'){toast('triangle','🔺 Apex hit!');}
+  };
+  // RENDER OVERLAY — RAF wrap (post-frame draw)
+  var _origRAF=window.requestAnimationFrame.bind(window);
+  window.requestAnimationFrame=function(cb){
+    return _origRAF(function(ts){
+      var r=cb(ts);
+      try{
+        if(typeof targets==='undefined'||typeof ctx==='undefined')return r;
+        for(var i=0;i<targets.length;i++){
+          var t=targets[i];
+          if(!t.alive||!t.shape)continue;
+          ctx.save();
+          if(t.shape==='shield'&&t.shieldOn){
+            ctx.strokeStyle='#00d4ff';ctx.lineWidth=3;
+            ctx.beginPath();ctx.arc(t.x,t.y,t.r+5,0,Math.PI*2);ctx.stroke();
+          } else if(t.shape==='triangle'){
+            ctx.fillStyle='#ff6b9d';
+            ctx.beginPath();
+            ctx.moveTo(t.x,t.y-t.r-4);
+            ctx.lineTo(t.x-t.r-2,t.y+t.r);
+            ctx.lineTo(t.x+t.r+2,t.y+t.r);
+            ctx.closePath();ctx.fill();
+            ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();
+          } else if(t.shape==='linked'&&t.linkId){
+            for(var j=i+1;j<targets.length;j++){
+              var o=targets[j];
+              if(o.alive&&o.linkId===t.linkId){
+                ctx.strokeStyle='#ffd700';ctx.lineWidth=2;
+                ctx.setLineDash([5,4]);
+                ctx.beginPath();ctx.moveTo(t.x,t.y);ctx.lineTo(o.x,o.y);ctx.stroke();
+                ctx.setLineDash([]);
+                break;
+              }
+            }
+          }
+          ctx.restore();
+        }
+      }catch(e){}
+      return r;
+    });
+  };
+  console.log('[v85] Target Variety active: Shield 4%, Triangle 4%, Linked 4% (sector 2+)');
+})();
+</script>
 </body>
 </html>
