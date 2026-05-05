@@ -17306,5 +17306,427 @@ body.sector-theme-5-10483{
 </script>
 <!-- ===== END SECTOR THEMES v1.0.4.83 ===== -->
 
+
+<!-- ===== TARGET VARIETY: DIAMOND + ICE + BOMB v1.0.4.84 ===== -->
+<style>
+/* Optional shape-spawn announcement banner (subtle, first time) */
+.shape-banner-10484{
+  position:fixed;
+  top:10%;
+  left:50%;
+  transform: translateX(-50%) scale(0.7);
+  z-index: 99996;
+  pointer-events:none;
+  padding: 7px 16px;
+  border-radius: 12px;
+  font-weight: 950;
+  font-size: 0.78em;
+  letter-spacing: 1.2px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  border: 1.4px solid rgba(255,255,255,0.40);
+  opacity: 0;
+  animation: sbBan10484 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, sbBanOut10484 0.4s ease-in 1.6s forwards;
+}
+.shape-banner-10484.diamond-10484{ background: linear-gradient(135deg,#4cc9f7,#4a7dff); color:#fff; }
+.shape-banner-10484.ice-10484{ background: linear-gradient(135deg,#a8e6ff,#5fa8ff); color:#0a1a2e; }
+.shape-banner-10484.bomb-10484{ background: linear-gradient(135deg,#ff5e3a,#7a0a14); color:#fff; }
+@keyframes sbBan10484{
+  from { opacity:0; transform: translateX(-50%) scale(0.5); }
+  to   { opacity:1; transform: translateX(-50%) scale(1.0); }
+}
+@keyframes sbBanOut10484{
+  from { opacity:1; transform: translateX(-50%) scale(1.0); }
+  to   { opacity:0; transform: translateX(-50%) scale(1.10); }
+}
+</style>
+<script>
+/* ===== TARGET VARIETY v1.0.4.84 =====
+   3 new target shapes: DIAMOND, ICE, BOMB.
+   Apply via __shape10484 flag (preserves original t.type for sector logic).
+   Boss / blackhole / ghost / moving types are SKIPPED for shape conversion.
+   Spawn chance scaled per sector (no shapes in sector 0 - tutorial-friendly).
+   NO COIN REWARD - gameplay enhancement only.
+*/
+(function(){
+  if(window.__TARGET_VARIETY_V10484) return;
+  window.__TARGET_VARIETY_V10484 = true;
+
+  /* Tunables */
+  var SPAWN_DIAMOND_10484 = 0.07;       /* 7% per eligible target */
+  var SPAWN_ICE_10484 = 0.07;           /* 7% per eligible target */
+  var SPAWN_BOMB_10484 = 0.04;          /* 4% per eligible target (rarer) */
+  var BOMB_RADIUS_10484 = 110;          /* px - chain explosion radius */
+  var DIAMOND_ANGLE_TOLERANCE_10484 = 0.45; /* lower = stricter alignment */
+  var SECTOR_MIN_10484 = 1;             /* shapes appear from sector 2 onward (idx 1+) */
+
+  var bannerShown_10484 = { diamond:false, ice:false, bomb:false };
+
+  function showShapeBanner10484(kind){
+    try{
+      if(bannerShown_10484[kind]) return;
+      bannerShown_10484[kind] = true;
+      var b = document.createElement('div');
+      var label = '';
+      var cls = '';
+      if(kind === 'diamond'){ label = '\u{1F48E} DIAMOND TARGETS!'; cls = 'diamond-10484'; }
+      else if(kind === 'ice'){ label = '\u{1F9CA} ICE TARGETS!'; cls = 'ice-10484'; }
+      else if(kind === 'bomb'){ label = '\u{1F4A3} BOMB TARGETS!'; cls = 'bomb-10484'; }
+      b.className = 'shape-banner-10484 ' + cls;
+      b.textContent = label;
+      document.body.appendChild(b);
+      setTimeout(function(){
+        try{ if(b && b.parentNode) b.parentNode.removeChild(b); }catch(e){}
+      }, 2100);
+    }catch(e){}
+  }
+
+  function isEligibleForShape10484(t){
+    if(!t || !t.alive) return false;
+    if(t.type === 'boss' || t.type === 'blackhole' || t.type === 'ghost' || t.type === 'moving') return false;
+    if(t.__shape10484) return false; /* already assigned */
+    return true;
+  }
+
+  function assignShapesToTargets10484(){
+    try{
+      if(typeof targets === 'undefined' || !Array.isArray(targets)) return;
+      /* Sector check */
+      var sector = 0;
+      try{ if(typeof currentRoom !== 'undefined') sector = parseInt(currentRoom, 10) || 0; }catch(e){}
+      if(sector < SECTOR_MIN_10484) return;
+      /* Skip boss rooms */
+      try{ if(typeof isBossRoom !== 'undefined' && isBossRoom) return; }catch(e){}
+
+      var eligibleCount = 0;
+      var firstDiamond = null, firstIce = null, firstBomb = null;
+      var sawDiamond = false, sawIce = false, sawBomb = false;
+
+      for(var i = 0; i < targets.length; i++){
+        var t = targets[i];
+        if(!isEligibleForShape10484(t)) continue;
+        eligibleCount++;
+        var roll = Math.random();
+        /* Each target rolls independently for ALL shapes (priority: bomb > diamond > ice) */
+        if(roll < SPAWN_BOMB_10484){
+          t.__shape10484 = 'bomb';
+          t.__bomb_radius_10484 = BOMB_RADIUS_10484;
+          if(!sawBomb){ sawBomb = true; }
+        } else if(roll < SPAWN_BOMB_10484 + SPAWN_DIAMOND_10484){
+          t.__shape10484 = 'diamond';
+          if(!sawDiamond){ sawDiamond = true; }
+        } else if(roll < SPAWN_BOMB_10484 + SPAWN_DIAMOND_10484 + SPAWN_ICE_10484){
+          t.__shape10484 = 'ice';
+          /* Boost HP to 2 for ice (mevcut HP system kullanir) */
+          if(typeof t.hp === 'number' && t.hp < 2){ t.hp = 2; }
+          if(typeof t.maxHp === 'number' && t.maxHp < 2){ t.maxHp = 2; }
+          if(!sawIce){ sawIce = true; }
+        }
+      }
+
+      /* Show banners (only first time per session per shape) */
+      if(sawDiamond) setTimeout(function(){ showShapeBanner10484('diamond'); }, 100);
+      if(sawIce) setTimeout(function(){ showShapeBanner10484('ice'); }, 350);
+      if(sawBomb) setTimeout(function(){ showShapeBanner10484('bomb'); }, 600);
+    }catch(e){
+      try{ console.warn('[TARGET VARIETY v10484] assign failed', e); }catch(_){}
+    }
+  }
+
+  /* Diamond collision: hit only if ball hits at near-perpendicular angle.
+     Ball traveling up→down→left→right axis. We compare ball velocity vector
+     to relative position vector. If misaligned, deflect ball + spawn DEFLECT particles. */
+  function handleDiamondCollision10484(ball, target){
+    try{
+      var dx = target.x - ball.x;
+      var dy = target.y - ball.y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < 0.001) return false;
+      /* Normalized position vector */
+      var px = dx / dist;
+      var py = dy / dist;
+      /* Ball velocity normalized */
+      var vMag = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
+      if(vMag < 0.001) return false;
+      var nvx = ball.vx / vMag;
+      var nvy = ball.vy / vMag;
+      /* Dot product = cosine of angle between ball direction and "to target" vector */
+      var dot = nvx*px + nvy*py;
+      /* Strong perpendicular hit (head-on) requires dot near 1.0 (0.85+) */
+      if(dot >= 0.78){
+        return true; /* allow normal collision */
+      }
+      /* Glancing - DEFLECT */
+      try{
+        if(typeof spawnParticles === 'function'){
+          spawnParticles(target.x, target.y, '#4cc9f7', 8, 4, 2.5);
+        }
+      }catch(e){}
+      try{ if(typeof sndBounce === 'function') sndBounce(); }catch(e){}
+      try{ if(typeof triggerShake === 'function') triggerShake(2); }catch(e){}
+      /* Reflect ball away from target slightly */
+      var reflectStrength = 0.6;
+      ball.vx = -nvx * vMag * reflectStrength + (Math.random()-0.5)*1.5;
+      ball.vy = -nvy * vMag * reflectStrength + (Math.random()-0.5)*1.5;
+      return false; /* skip normal damage */
+    }catch(e){ return true; /* fail open - allow normal hit */ }
+  }
+
+  /* Bomb explosion: when bomb dies, find nearby alive targets and damage them */
+  function handleBombExplosion10484(bomb){
+    try{
+      if(!bomb || !bomb.__bomb_radius_10484) return;
+      var radius = bomb.__bomb_radius_10484;
+      try{
+        if(typeof spawnParticles === 'function'){
+          spawnParticles(bomb.x, bomb.y, '#ff5e3a', 30, 7, 5);
+          spawnParticles(bomb.x, bomb.y, '#ffd54f', 20, 5, 4);
+        }
+        if(typeof spawnShockwave === 'function') spawnShockwave(bomb.x, bomb.y, '#ff5e3a');
+        if(typeof triggerShake === 'function') triggerShake(10);
+        if(typeof hapticExplosion === 'function') hapticExplosion();
+      }catch(e){}
+      /* Damage nearby targets (chain reaction trigger) */
+      if(typeof targets === 'undefined' || !Array.isArray(targets)) return;
+      for(var i = 0; i < targets.length; i++){
+        var t = targets[i];
+        if(!t || !t.alive || t === bomb) continue;
+        if(t.type === 'boss') continue; /* boss immune to bomb chain */
+        var dx = t.x - bomb.x;
+        var dy = t.y - bomb.y;
+        var d = Math.sqrt(dx*dx + dy*dy);
+        if(d > radius) continue;
+        /* Apply damage */
+        t.hp = Math.max(0, (t.hp || 1) - 1);
+        t.pulse = 1;
+        if(t.hp <= 0){
+          t.alive = false;
+          if(typeof targetsLeft !== 'undefined') targetsLeft = Math.max(0, targetsLeft - 1);
+          if(typeof combo !== 'undefined') combo++;
+          if(typeof maxCombo !== 'undefined' && combo > maxCombo) maxCombo = combo;
+          /* Recursive bomb chain (if neighbor is also bomb) */
+          if(t.__shape10484 === 'bomb'){
+            setTimeout((function(tt){ return function(){ handleBombExplosion10484(tt); }; })(t), 150);
+          }
+          /* Trigger sub-explosion visuals */
+          try{
+            if(typeof spawnParticles === 'function'){
+              spawnParticles(t.x, t.y, '#ffaa66', 12, 5, 3);
+            }
+          }catch(e){}
+        }
+      }
+    }catch(e){
+      try{ console.warn('[TARGET VARIETY v10484] bomb explosion failed', e); }catch(_){}
+    }
+  }
+
+  /* Render layer - draws shape overlay on top of standard target rendering */
+  function installRenderHook10484(){
+    try{
+      if(window.__shapeRender10484Installed) return;
+      var renderTimer = setInterval(function(){
+        try{
+          var canvas = document.getElementById('gameCanvas');
+          if(!canvas) return;
+          var ctx = canvas.getContext('2d');
+          if(!ctx) return;
+          if(typeof targets === 'undefined' || !Array.isArray(targets)) return;
+          for(var i = 0; i < targets.length; i++){
+            var t = targets[i];
+            if(!t || !t.alive || !t.__shape10484) continue;
+            ctx.save();
+            var pulse = 0.6 + 0.4 * Math.sin(Date.now() / 220);
+            var r = (t.r || 14);
+
+            if(t.__shape10484 === 'diamond'){
+              /* Draw diamond shape (rotated square) */
+              ctx.translate(t.x, t.y);
+              ctx.rotate(Math.PI / 4);
+              var halfSize = r + 4;
+              ctx.fillStyle = 'rgba(76,201,247,' + (0.40 + 0.20 * pulse) + ')';
+              ctx.strokeStyle = '#4cc9f7';
+              ctx.lineWidth = 2.5;
+              ctx.shadowColor = '#4cc9f7';
+              ctx.shadowBlur = 14;
+              ctx.beginPath();
+              ctx.rect(-halfSize, -halfSize, halfSize*2, halfSize*2);
+              ctx.fill();
+              ctx.stroke();
+              /* Inner highlight */
+              ctx.fillStyle = 'rgba(180,230,255,0.45)';
+              ctx.shadowBlur = 0;
+              ctx.beginPath();
+              ctx.rect(-halfSize*0.5, -halfSize*0.7, halfSize*0.5, halfSize*0.4);
+              ctx.fill();
+            }
+            else if(t.__shape10484 === 'ice'){
+              /* Ice ring + frost crystals */
+              var iceColor = (t.hp >= 2) ? 'rgba(168,230,255,' : 'rgba(95,168,255,';
+              ctx.strokeStyle = iceColor + (0.75 + 0.20 * pulse) + ')';
+              ctx.lineWidth = 3;
+              ctx.shadowColor = '#a8e6ff';
+              ctx.shadowBlur = 16;
+              ctx.beginPath();
+              ctx.arc(t.x, t.y, r + 4, 0, Math.PI * 2);
+              ctx.stroke();
+              /* Crack overlay if hp low */
+              if(typeof t.hp === 'number' && t.hp <= 1){
+                ctx.strokeStyle = 'rgba(60,90,140,0.85)';
+                ctx.lineWidth = 1.5;
+                ctx.shadowBlur = 0;
+                /* Simple zigzag crack */
+                ctx.beginPath();
+                ctx.moveTo(t.x - r*0.6, t.y - r*0.3);
+                ctx.lineTo(t.x - r*0.1, t.y);
+                ctx.lineTo(t.x - r*0.4, t.y + r*0.4);
+                ctx.lineTo(t.x + r*0.2, t.y + r*0.6);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(t.x + r*0.5, t.y - r*0.5);
+                ctx.lineTo(t.x + r*0.1, t.y - r*0.1);
+                ctx.lineTo(t.x + r*0.3, t.y + r*0.2);
+                ctx.stroke();
+              }
+            }
+            else if(t.__shape10484 === 'bomb'){
+              /* Bomb body - dark red with white highlight */
+              var bombPulse = 0.5 + 0.5 * Math.abs(Math.sin(Date.now() / 110));
+              ctx.fillStyle = 'rgba(120,15,15,0.85)';
+              ctx.strokeStyle = '#ff5e3a';
+              ctx.lineWidth = 2 + bombPulse;
+              ctx.shadowColor = '#ff5e3a';
+              ctx.shadowBlur = 12 + 6 * bombPulse;
+              ctx.beginPath();
+              ctx.arc(t.x, t.y, r + 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+              /* Fuse */
+              ctx.strokeStyle = '#888';
+              ctx.lineWidth = 1.8;
+              ctx.shadowBlur = 0;
+              ctx.beginPath();
+              ctx.moveTo(t.x + r*0.5, t.y - r*0.5);
+              ctx.quadraticCurveTo(t.x + r*0.9, t.y - r*1.2, t.x + r*1.1, t.y - r*1.4);
+              ctx.stroke();
+              /* Spark tip */
+              ctx.fillStyle = 'rgba(255,213,79,' + (0.6 + 0.4 * bombPulse) + ')';
+              ctx.shadowColor = '#ffd54f';
+              ctx.shadowBlur = 10;
+              ctx.beginPath();
+              ctx.arc(t.x + r*1.1, t.y - r*1.4, 2.5 + 1.5 * bombPulse, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+          }
+        }catch(e){}
+      }, 33);
+      window.__shapeRender10484Installed = true;
+      window.__shapeRenderTimer10484 = renderTimer;
+    }catch(e){}
+  }
+
+  /* Wrap generateLevel to inject shapes after spawn */
+  function wrapGenerateLevel10484(){
+    try{
+      if(typeof window.generateLevel !== 'function') return false;
+      if(window.__generateLevel10484Wrapped) return true;
+      var _origGen10484 = window.generateLevel;
+      window.generateLevel = function(room, li, gl){
+        var r;
+        try{ r = _origGen10484.apply(this, arguments); }catch(e){}
+        try{
+          /* Apply shape assignment after a short delay so targets array is populated */
+          setTimeout(assignShapesToTargets10484, 80);
+        }catch(e){
+          try{ console.warn('[TARGET VARIETY v10484] wrap failed', e); }catch(_){}
+        }
+        return r;
+      };
+      window.__generateLevel10484Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  /* Hook into game loop to detect bomb deaths and diamond pre-collision */
+  function installCollisionHooks10484(){
+    try{
+      if(window.__collHooks10484Installed) return;
+
+      /* For diamond: we need to check BEFORE the standard hp-- happens.
+         Hook via per-frame check: scan balls vs diamond targets and pre-handle */
+      var diamondTimer = setInterval(function(){
+        try{
+          if(typeof balls === 'undefined' || !Array.isArray(balls)) return;
+          if(typeof targets === 'undefined' || !Array.isArray(targets)) return;
+          for(var i = 0; i < balls.length; i++){
+            var b = balls[i];
+            if(!b || !b.active) continue;
+            for(var j = 0; j < targets.length; j++){
+              var t = targets[j];
+              if(!t || !t.alive || t.__shape10484 !== 'diamond') continue;
+              var dx = t.x - b.x;
+              var dy = t.y - b.y;
+              var dist = Math.sqrt(dx*dx + dy*dy);
+              /* Pre-collision check (slightly larger than physical) */
+              if(dist < (b.r || 8) + (t.r || 14) + 4 && dist > (b.r || 8) + (t.r || 14) - 2){
+                if(t.__diamondHandled10484) continue;
+                t.__diamondHandled10484 = true;
+                setTimeout(function(tt){ return function(){ tt.__diamondHandled10484 = false; }; }(t), 200);
+                var allow = handleDiamondCollision10484(b, t);
+                if(!allow){
+                  /* Push ball away to prevent normal collision */
+                  /* (handled inside handleDiamondCollision via vx/vy reflection) */
+                }
+              }
+            }
+          }
+        }catch(e){}
+      }, 16); /* ~60 FPS */
+      window.__diamondCollTimer10484 = diamondTimer;
+
+      /* For bomb: detect death (alive false transition) and trigger explosion */
+      var bombDeathTimer = setInterval(function(){
+        try{
+          if(typeof targets === 'undefined' || !Array.isArray(targets)) return;
+          for(var i = 0; i < targets.length; i++){
+            var t = targets[i];
+            if(!t || t.__shape10484 !== 'bomb') continue;
+            if(t.__bombExploded10484) continue;
+            if(!t.alive){
+              t.__bombExploded10484 = true;
+              handleBombExplosion10484(t);
+            }
+          }
+        }catch(e){}
+      }, 50);
+      window.__bombDeathTimer10484 = bombDeathTimer;
+
+      /* For ice: visual handled by render hook (HP-based crack overlay) */
+
+      window.__collHooks10484Installed = true;
+    }catch(e){}
+  }
+
+  function applyAll10484(){
+    wrapGenerateLevel10484();
+    installRenderHook10484();
+    installCollisionHooks10484();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10484);
+  } else {
+    applyAll10484();
+  }
+  setTimeout(applyAll10484, 600);
+  setTimeout(applyAll10484, 1500);
+  setTimeout(applyAll10484, 3000);
+
+  try{ console.log('[TARGET VARIETY v1.0.4.84] active - Diamond/Ice/Bomb shapes (sector 2+, no coin reward)'); }catch(e){}
+})();
+</script>
+<!-- ===== END TARGET VARIETY v1.0.4.84 ===== -->
+
 </body>
 </html>
