@@ -18047,5 +18047,165 @@ body.sector-theme-5-10483{
   console.log('[v86] Target Variety active: Spinning 4%, Fire 4%, Electric 4% (sector 2+)');
 })();
 </script>
+<style id="v87-style">
+.v85-toast.bouncy{border:1px solid #52c41a;box-shadow:0 0 16px rgba(82,196,26,0.6);}
+.v85-toast.tornado{border:1px solid #7dd3fc;box-shadow:0 0 16px rgba(125,211,252,0.6);}
+.v85-toast.magnetobs{border:1px solid #a855f7;box-shadow:0 0 16px rgba(168,85,247,0.6);}
+.v87-magnet-flash{position:fixed;inset:0;pointer-events:none;z-index:9998;background:radial-gradient(circle,rgba(168,85,247,0.25),transparent 60%);animation:v87Mag 0.4s ease-out forwards;}
+@keyframes v87Mag{0%{opacity:0;}30%{opacity:1;}100%{opacity:0;}}
+.v87-bouncy-burst{position:fixed;width:50px;height:50px;border:3px solid #52c41a;border-radius:50%;pointer-events:none;z-index:9997;animation:v87Bounce 0.5s ease-out forwards;}
+@keyframes v87Bounce{0%{transform:scale(0.8);opacity:1;}100%{transform:scale(2);opacity:0;}}
+</style>
+<script id="v87-script">
+/* v87 Target Variety: Bouncy + Tornado + MagnetObs (Sector 2+) — 12 shape series COMPLETE — coin reward YOK */
+(function(){
+  var BOUNCY_RATE=0.04, TORNADO_RATE=0.04, MAGNET_RATE=0.04;
+  var v87Rays=[];
+  function toast(k,m){var d=document.createElement('div');d.className='v85-toast '+k;d.textContent=m;document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},1400);}
+  function magFlash(){var d=document.createElement('div');d.className='v87-magnet-flash';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},400);}
+  function bouncyBurst(x,y){var d=document.createElement('div');d.className='v87-bouncy-burst';d.style.left=(x-25)+'px';d.style.top=(y-25)+'px';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},500);}
+  // SPAWN — generateLevel wrap (5th layer after v82+v84+v85+v86)
+  var _origGen=window.generateLevel;
+  if(typeof _origGen==='function'){
+    window.generateLevel=function(){
+      var r=_origGen.apply(this,arguments);
+      try{
+        var sec=(typeof currentSector!=='undefined')?currentSector:0;
+        if(sec>=2&&typeof targets!=='undefined'){
+          for(var i=0;i<targets.length;i++){
+            var t=targets[i];
+            if(t.type==='boss'||t.shape)continue;
+            var roll=Math.random();
+            if(roll<BOUNCY_RATE){
+              t.shape='bouncy';t.bouncyHit=false;
+            } else if(roll<BOUNCY_RATE+TORNADO_RATE){
+              t.shape='tornado';t.tornadoAngle=0;
+            } else if(roll<BOUNCY_RATE+TORNADO_RATE+MAGNET_RATE){
+              t.shape='magnetobs';
+            }
+          }
+        }
+      }catch(e){console.warn('[v87] spawn',e);}
+      return r;
+    };
+  }
+  // PRE-HIT WRAP — Bouncy 2-phase + MagnetObs pull
+  var _v85PH=window.v85PreHit;
+  window.v85PreHit=function(t,b){
+    if(t&&t.shape==='bouncy'){
+      if(!t.bouncyHit){
+        t.bouncyHit=true;
+        b.vx*=1.5;b.vy*=1.5;
+        bouncyBurst(t.x,t.y);
+        toast('bouncy','🎾 Boing!');
+        return false;
+      }
+      return true;
+    }
+    if(t&&t.shape==='magnetobs'){
+      if(typeof targets!=='undefined'){
+        var pool=[];
+        for(var i=0;i<targets.length;i++){
+          var o=targets[i];
+          if(o!==t&&o.alive){var dx=o.x-t.x,dy=o.y-t.y;pool.push({tgt:o,d2:dx*dx+dy*dy});}
+        }
+        pool.sort(function(a,b){return a.d2-b.d2;});
+        var hits=pool.slice(0,3),endT=Date.now()+400;
+        for(var k=0;k<hits.length;k++){
+          var h=hits[k].tgt;
+          var dx2=t.x-h.x,dy2=t.y-h.y;
+          var dist=Math.sqrt(dx2*dx2+dy2*dy2);
+          if(dist>0){
+            var pull=Math.min(30,dist*0.4);
+            h.x+=(dx2/dist)*pull;
+            h.y+=(dy2/dist)*pull;
+          }
+          v87Rays.push({x1:t.x,y1:t.y,x2:h.x,y2:h.y,end:endT});
+        }
+        magFlash();
+        toast('magnetobs','🧲 Magnet pull!');
+      }
+      return true;
+    }
+    return _v85PH?_v85PH(t,b):true;
+  };
+  // RAF WRAP — Tornado gravity + render overlay
+  var _origRAF=window.requestAnimationFrame.bind(window);
+  window.requestAnimationFrame=function(cb){
+    return _origRAF(function(ts){
+      var r=cb(ts);
+      try{
+        if(typeof targets==='undefined'||typeof ctx==='undefined')return r;
+        var now=Date.now();
+        // Tornado gravity on balls
+        if(typeof balls!=='undefined'){
+          for(var i=0;i<targets.length;i++){
+            var t=targets[i];
+            if(!t.alive||t.shape!=='tornado')continue;
+            for(var j=0;j<balls.length;j++){
+              var bl=balls[j];
+              if(!bl||bl.dead===true)continue;
+              var dx=t.x-bl.x,dy=t.y-bl.y;
+              var d2=dx*dx+dy*dy;
+              if(d2<10000&&d2>1){
+                var d=Math.sqrt(d2);
+                var force=0.0015*(100-d);
+                bl.vx+=(dx/d)*force;
+                bl.vy+=(dy/d)*force;
+              }
+            }
+          }
+        }
+        // Shape renders
+        for(var i=0;i<targets.length;i++){
+          var t=targets[i];
+          if(!t.alive||!t.shape)continue;
+          ctx.save();
+          if(t.shape==='bouncy'){
+            ctx.strokeStyle=t.bouncyHit?'#ff5252':'#52c41a';
+            ctx.lineWidth=2;
+            ctx.setLineDash([3,3]);
+            ctx.beginPath();ctx.arc(t.x,t.y,t.r+5,0,Math.PI*2);ctx.stroke();
+            ctx.setLineDash([]);
+          } else if(t.shape==='tornado'){
+            t.tornadoAngle=(t.tornadoAngle||0)+0.08;
+            ctx.translate(t.x,t.y);
+            ctx.rotate(t.tornadoAngle);
+            ctx.strokeStyle='#7dd3fc';ctx.lineWidth=2;
+            for(var kk=0;kk<3;kk++){
+              var ang=(kk*Math.PI*2/3);
+              ctx.beginPath();
+              ctx.arc(0,0,t.r+8,ang,ang+Math.PI/3);
+              ctx.stroke();
+            }
+          } else if(t.shape==='magnetobs'){
+            ctx.strokeStyle='#a855f7';ctx.lineWidth=2;
+            ctx.beginPath();ctx.arc(t.x,t.y,t.r+4,Math.PI*0.2,Math.PI*0.8);ctx.stroke();
+            ctx.fillStyle='#a855f7';
+            ctx.beginPath();ctx.arc(t.x-(t.r+4)*0.95,t.y+2,2,0,Math.PI*2);ctx.fill();
+            ctx.beginPath();ctx.arc(t.x+(t.r+4)*0.95,t.y+2,2,0,Math.PI*2);ctx.fill();
+          }
+          ctx.restore();
+        }
+        // Magnet rays
+        for(var m=v87Rays.length-1;m>=0;m--){
+          var ry=v87Rays[m];
+          if(now>=ry.end){v87Rays.splice(m,1);continue;}
+          var alpha=(ry.end-now)/400;
+          ctx.save();
+          ctx.strokeStyle='rgba(168,85,247,'+alpha+')';
+          ctx.lineWidth=2;
+          ctx.setLineDash([4,3]);
+          ctx.beginPath();ctx.moveTo(ry.x1,ry.y1);ctx.lineTo(ry.x2,ry.y2);ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+      }catch(e){}
+      return r;
+    });
+  };
+  console.log('[v87] Target Variety active: Bouncy 4%, Tornado 4%, MagnetObs 4% (sector 2+) — 12 shape series COMPLETE');
+})();
+</script>
 </body>
 </html>
