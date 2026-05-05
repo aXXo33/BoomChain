@@ -14548,5 +14548,760 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END STREAK SAVER v1.0.4.74 ===== -->
 
+
+<!-- ===== DAILY LOGIN CALENDAR v1.0.4.75 ===== -->
+<style>
+.lc-overlay-10475{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:14px 12px 24px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+}
+.lc-overlay-10475.active-10475{ display:flex; }
+
+.lc-header-10475{
+  width:96%;
+  max-width:380px;
+  text-align:center;
+  margin-bottom:12px;
+  padding:14px 12px;
+  border-radius:18px;
+  background:linear-gradient(135deg, rgba(255,213,79,0.15), rgba(255,107,53,0.12), rgba(255,94,168,0.10));
+  border: 1.4px solid rgba(255,213,79,0.45);
+  box-shadow: 0 0 22px rgba(255,107,53,0.25);
+}
+.lc-icon-10475{
+  font-size:2.6em;
+  display:block;
+  margin-bottom:2px;
+  filter: drop-shadow(0 2px 8px rgba(255,213,79,0.55));
+}
+.lc-title-10475{
+  font-size:1.18em;
+  font-weight:950;
+  color:#fff;
+  letter-spacing:0.7px;
+  margin-bottom:3px;
+}
+.lc-progress-10475{
+  font-size:0.74em;
+  font-weight:800;
+  color:#ffd54f;
+  letter-spacing:1.0px;
+}
+
+.lc-grid-10475{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:6px;
+  width:96%;
+  max-width:380px;
+  margin-bottom:14px;
+}
+
+.lc-cell-10475{
+  aspect-ratio: 1;
+  border-radius:11px;
+  background:rgba(40,40,55,0.55);
+  border: 1.2px solid rgba(255,255,255,0.08);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:3px;
+  position:relative;
+  font-size:0.62em;
+}
+.lc-cell-10475.claimed-10475{
+  background:linear-gradient(135deg, rgba(118,255,138,0.18), rgba(76,201,247,0.12));
+  border-color: rgba(118,255,138,0.55);
+  opacity: 0.78;
+}
+.lc-cell-10475.claimed-10475::after{
+  content:"\2713";
+  position:absolute;
+  top:2px;
+  right:4px;
+  font-size:0.95em;
+  color:#76ff8a;
+  font-weight:950;
+}
+.lc-cell-10475.claimable-10475{
+  background:linear-gradient(135deg, #ffd54f, #ff9c41);
+  border-color: rgba(255,255,255,0.50);
+  color:#0a0a1a;
+  font-weight:950;
+  cursor:pointer;
+  animation: lcCellPulse10475 1.4s ease-in-out infinite;
+  box-shadow: 0 0 14px rgba(255,213,79,0.55);
+}
+.lc-cell-10475.locked-10475{
+  background:rgba(40,40,55,0.40);
+  border-color: rgba(255,255,255,0.04);
+  opacity:0.55;
+  color:#9aa5b8;
+}
+.lc-cell-10475.missed-10475{
+  background:rgba(60,30,40,0.45);
+  border-color: rgba(255,80,80,0.30);
+  opacity: 0.50;
+  color:#aa5060;
+}
+.lc-cell-10475.missed-10475::after{
+  content:"\2715";
+  position:absolute;
+  top:2px;
+  right:4px;
+  font-size:0.85em;
+  color:#ff6080;
+  font-weight:900;
+}
+.lc-cell-10475.milestone-10475{
+  background:linear-gradient(135deg, rgba(255,213,79,0.30), rgba(255,107,53,0.25));
+  border-color: rgba(255,213,79,0.65);
+  color:#ffd54f;
+  font-weight:950;
+}
+.lc-cell-10475.milestone-10475.claimed-10475{
+  background:linear-gradient(135deg, rgba(255,213,79,0.20), rgba(118,255,138,0.20));
+  border-color: rgba(255,213,79,0.55);
+  opacity: 0.78;
+}
+.lc-cell-10475.legendary-10475{
+  background:linear-gradient(135deg, #ff5ea8 0%, #b15bff 50%, #4cc9f7 100%);
+  border-color: rgba(255,255,255,0.55);
+  color:#fff;
+  font-weight:950;
+  box-shadow: 0 0 18px rgba(177,91,255,0.55);
+  animation: lcLegendaryShine10475 2.5s ease-in-out infinite;
+}
+.lc-cell-10475.legendary-10475.claimed-10475{
+  opacity: 0.85;
+}
+
+.lc-day-num-10475{
+  font-size:0.92em;
+  font-weight:950;
+  letter-spacing:0.3px;
+  margin-bottom:1px;
+}
+.lc-day-icon-10475{
+  font-size:1.05em;
+  margin-bottom:1px;
+}
+.lc-day-coins-10475{
+  font-size:0.66em;
+  font-weight:800;
+  opacity:0.82;
+  letter-spacing:0.2px;
+}
+
+.lc-claim-banner-10475{
+  width:96%;
+  max-width:380px;
+  margin-bottom:12px;
+  padding:14px 16px;
+  border-radius:16px;
+  background:linear-gradient(135deg, #ffd54f 0%, #ff9c41 50%, #ff5ea8 100%);
+  color:#0a0a1a;
+  text-align:center;
+  font-weight:950;
+  letter-spacing:0.5px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow: 0 8px 24px rgba(255,154,65,0.45);
+  border: 1.5px solid rgba(255,255,255,0.40);
+  animation: lcBannerPulse10475 2.0s ease-in-out infinite;
+}
+.lc-claim-banner-10475::before{
+  content:"";
+  position:absolute;
+  top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(circle, rgba(255,255,255,0.30) 0%, transparent 60%);
+  animation: lcBannerShine10475 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+.lc-claim-tag-10475{
+  display:inline-block;
+  background:rgba(0,0,0,0.30);
+  color:#fff;
+  font-size:0.58em;
+  font-weight:950;
+  padding:2px 9px;
+  border-radius:8px;
+  letter-spacing:1.4px;
+  margin-bottom:5px;
+}
+.lc-claim-title-10475{
+  font-size:1.15em;
+  margin-bottom:2px;
+}
+.lc-claim-reward-10475{
+  font-size:0.86em;
+  font-weight:800;
+}
+
+.lc-info-10475{
+  width:96%;
+  max-width:380px;
+  text-align:center;
+  font-size:0.70em;
+  color:#9aa5b8;
+  font-weight:700;
+  margin-bottom:12px;
+  padding:0 14px;
+  line-height:1.4;
+}
+
+.lc-back-btn-10475{
+  width:auto;
+  margin-top:8px;
+  padding:10px 24px;
+  background: rgba(40,40,55,0.60);
+  color: #fff;
+  font-size:0.86em;
+  font-weight:900;
+  letter-spacing:1.2px;
+  border-radius:12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  cursor:pointer;
+}
+
+.lc-menu-btn-10475{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  margin-top:5px;
+  background:linear-gradient(135deg, rgba(255,213,79,0.20), rgba(255,107,53,0.20));
+  border: 1.3px solid rgba(255,213,79,0.50);
+  color:#fff;
+  font-weight:900;
+  letter-spacing:0.5px;
+  box-shadow: 0 0 14px rgba(255,213,79,0.20);
+}
+
+@keyframes lcCellPulse10475{
+  0%,100%{ transform: scale(1); box-shadow: 0 0 14px rgba(255,213,79,0.55); }
+  50%{ transform: scale(1.06); box-shadow: 0 0 22px rgba(255,213,79,0.85); }
+}
+@keyframes lcBannerPulse10475{
+  0%,100%{ transform: scale(1); }
+  50%{ transform: scale(1.02); }
+}
+@keyframes lcBannerShine10475{
+  0%,100%{ opacity:0.45; transform: rotate(0deg); }
+  50%{ opacity:0.75; transform: rotate(180deg); }
+}
+@keyframes lcLegendaryShine10475{
+  0%,100%{ box-shadow: 0 0 18px rgba(177,91,255,0.55); }
+  50%{ box-shadow: 0 0 28px rgba(177,91,255,0.85), 0 0 40px rgba(76,201,247,0.45); }
+}
+
+/* Claim popup */
+.lc-claim-popup-10475{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%) scale(0.7);
+  z-index: 99999;
+  pointer-events:none;
+  width:88%;
+  max-width:340px;
+  padding:24px 18px 22px;
+  border-radius:24px;
+  background:linear-gradient(135deg, #ffd54f 0%, #ff9c41 50%, #ff5ea8 100%);
+  color:#0a0a1a;
+  text-align:center;
+  font-weight:950;
+  letter-spacing:0.5px;
+  box-shadow:0 14px 44px rgba(255,154,65,0.55), 0 0 64px rgba(255,213,79,0.45), inset 0 1px 0 rgba(255,255,255,0.55);
+  border: 2px solid rgba(255,255,255,0.30);
+  opacity:0;
+  animation: lcPopIn10475 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, lcPopOut10475 0.55s ease-in 4.0s forwards;
+  overflow:hidden;
+}
+.lc-claim-popup-10475.legendary-popup-10475{
+  background:linear-gradient(135deg, #ff5ea8 0%, #b15bff 50%, #4cc9f7 100%);
+  color:#fff;
+}
+@keyframes lcPopIn10475{
+  from{ opacity:0; transform:translate(-50%, -50%) scale(0.55); }
+  to{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+}
+@keyframes lcPopOut10475{
+  from{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+  to{ opacity:0; transform:translate(-50%, -50%) scale(1.15); }
+}
+</style>
+<script>
+/* ===== DAILY LOGIN CALENDAR v1.0.4.75 ===== */
+(function(){
+  if(window.__DAILY_LOGIN_CALENDAR_V10475) return;
+  window.__DAILY_LOGIN_CALENDAR_V10475 = true;
+
+  /* 30-day reward escalator */
+  var REWARDS_10475 = [
+    { day:1,  coins:50,    icon:'\u{1FA99}' },
+    { day:2,  coins:75,    icon:'\u{1FA99}' },
+    { day:3,  coins:100,   icon:'\u{1FA99}' },
+    { day:4,  coins:125,   icon:'\u{1FA99}' },
+    { day:5,  coins:150,   icon:'\u{1FA99}' },
+    { day:6,  coins:200,   icon:'\u{1FA99}' },
+    { day:7,  coins:400,   icon:'\u{1F949}', milestone:true,  tag:'WEEK 1' },
+    { day:8,  coins:200,   icon:'\u{1FA99}' },
+    { day:9,  coins:250,   icon:'\u{1FA99}' },
+    { day:10, coins:300,   icon:'\u{1FA99}' },
+    { day:11, coins:350,   icon:'\u{1FA99}' },
+    { day:12, coins:400,   icon:'\u{1FA99}' },
+    { day:13, coins:500,   icon:'\u{1FA99}' },
+    { day:14, coins:800,   icon:'\u{1F948}', milestone:true,  tag:'WEEK 2' },
+    { day:15, coins:400,   icon:'\u{1FA99}' },
+    { day:16, coins:500,   icon:'\u{1FA99}' },
+    { day:17, coins:600,   icon:'\u{1FA99}' },
+    { day:18, coins:700,   icon:'\u{1FA99}' },
+    { day:19, coins:800,   icon:'\u{1FA99}' },
+    { day:20, coins:1000,  icon:'\u{1FA99}' },
+    { day:21, coins:1500,  icon:'\u{1F947}', milestone:true,  tag:'WEEK 3' },
+    { day:22, coins:700,   icon:'\u{1FA99}' },
+    { day:23, coins:800,   icon:'\u{1FA99}' },
+    { day:24, coins:900,   icon:'\u{1FA99}' },
+    { day:25, coins:1000,  icon:'\u{1FA99}' },
+    { day:26, coins:1200,  icon:'\u{1FA99}' },
+    { day:27, coins:1400,  icon:'\u{1FA99}' },
+    { day:28, coins:1700,  icon:'\u{1FA99}' },
+    { day:29, coins:2000,  icon:'\u{1FA99}' },
+    { day:30, coins:5000,  icon:'\u{1F451}', legendary:true, tag:'LEGENDARY', bonusCore:true }
+  ];
+
+  function todayKey10475(){ return new Date().toDateString(); }
+  function yesterdayKey10475(){ return new Date(Date.now() - 86400000).toDateString(); }
+  function dateFromKey10475(s){ try{ return new Date(s); }catch(e){ return null; } }
+  function daysBetween10475(d1Str, d2Str){
+    try{
+      var d1 = new Date(d1Str), d2 = new Date(d2Str);
+      var ms = d2.setHours(0,0,0,0) - d1.setHours(0,0,0,0);
+      return Math.round(ms / 86400000);
+    }catch(e){ return 0; }
+  }
+
+  function ensureSchema10475(){
+    try{
+      if(typeof save === 'undefined' || !save) return null;
+      if(!save.dailyLoginCalendar || typeof save.dailyLoginCalendar !== 'object'){
+        save.dailyLoginCalendar = {
+          startDate: todayKey10475(),
+          claimedDays: [],
+          lastClaimDate: null
+        };
+        try{ saveSave(); }catch(e){}
+      }
+      var lc = save.dailyLoginCalendar;
+      if(!Array.isArray(lc.claimedDays)) lc.claimedDays = [];
+      if(typeof lc.startDate !== 'string') lc.startDate = todayKey10475();
+      if(typeof lc.lastClaimDate !== 'string' && lc.lastClaimDate !== null) lc.lastClaimDate = null;
+      return lc;
+    }catch(e){ return null; }
+  }
+
+  /* Returns { canClaim, claimableDay, isToday, dayInCycle, missedDays } */
+  function evaluateLoginState10475(){
+    try{
+      var lc = ensureSchema10475();
+      if(!lc) return { canClaim:false, claimableDay:0, dayInCycle:0 };
+      var today = todayKey10475();
+      var yesterday = yesterdayKey10475();
+
+      /* If never claimed before */
+      if(!lc.lastClaimDate){
+        return {
+          canClaim:true,
+          claimableDay:1,
+          dayInCycle:1,
+          missedDays:[]
+        };
+      }
+
+      /* Already claimed today */
+      if(lc.lastClaimDate === today){
+        return {
+          canClaim:false,
+          claimableDay:0,
+          dayInCycle: lc.claimedDays.length,
+          alreadyClaimedToday:true
+        };
+      }
+
+      var lastClaimedDay = lc.claimedDays.length > 0 ? Math.max.apply(null, lc.claimedDays) : 0;
+
+      /* Claimed yesterday: claim next day */
+      if(lc.lastClaimDate === yesterday){
+        var nextDay = lastClaimedDay + 1;
+        if(nextDay > 30){
+          /* Cycle restart */
+          return {
+            canClaim:true,
+            claimableDay:1,
+            dayInCycle:1,
+            cycleRestart:true
+          };
+        }
+        return {
+          canClaim:true,
+          claimableDay:nextDay,
+          dayInCycle:nextDay,
+          missedDays:[]
+        };
+      }
+
+      /* More than 1 day gap: skipped days, but allow claiming today (continues path) */
+      var daysSinceLast = daysBetween10475(lc.lastClaimDate, today);
+      if(daysSinceLast > 1){
+        var skippedNum = daysSinceLast - 1;
+        var resumeDay = lastClaimedDay + 1 + skippedNum;
+        var missedDays = [];
+        for(var m = lastClaimedDay + 1; m < resumeDay; m++){
+          missedDays.push(m);
+        }
+        if(resumeDay > 30){
+          return {
+            canClaim:true,
+            claimableDay:1,
+            dayInCycle:1,
+            cycleRestart:true,
+            missedDays: missedDays
+          };
+        }
+        return {
+          canClaim:true,
+          claimableDay:resumeDay,
+          dayInCycle:resumeDay,
+          missedDays: missedDays
+        };
+      }
+
+      return { canClaim:false, claimableDay:0, dayInCycle: lastClaimedDay };
+    }catch(e){
+      try{ console.warn('[LOGIN CAL v10475] eval failed', e); }catch(_){}
+      return { canClaim:false, claimableDay:0, dayInCycle:0 };
+    }
+  }
+
+  function getCellState10475(dayNum, state){
+    /* Returns: 'claimed', 'claimable', 'locked', 'missed' */
+    try{
+      var lc = ensureSchema10475();
+      if(!lc) return 'locked';
+      if(lc.claimedDays.indexOf(dayNum) !== -1) return 'claimed';
+      if(state.canClaim && state.claimableDay === dayNum) return 'claimable';
+      if(Array.isArray(state.missedDays) && state.missedDays.indexOf(dayNum) !== -1) return 'missed';
+      return 'locked';
+    }catch(e){ return 'locked'; }
+  }
+
+  function showClaimPopup10475(reward){
+    try{
+      var pop = document.createElement('div');
+      var classes = ['lc-claim-popup-10475'];
+      if(reward.legendary) classes.push('legendary-popup-10475');
+      pop.className = classes.join(' ');
+      var inner = '';
+      inner += '<span style="font-size:3.4em;display:block;margin-bottom:4px">' + reward.icon + '</span>';
+      if(reward.tag){
+        inner += '<div style="display:inline-block;background:rgba(0,0,0,0.32);color:#fff;font-size:0.62em;font-weight:950;padding:3px 9px;border-radius:8px;letter-spacing:1.6px;margin-bottom:8px">' + reward.tag + '</div>';
+      }
+      inner += '<div style="font-size:1.3em;font-weight:950;letter-spacing:0.6px;margin-bottom:5px">DAY ' + reward.day + ' CLAIMED</div>';
+      var rewardLine = '\u{1F4B0} +' + reward.coins + ' COINS';
+      if(reward.bonusCore) rewardLine += ' + \u{1F50B} ENERGY CORE';
+      inner += '<div style="background:rgba(0,0,0,0.30);color:#fff;font-size:0.95em;font-weight:950;padding:8px 14px;border-radius:11px;letter-spacing:0.6px;display:inline-block">' + rewardLine + '</div>';
+      pop.innerHTML = inner;
+      document.body.appendChild(pop);
+      setTimeout(function(){
+        try{ if(pop && pop.parentNode) pop.parentNode.removeChild(pop); }catch(e){}
+      }, 4900);
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+      try{
+        if(typeof spawnConfetti === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+          spawnConfetti(W/2, H/3, reward.legendary ? 80 : reward.milestone ? 50 : 30);
+        }
+      }catch(e){}
+    }catch(e){
+      try{ console.warn('[LOGIN CAL v10475] popup failed', e); }catch(_){}
+    }
+  }
+
+  function grantBonusCore10475(){
+    try{
+      if(typeof save === 'undefined' || !save) return;
+      if(!Array.isArray(save.energyCores)) save.energyCores = [0,0,0,0,0,0];
+      /* Add 1 core to first non-full sector */
+      for(var i = 0; i < save.energyCores.length; i++){
+        if(save.energyCores[i] < 6){
+          save.energyCores[i] = (save.energyCores[i] || 0) + 1;
+          try{ saveSave(); }catch(e){}
+          return true;
+        }
+      }
+      return false;
+    }catch(e){ return false; }
+  }
+
+  window.claimDailyLoginReward10475 = function(){
+    try{
+      var state = evaluateLoginState10475();
+      if(!state.canClaim) return false;
+      var lc = ensureSchema10475();
+      if(!lc) return false;
+
+      /* Cycle restart logic */
+      if(state.cycleRestart){
+        lc.startDate = todayKey10475();
+        lc.claimedDays = [];
+      }
+
+      var dayNum = state.claimableDay;
+      var reward = REWARDS_10475[dayNum - 1];
+      if(!reward) return false;
+
+      /* Grant coins */
+      try{
+        if(typeof coins === 'number'){
+          coins = (coins || 0) + reward.coins;
+          try{ if(typeof updateHUD === 'function') updateHUD(); }catch(e){}
+        }
+      }catch(e){}
+
+      /* Bonus energy core for Day 30 */
+      if(reward.bonusCore){
+        grantBonusCore10475();
+      }
+
+      /* Mark claimed */
+      lc.claimedDays.push(dayNum);
+      lc.lastClaimDate = todayKey10475();
+      try{ saveSave(); }catch(e){}
+
+      /* Visual feedback */
+      try{
+        if(typeof showCoinFly === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+          showCoinFly(W/2, H/3, reward.coins);
+        }
+      }catch(e){}
+
+      showClaimPopup10475(reward);
+
+      /* Re-render after short delay */
+      setTimeout(renderLoginCalendar10475, 500);
+
+      return true;
+    }catch(e){
+      try{ console.warn('[LOGIN CAL v10475] claim failed', e); }catch(_){}
+      return false;
+    }
+  };
+
+  function renderLoginCalendar10475(){
+    try{
+      var screen = document.getElementById('loginCalendarS10475');
+      if(!screen) return;
+      var lc = ensureSchema10475();
+      if(!lc) return;
+      var state = evaluateLoginState10475();
+
+      var html = '';
+
+      /* HEADER */
+      html += '<div class="lc-header-10475">';
+      html += '<span class="lc-icon-10475">\u{1F4C5}</span>';
+      html += '<div class="lc-title-10475">DAILY LOGIN</div>';
+      var pgDay = state.canClaim ? state.claimableDay : (state.dayInCycle || 0);
+      html += '<div class="lc-progress-10475">DAY ' + Math.min(30, Math.max(0, pgDay)) + ' OF 30</div>';
+      html += '</div>';
+
+      /* CLAIM BANNER (if claimable) */
+      if(state.canClaim){
+        var claimable = REWARDS_10475[state.claimableDay - 1];
+        if(claimable){
+          html += '<div class="lc-claim-banner-10475" onclick="claimDailyLoginReward10475()">';
+          if(claimable.tag){
+            html += '<div class="lc-claim-tag-10475">' + claimable.tag + '</div>';
+          }
+          html += '<div class="lc-claim-title-10475">\u{1F381} CLAIM DAY ' + claimable.day + '</div>';
+          var rewardTxt = '+' + claimable.coins + ' COINS';
+          if(claimable.bonusCore) rewardTxt += ' + \u{1F50B} ENERGY CORE';
+          html += '<div class="lc-claim-reward-10475">' + rewardTxt + '</div>';
+          html += '</div>';
+        }
+      }
+
+      /* GRID 5x6 (30 cells) */
+      html += '<div class="lc-grid-10475">';
+      for(var i = 1; i <= 30; i++){
+        var rw = REWARDS_10475[i - 1];
+        var st = getCellState10475(i, state);
+        var classes = ['lc-cell-10475'];
+        if(st === 'claimed') classes.push('claimed-10475');
+        else if(st === 'claimable') classes.push('claimable-10475');
+        else if(st === 'missed') classes.push('missed-10475');
+        else classes.push('locked-10475');
+        if(rw.milestone) classes.push('milestone-10475');
+        if(rw.legendary) classes.push('legendary-10475');
+
+        var clickAttr = (st === 'claimable') ? ' onclick="claimDailyLoginReward10475()"' : '';
+
+        html += '<div class="' + classes.join(' ') + '"' + clickAttr + '>';
+        html += '<span class="lc-day-num-10475">' + i + '</span>';
+        html += '<span class="lc-day-icon-10475">' + rw.icon + '</span>';
+        html += '<span class="lc-day-coins-10475">' + (rw.coins >= 1000 ? (rw.coins/1000).toFixed(1) + 'K' : rw.coins) + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      /* INFO */
+      if(state.alreadyClaimedToday){
+        html += '<div class="lc-info-10475">\u{2705} Today claimed. Come back tomorrow for Day ' + Math.min(30, state.dayInCycle + 1) + '!</div>';
+      } else if(!state.canClaim){
+        html += '<div class="lc-info-10475">Come back tomorrow to claim your next reward.</div>';
+      } else if(Array.isArray(state.missedDays) && state.missedDays.length > 0){
+        html += '<div class="lc-info-10475">\u26A0\uFE0F You missed ' + state.missedDays.length + ' day' + (state.missedDays.length === 1 ? '' : 's') + '. Path continues, but missed days are gone.</div>';
+      } else {
+        html += '<div class="lc-info-10475">Open the app every day to claim your reward and continue the path!</div>';
+      }
+
+      html += '<button class="lc-back-btn-10475" onclick="closeLoginCalendar10475()">\u2190 BACK</button>';
+
+      screen.innerHTML = html;
+    }catch(e){
+      try{ console.warn('[LOGIN CAL v10475] render failed', e); }catch(_){}
+    }
+  }
+
+  window.openLoginCalendar10475 = function(){
+    try{
+      var screen = document.getElementById('loginCalendarS10475');
+      if(!screen){
+        screen = document.createElement('div');
+        screen.id = 'loginCalendarS10475';
+        screen.className = 'overlay lc-overlay-10475';
+        document.body.appendChild(screen);
+      }
+      try{ if(typeof hideAll === 'function') hideAll(); }catch(e){}
+      screen.classList.add('active','active-10475');
+      screen.style.display = 'flex';
+      renderLoginCalendar10475();
+      try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+    }catch(e){
+      try{ console.warn('[LOGIN CAL v10475] open failed', e); }catch(_){}
+    }
+  };
+
+  window.closeLoginCalendar10475 = function(){
+    try{
+      var screen = document.getElementById('loginCalendarS10475');
+      if(screen){
+        screen.classList.remove('active','active-10475');
+        screen.style.display = 'none';
+      }
+      try{ if(typeof showScreen === 'function') showScreen('menuS'); }catch(e){}
+    }catch(e){}
+  };
+
+  function injectMenuButton10475(){
+    try{
+      if(document.getElementById('loginCalMenuBtn10475')) return;
+      var menu = document.getElementById('menuS');
+      if(!menu) return;
+      /* Inject after Profile button if present, else after streakInfo */
+      var anchor = document.getElementById('profileMenuBtn10473')
+                || document.getElementById('masteryBadge10467')
+                || document.getElementById('streakInfo')
+                || menu.firstElementChild;
+      if(!anchor) return;
+      var btn = document.createElement('button');
+      btn.id = 'loginCalMenuBtn10475';
+      btn.className = 'btn btn-secondary btn-small lc-menu-btn-10475';
+      btn.innerHTML = '\u{1F4C5} DAILY LOGIN';
+      btn.addEventListener('click', function(){
+        try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+        try{ window.openLoginCalendar10475(); }catch(e){}
+      });
+      anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+    }catch(e){
+      try{ console.warn('[LOGIN CAL v10475] menu inject failed', e); }catch(_){}
+    }
+  }
+
+  function autoShowOnLogin10475(){
+    try{
+      var state = evaluateLoginState10475();
+      if(!state.canClaim) return;
+      var lastShownKey = 'lc_lastAutoShow_10475';
+      var lastShown = '';
+      try{ lastShown = localStorage.getItem(lastShownKey) || ''; }catch(e){}
+      var today = todayKey10475();
+      if(lastShown === today) return;
+      try{ localStorage.setItem(lastShownKey, today); }catch(e){}
+      /* 3.0s delay - waits for Daily Streak (1.4s) to settle first */
+      setTimeout(function(){
+        try{
+          var menu = document.getElementById('menuS');
+          if(!menu || !menu.classList.contains('active')) return;
+          /* Skip if any other overlay is active (Daily Streak, Streak Saver, etc.) */
+          var ds = document.getElementById('dsOverlay10445');
+          var ss = document.getElementById('streakSaverOverlay10474');
+          if(ds && ds.classList.contains('active-10445')) return;
+          if(ss && ss.classList.contains('active-10474')) return;
+          window.openLoginCalendar10475();
+        }catch(e){}
+      }, 3000);
+    }catch(e){}
+  }
+
+  function applyAll10475(){
+    ensureSchema10475();
+    injectMenuButton10475();
+  }
+
+  /* showScreen wrap to refresh menu button on menu open */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10475 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10475.apply(this, arguments);
+      try{
+        if(id === 'menuS'){
+          setTimeout(applyAll10475, 60);
+          setTimeout(applyAll10475, 400);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      applyAll10475();
+      autoShowOnLogin10475();
+    });
+  } else {
+    setTimeout(function(){
+      applyAll10475();
+      autoShowOnLogin10475();
+    }, 200);
+  }
+  setTimeout(applyAll10475, 600);
+  setTimeout(applyAll10475, 1500);
+  setTimeout(applyAll10475, 3000);
+
+  try{ console.log('[DAILY LOGIN CALENDAR v1.0.4.75] active - 30-day reward path'); }catch(e){}
+})();
+</script>
+<!-- ===== END DAILY LOGIN CALENDAR v1.0.4.75 ===== -->
+
 </body>
 </html>
