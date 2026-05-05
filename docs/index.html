@@ -15672,5 +15672,190 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END NOTIFICATIONS SMART HIDE v1.0.4.77 ===== -->
 
+
+<!-- ===== ORPHAN BUTTON SWEEP v1.0.4.78 ===== -->
+<script>
+/* ===== ORPHAN BUTTON SWEEP v1.0.4.78 =====
+   v76 reorganize runs once and skips dynamic buttons that didn't exist yet.
+   v78 sweeps any orphan buttons (Workshop, Daily Streak, Login, Profile, Mastery)
+   into their correct sections AFTER initial reorganize.
+*/
+(function(){
+  if(window.__ORPHAN_SWEEP_V10478) return;
+  window.__ORPHAN_SWEEP_V10478 = true;
+
+  function getSection10478(id){
+    return document.getElementById(id);
+  }
+
+  function isInsideSection10478(el, sectionId){
+    if(!el) return false;
+    var p = el.parentNode;
+    while(p && p !== document.body){
+      if(p.id === sectionId) return true;
+      p = p.parentNode;
+    }
+    return false;
+  }
+
+  function moveToSection10478(el, sectionId, mode){
+    /* mode: 'append' | 'firstChild' | 'pairWith:<otherId>' */
+    if(!el) return false;
+    if(isInsideSection10478(el, sectionId)) return false;
+    var sec = getSection10478(sectionId);
+    if(!sec) return false;
+    try{
+      if(mode && mode.indexOf('pairWith:') === 0){
+        var otherId = mode.split(':')[1];
+        var other = document.getElementById(otherId);
+        if(other && other.parentNode && other.parentNode.classList.contains('section-row-10476')){
+          /* Already paired in a row - append to that row */
+          other.parentNode.appendChild(el);
+          return true;
+        }
+        /* Create a new row inside section with both */
+        var row = document.createElement('div');
+        row.className = 'section-row-10476';
+        if(other && other.parentNode){
+          other.parentNode.replaceChild(row, other);
+          row.appendChild(other);
+        }
+        row.appendChild(el);
+        sec.appendChild(row);
+        return true;
+      }
+      if(mode === 'firstChild'){
+        var firstChild = sec.firstChild;
+        if(firstChild) sec.insertBefore(el, firstChild.nextSibling); /* after title */
+        else sec.appendChild(el);
+        return true;
+      }
+      /* default: append */
+      sec.appendChild(el);
+      return true;
+    }catch(e){
+      try{ console.warn('[ORPHAN SWEEP v10478] move failed', sectionId, e); }catch(_){}
+      return false;
+    }
+  }
+
+  function sweep10478(){
+    try{
+      var menu = document.getElementById('menuS');
+      if(!menu) return;
+      /* If reorganize hasn't run yet, skip */
+      if(menu.dataset.restructured10476 !== '1') return;
+
+      var moved = false;
+
+      /* 1. Mastery Badge -> Progression section first child (above PROFILE row) */
+      var mastery = document.getElementById('masteryBadge10467');
+      if(mastery && !isInsideSection10478(mastery, 'menuSecProgress10476')){
+        if(moveToSection10478(mastery, 'menuSecProgress10476', 'firstChild')) moved = true;
+      }
+
+      /* 2. Workshop button -> Progression section, paired with Profile */
+      var wsBtn = document.getElementById('wsMenuBtn10466');
+      var profileBtn = document.getElementById('profileMenuBtn10473');
+      if(wsBtn && !isInsideSection10478(wsBtn, 'menuSecProgress10476')){
+        if(profileBtn && isInsideSection10478(profileBtn, 'menuSecProgress10476')){
+          /* Profile already in section - pair workshop with it */
+          if(moveToSection10478(wsBtn, 'menuSecProgress10476', 'pairWith:profileMenuBtn10473')) moved = true;
+        } else {
+          /* Profile not in section yet - just move workshop in */
+          if(moveToSection10478(wsBtn, 'menuSecProgress10476', 'append')) moved = true;
+        }
+      }
+
+      /* 3. Profile button -> Progression section, paired with Workshop */
+      if(profileBtn && !isInsideSection10478(profileBtn, 'menuSecProgress10476')){
+        if(wsBtn && isInsideSection10478(wsBtn, 'menuSecProgress10476')){
+          if(moveToSection10478(profileBtn, 'menuSecProgress10476', 'pairWith:wsMenuBtn10466')) moved = true;
+        } else {
+          if(moveToSection10478(profileBtn, 'menuSecProgress10476', 'append')) moved = true;
+        }
+      }
+
+      /* 4. Daily Streak button -> Daily section, paired with Login Cal */
+      var dsBtn = document.getElementById('dailyStreakBtn10445');
+      var lcBtn = document.getElementById('loginCalMenuBtn10475');
+      if(dsBtn && !isInsideSection10478(dsBtn, 'menuSecDaily10476')){
+        if(lcBtn && isInsideSection10478(lcBtn, 'menuSecDaily10476')){
+          if(moveToSection10478(dsBtn, 'menuSecDaily10476', 'pairWith:loginCalMenuBtn10475')) moved = true;
+        } else {
+          if(moveToSection10478(dsBtn, 'menuSecDaily10476', 'append')) moved = true;
+        }
+      }
+
+      /* 5. Login Cal button -> Daily section (in case it's orphan) */
+      if(lcBtn && !isInsideSection10478(lcBtn, 'menuSecDaily10476')){
+        if(dsBtn && isInsideSection10478(dsBtn, 'menuSecDaily10476')){
+          if(moveToSection10478(lcBtn, 'menuSecDaily10476', 'pairWith:dailyStreakBtn10445')) moved = true;
+        } else {
+          if(moveToSection10478(lcBtn, 'menuSecDaily10476', 'append')) moved = true;
+        }
+      }
+
+      /* 6. dailyChallengeInfo10462 -> Daily section info area */
+      var dcInfo = document.getElementById('dailyChallengeInfo10462');
+      if(dcInfo && !isInsideSection10478(dcInfo, 'menuSecDaily10476')){
+        var daily = getSection10478('menuSecDaily10476');
+        if(daily){
+          /* Try to insert into existing info container or create one near top */
+          var existingInfo = daily.querySelector('.section-info-10476');
+          if(existingInfo){
+            existingInfo.appendChild(dcInfo);
+          } else {
+            /* Insert after section title */
+            var title = daily.querySelector('.menu-section-title-10476');
+            if(title) daily.insertBefore(dcInfo, title.nextSibling);
+            else daily.appendChild(dcInfo);
+          }
+          moved = true;
+        }
+      }
+
+      if(moved){
+        try{ console.log('[ORPHAN SWEEP v10478] orphan buttons relocated'); }catch(e){}
+      }
+    }catch(e){
+      try{ console.warn('[ORPHAN SWEEP v10478] failed', e); }catch(_){}
+    }
+  }
+
+  /* showScreen wrap to apply on every menu open */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10478 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10478.apply(this, arguments);
+      try{
+        if(id === 'menuS'){
+          /* Multiple delayed attempts so dynamic injects can finish first */
+          setTimeout(sweep10478, 1200);
+          setTimeout(sweep10478, 3000);
+          setTimeout(sweep10478, 5500);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(sweep10478, 1500);
+      setTimeout(sweep10478, 4000);
+      setTimeout(sweep10478, 7000);
+    });
+  } else {
+    setTimeout(sweep10478, 1500);
+    setTimeout(sweep10478, 4000);
+    setTimeout(sweep10478, 7000);
+  }
+
+  try{ console.log('[ORPHAN BUTTON SWEEP v1.0.4.78] active - relocates orphan dynamic buttons'); }catch(e){}
+})();
+</script>
+<!-- ===== END ORPHAN SWEEP v1.0.4.78 ===== -->
+
 </body>
 </html>
