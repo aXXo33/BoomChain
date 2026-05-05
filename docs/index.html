@@ -16425,5 +16425,254 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END LAST SHOT MIRACLE v1.0.4.80 ===== -->
 
+
+<!-- ===== MAGNET BALL v1.0.4.81 ===== -->
+<style>
+/* Magnet ball announcement banner */
+.magnet-banner-10481{
+  position:fixed;
+  top:14%;
+  left:50%;
+  transform: translateX(-50%) scale(0.7);
+  z-index: 99996;
+  pointer-events:none;
+  padding:9px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4cc9f7 0%, #4a7dff 60%, #b15bff 100%);
+  color:#fff;
+  font-weight: 950;
+  font-size: 0.92em;
+  letter-spacing: 1.6px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.55);
+  box-shadow: 0 0 24px rgba(76,201,247,0.65), 0 4px 16px rgba(0,0,0,0.40);
+  border: 1.5px solid rgba(255,255,255,0.50);
+  opacity: 0;
+  animation: mbBannerIn10481 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, mbBannerOut10481 0.4s ease-in 1.6s forwards;
+}
+@keyframes mbBannerIn10481{
+  from { opacity: 0; transform: translateX(-50%) scale(0.5); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1.0); }
+}
+@keyframes mbBannerOut10481{
+  from { opacity: 1; transform: translateX(-50%) scale(1.0); }
+  to   { opacity: 0; transform: translateX(-50%) scale(1.15); }
+}
+</style>
+<script>
+/* ===== MAGNET BALL v1.0.4.81 =====
+   Random ~6% chance per shot. Ball gains subtle homing toward nearest alive target.
+   Pure RNG -> "I didn't expect that!" moment. NO coin reward.
+*/
+(function(){
+  if(window.__MAGNET_BALL_V10481) return;
+  window.__MAGNET_BALL_V10481 = true;
+
+  /* Tunable constants */
+  var MAGNET_CHANCE_10481 = 0.06;        /* 6% per shot */
+  var MAGNET_FORCE_10481 = 0.18;         /* Subtle pull (BH=2.0 reference) */
+  var MAGNET_RANGE_10481 = 320;          /* Pixels */
+  var MAGNET_MIN_DIST_10481 = 12;        /* Don't apply at near-collision */
+  var MAGNET_TRAIL_COLOR_10481 = '#4cc9f7';
+
+  function showMagnetBanner10481(){
+    try{
+      var b = document.createElement('div');
+      b.className = 'magnet-banner-10481';
+      b.textContent = '\u{1F9F2} MAGNET BALL!';
+      document.body.appendChild(b);
+      setTimeout(function(){
+        try{ if(b && b.parentNode) b.parentNode.removeChild(b); }catch(e){}
+      }, 2300);
+    }catch(e){}
+  }
+
+  function findNearestAliveTarget10481(b){
+    try{
+      if(typeof targets === 'undefined' || !Array.isArray(targets)) return null;
+      var nearest = null;
+      var nearestDist = MAGNET_RANGE_10481;
+      for(var i = 0; i < targets.length; i++){
+        var t = targets[i];
+        if(!t || !t.alive) continue;
+        if(t.type === 'ghost' && !t.ghostVisible) continue;
+        if(t.type === 'blackhole') continue; /* avoid fighting BH pull */
+        var dx = t.x - b.x;
+        var dy = t.y - b.y;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < nearestDist && dist > MAGNET_MIN_DIST_10481){
+          nearest = t;
+          nearestDist = dist;
+        }
+      }
+      return nearest;
+    }catch(e){ return null; }
+  }
+
+  function applyMagnetForce10481(b){
+    try{
+      var t = findNearestAliveTarget10481(b);
+      if(!t) return;
+      var dx = t.x - b.x;
+      var dy = t.y - b.y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < MAGNET_MIN_DIST_10481) return;
+      /* Force diminishes with distance (similar to BH pull pattern) */
+      var force = MAGNET_FORCE_10481 / Math.max(dist / 100, 1);
+      var smFactor = (typeof slowMo !== 'undefined') ? slowMo : 1;
+      b.vx += (dx / dist) * force * smFactor;
+      b.vy += (dy / dist) * force * smFactor;
+    }catch(e){}
+  }
+
+  /* Ball update tick - called from game loop wrap */
+  function magnetTick10481(){
+    try{
+      if(typeof balls === 'undefined' || !Array.isArray(balls)) return;
+      for(var i = 0; i < balls.length; i++){
+        var b = balls[i];
+        if(!b || !b.active) continue;
+        if(!b.__magnet10481) continue;
+        applyMagnetForce10481(b);
+      }
+    }catch(e){}
+  }
+
+  /* Hook into requestAnimationFrame to add magnet tick (zero-overhead if no magnet ball) */
+  function installMagnetHook10481(){
+    try{
+      if(window.__magnetHook10481Installed) return;
+      var rafOrig = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = function(cb){
+        var wrappedCb = function(ts){
+          try{ magnetTick10481(); }catch(e){}
+          return cb(ts);
+        };
+        return rafOrig(wrappedCb);
+      };
+      window.__magnetHook10481Installed = true;
+    }catch(e){}
+  }
+
+  /* Render hook - draw magnet visual on top of ball */
+  function installRenderHook10481(){
+    try{
+      if(window.__magnetRender10481Installed) return;
+      /* Wrap canvas 2d stroke to draw aura - simpler: piggyback on existing render via setInterval */
+      var renderTimer = setInterval(function(){
+        try{
+          var canvas = document.getElementById('gameCanvas');
+          if(!canvas) return;
+          var ctx = canvas.getContext('2d');
+          if(!ctx) return;
+          if(typeof balls === 'undefined' || !Array.isArray(balls)) return;
+          for(var i = 0; i < balls.length; i++){
+            var b = balls[i];
+            if(!b || !b.active || !b.__magnet10481) continue;
+            /* Draw magnet aura ring */
+            ctx.save();
+            var pulse = 0.6 + 0.4 * Math.sin(Date.now() / 120);
+            ctx.strokeStyle = 'rgba(76,201,247,' + (0.55 + 0.30 * pulse) + ')';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#4cc9f7';
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, (b.r || 8) + 6 + 2 * pulse, 0, Math.PI * 2);
+            ctx.stroke();
+            /* Inner glow */
+            ctx.strokeStyle = 'rgba(177,91,255,' + (0.45 + 0.20 * pulse) + ')';
+            ctx.lineWidth = 1.5;
+            ctx.shadowBlur = 6;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, (b.r || 8) + 11 + 3 * pulse, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }catch(e){}
+      }, 33); /* ~30 FPS render layer */
+      window.__magnetRender10481Installed = true;
+      window.__magnetRenderTimer10481 = renderTimer;
+    }catch(e){}
+  }
+
+  /* Spawn magnet trail particle every few frames */
+  var trailFrame_10481 = 0;
+  function magnetTrailTick10481(){
+    try{
+      trailFrame_10481++;
+      if(trailFrame_10481 % 3 !== 0) return;
+      if(typeof balls === 'undefined' || !Array.isArray(balls)) return;
+      if(typeof spawnParticles !== 'function') return;
+      for(var i = 0; i < balls.length; i++){
+        var b = balls[i];
+        if(!b || !b.active || !b.__magnet10481) continue;
+        spawnParticles(b.x, b.y, MAGNET_TRAIL_COLOR_10481, 1, 1.4, 2);
+      }
+    }catch(e){}
+  }
+
+  /* Wrap shoot to roll magnet chance */
+  function wrapShootForMagnet10481(){
+    try{
+      if(typeof window.shoot !== 'function') return false;
+      if(window.__shoot10481Wrapped) return true;
+      var _origShoot10481 = window.shoot;
+      window.shoot = function(dx, dy){
+        var r;
+        try{ r = _origShoot10481.apply(this, arguments); }catch(e){}
+        try{
+          /* After shoot, check newly active balls for magnet RNG */
+          setTimeout(function(){
+            try{
+              if(typeof balls === 'undefined' || !Array.isArray(balls)) return;
+              for(var i = 0; i < balls.length; i++){
+                var b = balls[i];
+                if(!b || !b.active) continue;
+                /* Only apply once per ball */
+                if(b.__magnet10481 || b.__magnet10481Checked) continue;
+                b.__magnet10481Checked = true;
+                if(Math.random() < MAGNET_CHANCE_10481){
+                  b.__magnet10481 = true;
+                  showMagnetBanner10481();
+                  try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){}
+                  try{ if(typeof spawnParticles === 'function') spawnParticles(b.x, b.y, MAGNET_TRAIL_COLOR_10481, 14, 3, 3); }catch(e){}
+                  break; /* Only one magnet ball per shot */
+                }
+              }
+            }catch(e){}
+          }, 60);
+        }catch(e){}
+        return r;
+      };
+      window.__shoot10481Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function applyAll10481(){
+    wrapShootForMagnet10481();
+    installMagnetHook10481();
+    installRenderHook10481();
+
+    /* Trail tick every animation frame */
+    if(!window.__magnetTrailHook10481){
+      var trailTimer = setInterval(magnetTrailTick10481, 50);
+      window.__magnetTrailHook10481 = trailTimer;
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10481);
+  } else {
+    applyAll10481();
+  }
+  setTimeout(applyAll10481, 600);
+  setTimeout(applyAll10481, 1500);
+  setTimeout(applyAll10481, 3000);
+
+  try{ console.log('[MAGNET BALL v1.0.4.81] active - 6% chance per shot, subtle homing'); }catch(e){}
+})();
+</script>
+<!-- ===== END MAGNET BALL v1.0.4.81 ===== -->
+
 </body>
 </html>
