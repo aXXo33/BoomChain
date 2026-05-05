@@ -17011,5 +17011,300 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END METEOR SHOWER v1.0.4.82 ===== -->
 
+
+<!-- ===== SECTOR THEMES LITE v1.0.4.83 ===== -->
+<style>
+/* Sector body background gradients (apply during game) */
+body.sector-theme-0-10483{
+  background: radial-gradient(ellipse at top, #1a3a5a 0%, #0a0a1a 65%) !important;
+}
+body.sector-theme-1-10483{
+  background: radial-gradient(ellipse at top, #2a4a4a 0%, #1a1a2e 60%) !important;
+}
+body.sector-theme-2-10483{
+  background: radial-gradient(ellipse at top, #3a1428 0%, #0a0a14 65%) !important;
+}
+body.sector-theme-3-10483{
+  background: radial-gradient(ellipse at top, #1a3a14 0%, #0a1a0a 60%) !important;
+}
+body.sector-theme-4-10483{
+  background: radial-gradient(ellipse at top, #3a1a4a 0%, #1a0a2e 60%) !important;
+}
+body.sector-theme-5-10483{
+  background: radial-gradient(ellipse at center, #14002a 0%, #000000 70%) !important;
+}
+
+/* Sector announcement banner (one-shot per sector entry) */
+.sector-banner-10483{
+  position:fixed;
+  top:18%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  z-index: 99996;
+  pointer-events:none;
+  padding: 14px 28px 16px;
+  border-radius: 18px;
+  text-align: center;
+  font-weight: 950;
+  letter-spacing: 1.4px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.55);
+  border: 1.8px solid rgba(255,255,255,0.40);
+  opacity: 0;
+  animation: sbIn10483 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, sbOut10483 0.45s ease-in 1.8s forwards;
+}
+.sector-banner-10483.theme-0-10483{ background: linear-gradient(135deg,#4cc9f7,#4a7dff); color:#fff; }
+.sector-banner-10483.theme-1-10483{ background: linear-gradient(135deg,#4ad8c2,#b15bff); color:#fff; }
+.sector-banner-10483.theme-2-10483{ background: linear-gradient(135deg,#ff5ea8,#7a0a28); color:#fff; }
+.sector-banner-10483.theme-3-10483{ background: linear-gradient(135deg,#4caf50,#1b6e1f); color:#fff; }
+.sector-banner-10483.theme-4-10483{ background: linear-gradient(135deg,#f7c948,#ff5ea8); color:#0a0a1a; }
+.sector-banner-10483.theme-5-10483{ background: linear-gradient(135deg,#9c27b0,#3a0050); color:#fff; }
+
+.sb-icon-10483{ font-size: 1.8em; display:block; margin-bottom:2px; }
+.sb-tag-10483{
+  display:inline-block;
+  background: rgba(0,0,0,0.30);
+  color: rgba(255,255,255,0.90);
+  font-size: 0.55em;
+  font-weight: 950;
+  padding: 3px 10px;
+  border-radius: 8px;
+  letter-spacing: 1.6px;
+  margin-bottom: 5px;
+}
+.sb-title-10483{
+  font-size: 1.1em;
+  font-weight: 950;
+  letter-spacing: 1.3px;
+}
+@keyframes sbIn10483{
+  from { opacity:0; transform: translate(-50%,-50%) scale(0.6); }
+  to   { opacity:1; transform: translate(-50%,-50%) scale(1.0); }
+}
+@keyframes sbOut10483{
+  from { opacity:1; transform: translate(-50%,-50%) scale(1.0); }
+  to   { opacity:0; transform: translate(-50%,-50%) scale(1.15); }
+}
+</style>
+<script>
+/* ===== SECTOR THEMES LITE v1.0.4.83 =====
+   Per-sector body background + audio pentatonic scale override.
+   Six sectors (0-5) each with unique vibe.
+   Lite version - no canvas filter, no particle overlay (perf-safe).
+*/
+(function(){
+  if(window.__SECTOR_THEMES_V10483) return;
+  window.__SECTOR_THEMES_V10483 = true;
+
+  /* Per-sector pentatonic note frequencies (overrides v79 default for non-zero sectors) */
+  /* Each scale is musically pleasant in its own key (Skinner pentatonic principle) */
+  var SECTOR_SCALES_10483 = {
+    /* Sector 0 - C major pentatonic (default, matches v79) */
+    0: [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51, 1567.98],
+    /* Sector 1 - D minor pentatonic (slightly cooler) */
+    1: [293.66, 349.23, 392.00, 440.00, 523.25, 587.33, 698.46, 783.99, 880.00, 1046.50, 1174.66, 1396.91, 1567.98, 1760.00],
+    /* Sector 2 - E minor pentatonic (deeper, darker) */
+    2: [329.63, 392.00, 440.00, 493.88, 587.33, 659.25, 783.99, 880.00, 987.77, 1174.66, 1318.51, 1567.98, 1760.00, 1975.53],
+    /* Sector 3 - G major pentatonic (bright, uplifting) */
+    3: [392.00, 440.00, 493.88, 587.33, 659.25, 783.99, 880.00, 987.77, 1174.66, 1318.51, 1567.98, 1760.00, 1975.53, 2349.32],
+    /* Sector 4 - A major pentatonic (vibrant, party) */
+    4: [440.00, 493.88, 554.37, 659.25, 739.99, 880.00, 987.77, 1108.73, 1318.51, 1479.98, 1760.00, 1975.53, 2217.46, 2637.02],
+    /* Sector 5 - A minor pentatonic (mysterious, void) */
+    5: [220.00, 261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1396.91]
+  };
+
+  /* Sector visual metadata */
+  var SECTOR_META_10483 = {
+    0: { tag: 'SECTOR 1', icon: '\u{1F52C}', title: 'PROTOTYPE LAB' },
+    1: { tag: 'SECTOR 2', icon: '\u{1F4A0}', title: 'GLASS WORKS' },
+    2: { tag: 'SECTOR 3', icon: '\u{1F30C}', title: 'GRAVITY WELL' },
+    3: { tag: 'SECTOR 4', icon: '\u26A1', title: 'CHAOS LAB' },
+    4: { tag: 'SECTOR 5', icon: '\u{1F389}', title: 'NEON RAVE' },
+    5: { tag: 'ENDLESS', icon: '\u{1F300}', title: 'INFINITE VOID' }
+  };
+
+  var lastAppliedSector_10483 = -1;
+
+  function getSectorIdx10483(){
+    try{
+      if(typeof currentRoom === 'undefined') return 0;
+      var idx = parseInt(currentRoom, 10);
+      if(isNaN(idx) || idx < 0) return 0;
+      if(idx > 5) idx = 5;
+      return idx;
+    }catch(e){ return 0; }
+  }
+
+  function applyBodyTheme10483(idx){
+    try{
+      var body = document.body;
+      if(!body) return;
+      /* Remove old theme classes */
+      for(var i = 0; i <= 5; i++){
+        body.classList.remove('sector-theme-' + i + '-10483');
+      }
+      body.classList.add('sector-theme-' + idx + '-10483');
+    }catch(e){}
+  }
+
+  function showSectorBanner10483(idx){
+    try{
+      var meta = SECTOR_META_10483[idx];
+      if(!meta) return;
+      var b = document.createElement('div');
+      b.className = 'sector-banner-10483 theme-' + idx + '-10483';
+      b.innerHTML =
+        '<span class="sb-icon-10483">' + meta.icon + '</span>' +
+        '<div class="sb-tag-10483">' + meta.tag + '</div>' +
+        '<div class="sb-title-10483">' + meta.title + '</div>';
+      document.body.appendChild(b);
+      setTimeout(function(){
+        try{ if(b && b.parentNode) b.parentNode.removeChild(b); }catch(e){}
+      }, 2300);
+    }catch(e){}
+  }
+
+  function applySectorTheme10483(force){
+    try{
+      var idx = getSectorIdx10483();
+      if(!force && idx === lastAppliedSector_10483) return;
+      lastAppliedSector_10483 = idx;
+      applyBodyTheme10483(idx);
+      showSectorBanner10483(idx);
+    }catch(e){}
+  }
+
+  /* Override v79's PENTATONIC_NOTES for the current sector */
+  function getCurrentScale10483(){
+    var idx = getSectorIdx10483();
+    return SECTOR_SCALES_10483[idx] || SECTOR_SCALES_10483[0];
+  }
+
+  /* Wrap v79's playChainNote10479 so it uses sector scale */
+  function wrapPlayChainNote10483(){
+    try{
+      if(typeof window.playChainNote10479 !== 'function') return false;
+      if(window.__playChainNote10483Wrapped) return true;
+
+      /* Replace PENTATONIC_NOTES_10479 lookup logic */
+      /* We can't easily replace the closure variable, so override the function itself */
+      var _origPlay10483 = window.playChainNote10479;
+
+      window.playChainNote10479 = function(combo){
+        try{
+          var ctx = (typeof AC_10479 !== 'undefined' && AC_10479) ? AC_10479 : null;
+          /* Try to fetch shared AudioContext via existing helper */
+          if(!ctx && typeof getAudio === 'function'){
+            try{ ctx = getAudio(); }catch(e){}
+          }
+          if(!ctx) return _origPlay10483(combo);
+
+          if(ctx.state === 'suspended' && typeof ctx.resume === 'function'){
+            try{ ctx.resume(); }catch(e){}
+          }
+
+          var scale = getCurrentScale10483();
+          var idx = Math.max(0, Math.min(combo - 1, scale.length - 1));
+          var freq = scale[idx];
+          var now = ctx.currentTime;
+
+          /* Main oscillator */
+          var osc = ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          var gain = ctx.createGain();
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.50);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.55);
+
+          /* Combo >=4 harmonic (matches v79 pattern) */
+          if(combo >= 4){
+            var osc2 = ctx.createOscillator();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(freq * 2, now);
+            var gain2 = ctx.createGain();
+            gain2.gain.setValueAtTime(0, now);
+            gain2.gain.linearRampToValueAtTime(0.06, now + 0.015);
+            gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.40);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(now);
+            osc2.stop(now + 0.45);
+          }
+
+          /* Combo >=7 sub-bass */
+          if(combo >= 7){
+            var osc3 = ctx.createOscillator();
+            osc3.type = 'sine';
+            osc3.frequency.setValueAtTime(freq / 2, now);
+            var gain3 = ctx.createGain();
+            gain3.gain.setValueAtTime(0, now);
+            gain3.gain.linearRampToValueAtTime(0.10, now + 0.008);
+            gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+            osc3.connect(gain3);
+            gain3.connect(ctx.destination);
+            osc3.start(now);
+            osc3.stop(now + 0.40);
+          }
+        }catch(e){
+          try{ return _origPlay10483(combo); }catch(_){}
+        }
+      };
+      window.__playChainNote10483Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  /* Wrap showScreen to detect game start and apply theme */
+  function wrapShowScreen10483(){
+    try{
+      if(typeof window.showScreen !== 'function') return false;
+      if(window.__showScreen10483Wrapped) return true;
+      var _origShow10483 = window.showScreen;
+      window.showScreen = function(id){
+        var r = _origShow10483.apply(this, arguments);
+        try{
+          if(id === 'gameS' || id === 'roomIntroS'){
+            setTimeout(function(){ applySectorTheme10483(false); }, 50);
+            setTimeout(function(){ applySectorTheme10483(false); }, 400);
+          } else if(id === 'menuS' || id === 'worldMapS'){
+            /* Reset to default theme on menu/map */
+            try{
+              for(var i = 0; i <= 5; i++){
+                document.body.classList.remove('sector-theme-' + i + '-10483');
+              }
+              lastAppliedSector_10483 = -1;
+            }catch(e){}
+          }
+        }catch(e){}
+        return r;
+      };
+      window.__showScreen10483Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function applyAll10483(){
+    wrapShowScreen10483();
+    wrapPlayChainNote10483();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10483);
+  } else {
+    applyAll10483();
+  }
+  setTimeout(applyAll10483, 600);
+  setTimeout(applyAll10483, 1500);
+  setTimeout(applyAll10483, 3000);
+
+  try{ console.log('[SECTOR THEMES LITE v1.0.4.83] active - 6 sectors, body bg + audio scale override'); }catch(e){}
+})();
+</script>
+<!-- ===== END SECTOR THEMES v1.0.4.83 ===== -->
+
 </body>
 </html>
