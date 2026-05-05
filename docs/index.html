@@ -16674,5 +16674,342 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END MAGNET BALL v1.0.4.81 ===== -->
 
+
+<!-- ===== METEOR SHOWER v1.0.4.82 ===== -->
+<style>
+/* Meteor shower announcement overlay */
+.meteor-overlay-10482{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  z-index: 99997;
+  pointer-events:none;
+  opacity: 0;
+  background: radial-gradient(ellipse at top, rgba(255,213,79,0.30) 0%, rgba(255,107,53,0.18) 35%, transparent 65%);
+  animation: meteorBgIn10482 0.5s ease-out forwards, meteorBgOut10482 0.6s ease-in 2.6s forwards;
+}
+@keyframes meteorBgIn10482{ from{opacity:0;} to{opacity:1;} }
+@keyframes meteorBgOut10482{ from{opacity:1;} to{opacity:0;} }
+
+.meteor-banner-10482{
+  position:fixed;
+  top:30%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 99998;
+  pointer-events:none;
+  width: 92%;
+  max-width: 380px;
+  padding: 26px 22px 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ffd54f 0%, #ff9a41 50%, #ff5ea8 100%);
+  color: #0a0a1a;
+  text-align: center;
+  font-weight: 950;
+  letter-spacing: 1.2px;
+  box-shadow: 0 16px 50px rgba(255,154,65,0.70), 0 0 90px rgba(255,213,79,0.55);
+  border: 2.5px solid rgba(255,255,255,0.55);
+  opacity: 0;
+  overflow: hidden;
+  animation: meteorPopIn10482 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, meteorPopOut10482 0.5s ease-in 2.4s forwards;
+}
+.meteor-banner-10482::before{
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.45) 0%, transparent 60%);
+  animation: meteorShine10482 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.meteor-icon-10482{
+  font-size: 3.6em;
+  display: block;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 2px 8px rgba(255,255,255,0.65));
+}
+.meteor-tag-10482{
+  display: inline-block;
+  background: rgba(0,0,0,0.32);
+  color: #fff;
+  font-size: 0.66em;
+  font-weight: 950;
+  padding: 4px 12px;
+  border-radius: 9px;
+  letter-spacing: 1.8px;
+  margin-bottom: 8px;
+}
+.meteor-title-10482{
+  font-size: 1.85em;
+  font-weight: 950;
+  letter-spacing: 1.4px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.20);
+  margin-bottom: 4px;
+}
+.meteor-subtitle-10482{
+  font-size: 0.78em;
+  font-weight: 700;
+  opacity: 0.85;
+  letter-spacing: 0.5px;
+}
+@keyframes meteorPopIn10482{
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1.0); }
+}
+@keyframes meteorPopOut10482{
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1.0); }
+  to   { opacity: 0; transform: translate(-50%, -50%) scale(1.18); }
+}
+@keyframes meteorShine10482{
+  0%,100% { opacity: 0.40; transform: rotate(0deg); }
+  50%     { opacity: 0.75; transform: rotate(180deg); }
+}
+
+/* Falling meteor particles overlay */
+.meteor-rain-10482{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index: 99996;
+  overflow: hidden;
+}
+.meteor-streak-10482{
+  position:absolute;
+  width: 3px;
+  height: 38px;
+  background: linear-gradient(180deg, transparent 0%, rgba(255,213,79,0.85) 50%, rgba(255,154,65,1) 100%);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 8px rgba(255,213,79,0.80));
+  animation: meteorStreak10482 1.2s linear forwards;
+}
+@keyframes meteorStreak10482{
+  0%   { transform: translateY(-50px) translateX(0); opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(110vh) translateX(60px); opacity: 0; }
+}
+</style>
+<script>
+/* ===== METEOR SHOWER v1.0.4.82 =====
+   Daily 1/day random ~15% level start chance.
+   Active level: targets gain gold aura + HP-1 (boss skipped).
+   Pure surprise event - "Today is my lucky day!" feeling.
+   NO COIN REWARD.
+*/
+(function(){
+  if(window.__METEOR_SHOWER_V10482) return;
+  window.__METEOR_SHOWER_V10482 = true;
+
+  /* Tunables */
+  var METEOR_CHANCE_10482 = 0.15;       /* 15% per level (capped to 1/day) */
+  var METEOR_HP_REDUCTION_10482 = 1;    /* -1 HP per non-boss target */
+  var METEOR_RAIN_COUNT_10482 = 22;     /* Falling meteor streaks */
+
+  function todayStr10482(){
+    try{ return new Date().toDateString(); }catch(e){ return ''; }
+  }
+
+  function meteorActiveToday10482(){
+    try{
+      if(typeof save !== 'object' || !save) return false;
+      return save.meteorShowerDate === todayStr10482();
+    }catch(e){ return false; }
+  }
+
+  function rollMeteorShower10482(){
+    try{
+      /* Already used today? Skip RNG */
+      if(meteorActiveToday10482()) return false;
+      /* Save object must exist */
+      if(typeof save !== 'object' || !save) return false;
+      /* Roll RNG */
+      if(Math.random() >= METEOR_CHANCE_10482) return false;
+      /* Mark today as used */
+      save.meteorShowerDate = todayStr10482();
+      try{ if(typeof saveSave === 'function') saveSave(); }catch(e){}
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function spawnMeteorRain10482(){
+    try{
+      var rain = document.createElement('div');
+      rain.className = 'meteor-rain-10482';
+      document.body.appendChild(rain);
+      for(var i = 0; i < METEOR_RAIN_COUNT_10482; i++){
+        (function(idx){
+          setTimeout(function(){
+            try{
+              var s = document.createElement('div');
+              s.className = 'meteor-streak-10482';
+              s.style.left = (Math.random() * 100) + '%';
+              s.style.top = (-10 - Math.random() * 50) + 'px';
+              s.style.animationDelay = (Math.random() * 0.4) + 's';
+              s.style.animationDuration = (1.0 + Math.random() * 0.8) + 's';
+              rain.appendChild(s);
+              setTimeout(function(){
+                try{ if(s && s.parentNode) s.parentNode.removeChild(s); }catch(e){}
+              }, 2400);
+            }catch(e){}
+          }, idx * 80);
+        })(i);
+      }
+      setTimeout(function(){
+        try{ if(rain && rain.parentNode) rain.parentNode.removeChild(rain); }catch(e){}
+      }, 4500);
+    }catch(e){}
+  }
+
+  function showMeteorBanner10482(){
+    try{
+      /* Background tint overlay */
+      var bg = document.createElement('div');
+      bg.className = 'meteor-overlay-10482';
+      document.body.appendChild(bg);
+      setTimeout(function(){
+        try{ if(bg && bg.parentNode) bg.parentNode.removeChild(bg); }catch(e){}
+      }, 3300);
+
+      /* Banner */
+      var b = document.createElement('div');
+      b.className = 'meteor-banner-10482';
+      b.innerHTML =
+        '<span class="meteor-icon-10482">\u2604\uFE0F</span>' +
+        '<div class="meteor-tag-10482">DAILY EVENT</div>' +
+        '<div class="meteor-title-10482">METEOR SHOWER!</div>' +
+        '<div class="meteor-subtitle-10482">Cosmic energy weakens all targets</div>';
+      document.body.appendChild(b);
+      setTimeout(function(){
+        try{ if(b && b.parentNode) b.parentNode.removeChild(b); }catch(e){}
+      }, 3000);
+
+      /* Falling rain effect */
+      spawnMeteorRain10482();
+
+      /* Haptic + sound */
+      try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+      setTimeout(function(){ try{ if(typeof hapticMedium === 'function') hapticMedium(); }catch(e){} }, 250);
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+    }catch(e){}
+  }
+
+  function applyHpReduction10482(){
+    try{
+      if(typeof targets === 'undefined' || !Array.isArray(targets)) return;
+      for(var i = 0; i < targets.length; i++){
+        var t = targets[i];
+        if(!t) continue;
+        /* Skip boss (balance) */
+        if(t.type === 'boss') continue;
+        /* Skip blackhole (no HP) */
+        if(t.type === 'blackhole') continue;
+        /* Reduce HP but never below 1 */
+        if(typeof t.hp === 'number' && t.hp > 1){
+          t.hp = Math.max(1, t.hp - METEOR_HP_REDUCTION_10482);
+        }
+        if(typeof t.maxHp === 'number' && t.maxHp > 1){
+          t.maxHp = Math.max(1, t.maxHp - METEOR_HP_REDUCTION_10482);
+        }
+        /* Mark for visual aura */
+        t.__meteor10482 = true;
+      }
+    }catch(e){
+      try{ console.warn('[METEOR SHOWER v10482] HP reduction failed', e); }catch(_){}
+    }
+  }
+
+  /* Render hook - draw gold aura on meteor-marked targets */
+  function installRenderHook10482(){
+    try{
+      if(window.__meteorRender10482Installed) return;
+      var renderTimer = setInterval(function(){
+        try{
+          var canvas = document.getElementById('gameCanvas');
+          if(!canvas) return;
+          var ctx = canvas.getContext('2d');
+          if(!ctx) return;
+          if(typeof targets === 'undefined' || !Array.isArray(targets)) return;
+          for(var i = 0; i < targets.length; i++){
+            var t = targets[i];
+            if(!t || !t.alive || !t.__meteor10482) continue;
+            ctx.save();
+            var pulse = 0.6 + 0.4 * Math.sin(Date.now() / 180);
+            /* Outer gold ring */
+            ctx.strokeStyle = 'rgba(255,213,79,' + (0.65 + 0.30 * pulse) + ')';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#ffd54f';
+            ctx.shadowBlur = 16;
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, (t.r || 18) + 6 + 2 * pulse, 0, Math.PI * 2);
+            ctx.stroke();
+            /* Inner orange glow */
+            ctx.strokeStyle = 'rgba(255,154,65,' + (0.50 + 0.25 * pulse) + ')';
+            ctx.lineWidth = 1.5;
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, (t.r || 18) + 11 + 3 * pulse, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }catch(e){}
+      }, 33); /* ~30 FPS render layer */
+      window.__meteorRender10482Installed = true;
+      window.__meteorRenderTimer10482 = renderTimer;
+    }catch(e){}
+  }
+
+  /* Wrap generateLevel to roll RNG and apply effects */
+  function wrapGenerateLevel10482(){
+    try{
+      if(typeof window.generateLevel !== 'function') return false;
+      if(window.__generateLevel10482Wrapped) return true;
+      var _origGen10482 = window.generateLevel;
+      window.generateLevel = function(room, li, gl){
+        var r;
+        try{ r = _origGen10482.apply(this, arguments); }catch(e){}
+        try{
+          /* Skip boss rooms (balance) */
+          var isBoss = false;
+          try{ if(typeof isBossRoom !== 'undefined') isBoss = !!isBossRoom; }catch(e){}
+          if(isBoss) return r;
+          /* Roll meteor shower */
+          if(rollMeteorShower10482()){
+            /* Apply effect after a short delay so targets array is populated */
+            setTimeout(function(){
+              try{
+                applyHpReduction10482();
+                showMeteorBanner10482();
+              }catch(e){}
+            }, 100);
+          }
+        }catch(e){
+          try{ console.warn('[METEOR SHOWER v10482] wrap failed', e); }catch(_){}
+        }
+        return r;
+      };
+      window.__generateLevel10482Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function applyAll10482(){
+    wrapGenerateLevel10482();
+    installRenderHook10482();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10482);
+  } else {
+    applyAll10482();
+  }
+  setTimeout(applyAll10482, 600);
+  setTimeout(applyAll10482, 1500);
+  setTimeout(applyAll10482, 3000);
+
+  try{ console.log('[METEOR SHOWER v1.0.4.82] active - daily 1/day random 15% chance, HP-1 + gold aura'); }catch(e){}
+})();
+</script>
+<!-- ===== END METEOR SHOWER v1.0.4.82 ===== -->
+
 </body>
 </html>
