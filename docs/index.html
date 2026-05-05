@@ -15590,5 +15590,87 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END MENU REORGANIZE v1.0.4.76 ===== -->
 
+
+<!-- ===== NOTIFICATIONS SMART HIDE v1.0.4.77 ===== -->
+<script>
+/* ===== NOTIFICATIONS SMART HIDE v1.0.4.77 ===== */
+(function(){
+  if(window.__NOTIF_HIDE_V10477) return;
+  window.__NOTIF_HIDE_V10477 = true;
+
+  function shouldHideNotif10477(){
+    try{
+      /* If running inside React Native WebView (no native push bridge available) */
+      if(typeof window.ReactNativeWebView !== 'undefined'){
+        return true;
+      }
+      /* If browser Notification API is missing entirely */
+      if(typeof window.Notification === 'undefined'){
+        return true;
+      }
+      /* iOS Safari standalone or iOS WebView detection */
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPhone|iPad|iPod/.test(ua);
+      if(isIOS){
+        /* iOS WebView (no Safari in UA) cannot deliver browser notifications */
+        var isStandaloneOrWebView = !/Safari/.test(ua) || (window.navigator.standalone === true);
+        if(isStandaloneOrWebView) return true;
+        /* iOS Safari < 16.4 also lacks reliable Notification support */
+        var iosVerMatch = ua.match(/OS (\d+)_(\d+)/);
+        if(iosVerMatch){
+          var major = parseInt(iosVerMatch[1], 10) || 0;
+          var minor = parseInt(iosVerMatch[2], 10) || 0;
+          if(major < 16 || (major === 16 && minor < 4)) return true;
+        }
+      }
+      return false;
+    }catch(e){ return true; /* fail-safe: hide on error */ }
+  }
+
+  function hideNotifButton10477(){
+    try{
+      if(!shouldHideNotif10477()) return;
+      var btn = document.getElementById('notifBtn');
+      if(!btn) return;
+      if(btn.dataset.hidden10477 === '1') return;
+      btn.style.display = 'none';
+      btn.dataset.hidden10477 = '1';
+      try{ console.log('[NOTIF HIDE v10477] notif button hidden (no push support in this environment)'); }catch(e){}
+    }catch(e){
+      try{ console.warn('[NOTIF HIDE v10477] hide failed', e); }catch(_){}
+    }
+  }
+
+  /* showScreen wrap to apply on menu open (after v76 reorganize moves the button) */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10477 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10477.apply(this, arguments);
+      try{
+        if(id === 'menuS'){
+          setTimeout(hideNotifButton10477, 100);
+          setTimeout(hideNotifButton10477, 600);
+          setTimeout(hideNotifButton10477, 1800);
+          setTimeout(hideNotifButton10477, 4000);
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', hideNotifButton10477);
+  } else {
+    hideNotifButton10477();
+  }
+  setTimeout(hideNotifButton10477, 600);
+  setTimeout(hideNotifButton10477, 1800);
+  setTimeout(hideNotifButton10477, 4000);
+
+  try{ console.log('[NOTIFICATIONS SMART HIDE v1.0.4.77] active - hides broken notif button on iOS WebView/RN'); }catch(e){}
+})();
+</script>
+<!-- ===== END NOTIFICATIONS SMART HIDE v1.0.4.77 ===== -->
+
 </body>
 </html>
