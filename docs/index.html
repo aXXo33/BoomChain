@@ -17856,5 +17856,196 @@ body.sector-theme-5-10483{
   console.log('[v85] Target Variety active: Shield 4%, Triangle 4%, Linked 4% (sector 2+)');
 })();
 </script>
+<style id="v86-style">
+.v85-toast.spinning{border:1px solid #9d4edd;box-shadow:0 0 16px rgba(157,78,221,0.6);}
+.v85-toast.fire{border:1px solid #ff6a00;box-shadow:0 0 16px rgba(255,106,0,0.6);}
+.v85-toast.electric{border:1px solid #ffe200;box-shadow:0 0 16px rgba(255,226,0,0.6);}
+.v86-light-flash{position:fixed;inset:0;pointer-events:none;z-index:9998;background:radial-gradient(circle,rgba(255,226,0,0.3),transparent 60%);animation:v86Light 0.3s ease-out forwards;}
+@keyframes v86Light{0%{opacity:0;}30%{opacity:1;}100%{opacity:0;}}
+.v86-fire-vignette{position:fixed;inset:0;pointer-events:none;z-index:9998;box-shadow:inset 0 0 80px rgba(255,106,0,0.45);animation:v86FireV 1.8s ease-out forwards;}
+@keyframes v86FireV{0%{opacity:0;}15%{opacity:1;}100%{opacity:0;}}
+.v86-spin-ring{position:fixed;width:60px;height:60px;border:3px dashed #9d4edd;border-radius:50%;pointer-events:none;z-index:9997;animation:v86SpinRing 0.6s linear forwards;}
+@keyframes v86SpinRing{0%{transform:scale(0.4) rotate(0);opacity:1;}100%{transform:scale(2.2) rotate(360deg);opacity:0;}}
+</style>
+<script id="v86-script">
+/* v86 Target Variety: Spinning + Fire + Electric (Sector 2+) — coin reward YOK */
+(function(){
+  var SPIN_RATE=0.04, FIRE_RATE=0.04, ELEC_RATE=0.04;
+  var v86Burns=[], v86Bolts=[];
+  function toast(k,m){var d=document.createElement('div');d.className='v85-toast '+k;d.textContent=m;document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},1400);}
+  function lightFlash(){var d=document.createElement('div');d.className='v86-light-flash';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},300);}
+  function fireVignette(){var d=document.createElement('div');d.className='v86-fire-vignette';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},1800);}
+  function spinRing(x,y){var d=document.createElement('div');d.className='v86-spin-ring';d.style.left=(x-30)+'px';d.style.top=(y-30)+'px';document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},600);}
+  // SPAWN — generateLevel wrap (4th layer after v82+v84+v85)
+  var _origGen=window.generateLevel;
+  if(typeof _origGen==='function'){
+    window.generateLevel=function(){
+      var r=_origGen.apply(this,arguments);
+      try{
+        var sec=(typeof currentSector!=='undefined')?currentSector:0;
+        if(sec>=2&&typeof targets!=='undefined'){
+          for(var i=0;i<targets.length;i++){
+            var t=targets[i];
+            if(t.type==='boss'||t.shape)continue;
+            var roll=Math.random();
+            if(roll<SPIN_RATE){
+              t.shape='spinning';t.spinAngle=0;
+              t.spinSpeed=(Math.random()<0.5?-1:1)*0.05;
+            } else if(roll<SPIN_RATE+FIRE_RATE){
+              t.shape='fire';
+            } else if(roll<SPIN_RATE+FIRE_RATE+ELEC_RATE){
+              t.shape='electric';
+            }
+          }
+        }
+      }catch(e){console.warn('[v86] spawn',e);}
+      return r;
+    };
+  }
+  // PRE-HIT WRAP — Spinning angle bonus/reflect
+  var _v85PH=window.v85PreHit;
+  window.v85PreHit=function(t,b){
+    if(t&&t.shape==='spinning'){
+      var spd=Math.sqrt(b.vx*b.vx+b.vy*b.vy);
+      if(spd>0.01){
+        var ratio=(b.vx*Math.sign(t.spinSpeed))/spd;
+        if(ratio>0.3){
+          spinRing(t.x,t.y);
+          if(typeof spawnConfetti==='function')spawnConfetti(t.x,t.y,18);
+          toast('spinning','🌀 Perfect spin!');
+          return true;
+        }
+        if(ratio<-0.3){
+          b.vx=-b.vx*0.85;b.vy=-b.vy*0.85;
+          toast('spinning','🌀 Bad angle!');
+          return false;
+        }
+      }
+      return true;
+    }
+    return _v85PH?_v85PH(t,b):true;
+  };
+  // DEATH HOOK WRAP — Fire DoT spawn + Electric chain
+  var _v85DH=window.v85DeathHook;
+  window.v85DeathHook=function(t){
+    if(_v85DH)_v85DH(t);
+    if(!t||!t.shape)return;
+    if(t.shape==='fire'){
+      v86Burns.push({x:t.x,y:t.y,r:80,end:Date.now()+2000});
+      fireVignette();
+      toast('fire','🔥 Burning area!');
+    } else if(t.shape==='electric'){
+      if(typeof targets==='undefined')return;
+      var pool=[];
+      for(var i=0;i<targets.length;i++){
+        var o=targets[i];
+        if(o!==t&&o.alive){var dx=o.x-t.x,dy=o.y-t.y;pool.push({tgt:o,d2:dx*dx+dy*dy});}
+      }
+      pool.sort(function(a,b){return a.d2-b.d2;});
+      var hits=pool.slice(0,2),endT=Date.now()+300;
+      for(var k=0;k<hits.length;k++){
+        var h=hits[k].tgt;
+        h.hp=0;h.alive=false;
+        if(typeof targetsLeft!=='undefined')targetsLeft--;
+        if(typeof spawnConfetti==='function')spawnConfetti(h.x,h.y,12);
+        v86Bolts.push({x1:t.x,y1:t.y,x2:h.x,y2:h.y,end:endT});
+        if(h.shape&&window.v85DeathHook!==arguments.callee)window.v85DeathHook(h);
+      }
+      lightFlash();
+      toast('electric','⚡ Chain lightning!');
+    }
+  };
+  // BURN DoT TICK (400ms)
+  setInterval(function(){
+    var now=Date.now();
+    if(typeof targets==='undefined')return;
+    for(var i=v86Burns.length-1;i>=0;i--){
+      var b=v86Burns[i];
+      if(now>=b.end){v86Burns.splice(i,1);continue;}
+      for(var j=0;j<targets.length;j++){
+        var tg=targets[j];
+        if(!tg.alive)continue;
+        var dx=tg.x-b.x,dy=tg.y-b.y;
+        if(dx*dx+dy*dy<b.r*b.r){
+          tg.hp=(tg.hp||1)-1;
+          if(tg.hp<=0){
+            tg.alive=false;
+            if(typeof targetsLeft!=='undefined')targetsLeft--;
+            if(typeof spawnConfetti==='function')spawnConfetti(tg.x,tg.y,10);
+            if(tg.shape&&window.v85DeathHook)window.v85DeathHook(tg);
+          }
+        }
+      }
+    }
+  },400);
+  // RAF RENDER OVERLAY
+  var _origRAF=window.requestAnimationFrame.bind(window);
+  window.requestAnimationFrame=function(cb){
+    return _origRAF(function(ts){
+      var r=cb(ts);
+      try{
+        if(typeof targets==='undefined'||typeof ctx==='undefined')return r;
+        var now=Date.now();
+        for(var i=0;i<targets.length;i++){
+          var t=targets[i];
+          if(!t.alive||!t.shape)continue;
+          ctx.save();
+          if(t.shape==='spinning'){
+            t.spinAngle=(t.spinAngle||0)+(t.spinSpeed||0.05);
+            ctx.translate(t.x,t.y);
+            ctx.rotate(t.spinAngle);
+            ctx.fillStyle='#9d4edd';
+            ctx.fillRect(-t.r-3,-2,(t.r+3)*2,4);
+            ctx.fillStyle='#fff';
+            ctx.fillRect(-t.r-3,-1,2,2);
+            ctx.fillRect(t.r+1,-1,2,2);
+          } else if(t.shape==='fire'){
+            var pulse=1+0.15*Math.sin(now*0.01);
+            ctx.strokeStyle='#ff6a00';ctx.lineWidth=2;
+            ctx.beginPath();ctx.arc(t.x,t.y,(t.r+5)*pulse,0,Math.PI*2);ctx.stroke();
+            ctx.fillStyle='rgba(255,150,0,0.5)';
+            ctx.beginPath();ctx.arc(t.x+(Math.random()-0.5)*4,t.y-t.r-3,3,0,Math.PI*2);ctx.fill();
+          } else if(t.shape==='electric'){
+            var off=Math.sin(now*0.02)*3;
+            ctx.strokeStyle='#ffe200';ctx.lineWidth=2;
+            ctx.beginPath();ctx.arc(t.x,t.y,t.r+4+off,0,Math.PI*2);ctx.stroke();
+          }
+          ctx.restore();
+        }
+        for(var k=0;k<v86Burns.length;k++){
+          var bn=v86Burns[k];
+          var rem=(bn.end-now)/2000;
+          if(rem<=0)continue;
+          ctx.save();
+          var grd=ctx.createRadialGradient(bn.x,bn.y,0,bn.x,bn.y,bn.r);
+          grd.addColorStop(0,'rgba(255,100,0,'+(0.4*rem)+')');
+          grd.addColorStop(0.7,'rgba(255,150,0,'+(0.15*rem)+')');
+          grd.addColorStop(1,'rgba(255,200,0,0)');
+          ctx.fillStyle=grd;
+          ctx.beginPath();ctx.arc(bn.x,bn.y,bn.r,0,Math.PI*2);ctx.fill();
+          ctx.restore();
+        }
+        for(var m=v86Bolts.length-1;m>=0;m--){
+          var bo=v86Bolts[m];
+          if(now>=bo.end){v86Bolts.splice(m,1);continue;}
+          var alpha=(bo.end-now)/300;
+          ctx.save();
+          ctx.strokeStyle='rgba(255,255,100,'+alpha+')';
+          ctx.lineWidth=3;ctx.shadowColor='#ffe200';ctx.shadowBlur=8;
+          ctx.beginPath();
+          ctx.moveTo(bo.x1,bo.y1);
+          var midx=(bo.x1+bo.x2)/2+(Math.random()-0.5)*20;
+          var midy=(bo.y1+bo.y2)/2+(Math.random()-0.5)*20;
+          ctx.lineTo(midx,midy);ctx.lineTo(bo.x2,bo.y2);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }catch(e){}
+      return r;
+    });
+  };
+  console.log('[v86] Target Variety active: Spinning 4%, Fire 4%, Electric 4% (sector 2+)');
+})();
+</script>
 </body>
 </html>
