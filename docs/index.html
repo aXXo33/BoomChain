@@ -15857,5 +15857,309 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END ORPHAN SWEEP v1.0.4.78 ===== -->
 
+
+<!-- ===== JUICY MUSICAL CHORD + ENHANCED FEEDBACK v1.0.4.79 ===== -->
+<style>
+/* Combo screen flash for big chains */
+.combo-flash-10479{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index: 99997;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.18) 40%, transparent 70%);
+  opacity:0;
+  animation: comboFlash10479 0.42s ease-out forwards;
+}
+.combo-flash-10479.legendary-flash-10479{
+  background: radial-gradient(circle at center, rgba(255,213,79,0.65) 0%, rgba(255,107,53,0.30) 35%, rgba(177,91,255,0.18) 60%, transparent 80%);
+}
+@keyframes comboFlash10479{
+  0%   { opacity:0; }
+  20%  { opacity:1; }
+  100% { opacity:0; }
+}
+
+/* Big combo text overlay (separate from canvas textPops) */
+.combo-mega-10479{
+  position:fixed;
+  top:38%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 99998;
+  pointer-events:none;
+  font-size: 2.6em;
+  font-weight: 950;
+  letter-spacing: 1.5px;
+  color: #fff;
+  text-align:center;
+  text-shadow: 0 4px 18px rgba(0,0,0,0.55);
+  opacity: 0;
+  animation: comboMegaIn10479 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, comboMegaOut10479 0.55s ease-in 0.85s forwards;
+}
+.combo-mega-10479.tier-epic-10479{
+  color: #ff5ea8;
+  text-shadow: 0 0 20px rgba(255,94,168,0.85), 0 4px 18px rgba(0,0,0,0.55);
+  font-size: 3.2em;
+}
+.combo-mega-10479.tier-insane-10479{
+  color: #b15bff;
+  text-shadow: 0 0 25px rgba(177,91,255,0.85), 0 4px 18px rgba(0,0,0,0.55);
+  font-size: 3.8em;
+}
+.combo-mega-10479.tier-legendary-10479{
+  background: linear-gradient(90deg, #ffd54f, #ff5ea8, #b15bff, #4cc9f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(255,213,79,0.95), 0 4px 18px rgba(0,0,0,0.55);
+  font-size: 4.4em;
+  letter-spacing: 2px;
+}
+@keyframes comboMegaIn10479{
+  from { opacity:0; transform: translate(-50%, -50%) scale(0.45); }
+  to   { opacity:1; transform: translate(-50%, -50%) scale(1.0); }
+}
+@keyframes comboMegaOut10479{
+  from { opacity:1; transform: translate(-50%, -50%) scale(1.0); }
+  to   { opacity:0; transform: translate(-50%, -50%) scale(1.18); }
+}
+</style>
+<script>
+/* ===== JUICY MUSICAL CHORD v1.0.4.79 ===== */
+(function(){
+  if(window.__JUICY_MUSICAL_V10479) return;
+  window.__JUICY_MUSICAL_V10479 = true;
+
+  /* Web Audio Context - lazy init on first user gesture */
+  var AC_10479 = null;
+  var ACReady_10479 = false;
+
+  function ensureAudioCtx10479(){
+    try{
+      if(AC_10479) return AC_10479;
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return null;
+      AC_10479 = new Ctx();
+      ACReady_10479 = true;
+      return AC_10479;
+    }catch(e){
+      ACReady_10479 = false;
+      return null;
+    }
+  }
+
+  /* Try to unlock AC on first user gesture (iOS WebView requirement) */
+  function unlockAudio10479(){
+    var ctx = ensureAudioCtx10479();
+    if(!ctx) return;
+    try{
+      if(ctx.state === 'suspended' && typeof ctx.resume === 'function'){
+        ctx.resume();
+      }
+      /* Play silent buffer to unlock */
+      var buffer = ctx.createBuffer(1, 1, 22050);
+      var source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      if(typeof source.start === 'function') source.start(0);
+      else if(typeof source.noteOn === 'function') source.noteOn(0);
+    }catch(e){}
+  }
+
+  /* Bind unlock to multiple user-gesture events */
+  function bindUnlock10479(){
+    var unlock = function(){
+      unlockAudio10479();
+      try{
+        document.removeEventListener('touchstart', unlock);
+        document.removeEventListener('touchend', unlock);
+        document.removeEventListener('mousedown', unlock);
+        document.removeEventListener('keydown', unlock);
+      }catch(e){}
+    };
+    try{
+      document.addEventListener('touchstart', unlock, { passive:true });
+      document.addEventListener('touchend', unlock, { passive:true });
+      document.addEventListener('mousedown', unlock);
+      document.addEventListener('keydown', unlock);
+    }catch(e){}
+  }
+
+  /* C major pentatonic ascending - mood: bright, satisfying, never sour */
+  /* C - D - E - G - A - C - D - E - G - A - C ... (loops up octaves for combo > 10) */
+  var PENTATONIC_NOTES_10479 = [
+    261.63,  /* C4 */
+    293.66,  /* D4 */
+    329.63,  /* E4 */
+    392.00,  /* G4 */
+    440.00,  /* A4 */
+    523.25,  /* C5 */
+    587.33,  /* D5 */
+    659.25,  /* E5 */
+    783.99,  /* G5 */
+    880.00,  /* A5 */
+    1046.50, /* C6 */
+    1174.66, /* D6 */
+    1318.51, /* E6 */
+    1567.98  /* G6 */
+  ];
+
+  function playChainNote10479(combo){
+    try{
+      var ctx = ensureAudioCtx10479();
+      if(!ctx) return;
+      if(ctx.state === 'suspended' && typeof ctx.resume === 'function'){
+        try{ ctx.resume(); }catch(e){}
+      }
+
+      /* Pick note based on combo (1-indexed). Cap at top octave. */
+      var idx = Math.max(0, Math.min(combo - 1, PENTATONIC_NOTES_10479.length - 1));
+      var freq = PENTATONIC_NOTES_10479[idx];
+
+      var now = ctx.currentTime;
+
+      /* Main oscillator - sine wave for warm tone */
+      var osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+
+      /* Gain envelope - quick attack, smooth decay */
+      var gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.50);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.55);
+
+      /* For big combos (>=4), add a triangle harmonic for richness */
+      if(combo >= 4){
+        var osc2 = ctx.createOscillator();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(freq * 2, now); /* one octave up */
+        var gain2 = ctx.createGain();
+        gain2.gain.setValueAtTime(0, now);
+        gain2.gain.linearRampToValueAtTime(0.06, now + 0.015);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.40);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now);
+        osc2.stop(now + 0.45);
+      }
+
+      /* For epic combos (>=7), add a sub-bass for punch */
+      if(combo >= 7){
+        var osc3 = ctx.createOscillator();
+        osc3.type = 'sine';
+        osc3.frequency.setValueAtTime(freq / 2, now); /* one octave down */
+        var gain3 = ctx.createGain();
+        gain3.gain.setValueAtTime(0, now);
+        gain3.gain.linearRampToValueAtTime(0.10, now + 0.008);
+        gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+        osc3.start(now);
+        osc3.stop(now + 0.40);
+      }
+    }catch(e){
+      try{ console.warn('[JUICY MUSICAL v10479] play failed', e); }catch(_){}
+    }
+  }
+
+  /* Screen flash overlay */
+  function showComboFlash10479(legendary){
+    try{
+      var flash = document.createElement('div');
+      flash.className = 'combo-flash-10479' + (legendary ? ' legendary-flash-10479' : '');
+      document.body.appendChild(flash);
+      setTimeout(function(){
+        try{ if(flash && flash.parentNode) flash.parentNode.removeChild(flash); }catch(e){}
+      }, 480);
+    }catch(e){}
+  }
+
+  /* Mega combo text overlay (DOM, separate from canvas textPops) */
+  function showMegaCombo10479(combo){
+    try{
+      var label = '';
+      var tier = '';
+      if(combo >= 10){
+        label = '\u{1F451} LEGENDARY x' + combo;
+        tier = 'tier-legendary-10479';
+      } else if(combo >= 7){
+        label = '\u26A1 INSANE x' + combo;
+        tier = 'tier-insane-10479';
+      } else if(combo >= 5){
+        label = '\u{1F4A5} EPIC x' + combo;
+        tier = 'tier-epic-10479';
+      } else {
+        return; /* Skip - canvas textPops already handles low combos */
+      }
+
+      var el = document.createElement('div');
+      el.className = 'combo-mega-10479 ' + tier;
+      el.textContent = label;
+      document.body.appendChild(el);
+      setTimeout(function(){
+        try{ if(el && el.parentNode) el.parentNode.removeChild(el); }catch(e){}
+      }, 1500);
+    }catch(e){}
+  }
+
+  /* Wrap showComboText - this is called on every chain hit (line 1540) */
+  function wrapShowComboText10479(){
+    try{
+      if(typeof window.showComboText !== 'function') return false;
+      if(window.__showComboText10479Wrapped) return true;
+      var _origShowCombo10479 = window.showComboText;
+      window.showComboText = function(combo){
+        var r;
+        try{ r = _origShowCombo10479.apply(this, arguments); }catch(e){}
+        try{
+          /* Always play musical note */
+          playChainNote10479(combo);
+
+          /* Combo-tier juicy effects */
+          if(combo >= 5){
+            showComboFlash10479(combo >= 10);
+            showMegaCombo10479(combo);
+          }
+          if(combo >= 7){
+            try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+          }
+          if(combo >= 10){
+            try{ if(typeof hapticExplosion === 'function') hapticExplosion(); }catch(e){}
+          }
+        }catch(e){}
+        return r;
+      };
+      window.__showComboText10479Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function applyAll10479(){
+    bindUnlock10479();
+    wrapShowComboText10479();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll10479);
+  } else {
+    applyAll10479();
+  }
+  setTimeout(applyAll10479, 600);
+  setTimeout(applyAll10479, 1500);
+  setTimeout(applyAll10479, 3000);
+
+  try{ console.log('[JUICY MUSICAL CHORD v1.0.4.79] active - C major pentatonic ascending + flash + mega combo'); }catch(e){}
+})();
+</script>
+<!-- ===== END JUICY MUSICAL v1.0.4.79 ===== -->
+
 </body>
 </html>
