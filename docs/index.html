@@ -16161,5 +16161,269 @@ body.non-game-screen-active #hud{
 </script>
 <!-- ===== END JUICY MUSICAL v1.0.4.79 ===== -->
 
+
+<!-- ===== LAST SHOT MIRACLE v1.0.4.80 ===== -->
+<style>
+/* Last shot warning overlay - red pulse */
+.lastshot-warning-10480{
+  position:fixed;
+  top:8%;
+  left:50%;
+  transform: translateX(-50%);
+  z-index: 99996;
+  pointer-events:none;
+  padding:8px 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,23,68,0.95), rgba(255,107,53,0.92));
+  color:#fff;
+  font-weight: 950;
+  font-size: 0.92em;
+  letter-spacing: 1.4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.55);
+  box-shadow: 0 0 18px rgba(255,23,68,0.55), 0 4px 14px rgba(0,0,0,0.40);
+  border: 1.4px solid rgba(255,255,255,0.40);
+  opacity: 0;
+  animation: lsWarnPulse10480 1.6s ease-in-out infinite;
+}
+@keyframes lsWarnPulse10480{
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.85); }
+  20%  { opacity: 1; transform: translateX(-50%) scale(1.05); }
+  60%  { opacity: 1; transform: translateX(-50%) scale(1.0); }
+  100% { opacity: 0.6; transform: translateX(-50%) scale(0.95); }
+}
+
+/* Edge red glow during last shot */
+.lastshot-edge-10480{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index: 99995;
+  box-shadow: inset 0 0 80px 20px rgba(255,23,68,0.45);
+  opacity: 0;
+  animation: lsEdgePulse10480 1.4s ease-in-out infinite;
+}
+@keyframes lsEdgePulse10480{
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.75; }
+  100% { opacity: 0.3; }
+}
+
+/* PERFECT FINISH overlay */
+.lastshot-perfect-10480{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 99999;
+  pointer-events:none;
+  width: 88%;
+  max-width: 360px;
+  padding: 28px 22px 24px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #ffd54f 0%, #ff5ea8 50%, #b15bff 100%);
+  color: #0a0a1a;
+  text-align: center;
+  font-weight: 950;
+  letter-spacing: 1px;
+  box-shadow: 0 16px 48px rgba(255,154,65,0.65), 0 0 80px rgba(255,213,79,0.55);
+  border: 2.5px solid rgba(255,255,255,0.45);
+  opacity: 0;
+  overflow: hidden;
+  animation: lsPerfectIn10480 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, lsPerfectOut10480 0.5s ease-in 2.6s forwards;
+}
+.lastshot-perfect-10480::before{
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.40) 0%, transparent 60%);
+  animation: lsPerfectShine10480 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.ls-icon-10480{
+  font-size: 3.6em;
+  display: block;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 2px 8px rgba(255,255,255,0.55));
+}
+.ls-tag-10480{
+  display: inline-block;
+  background: rgba(0,0,0,0.30);
+  color: #fff;
+  font-size: 0.66em;
+  font-weight: 950;
+  padding: 4px 12px;
+  border-radius: 9px;
+  letter-spacing: 1.8px;
+  margin-bottom: 8px;
+}
+.ls-title-10480{
+  font-size: 1.65em;
+  font-weight: 950;
+  letter-spacing: 1.2px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.18);
+}
+@keyframes lsPerfectIn10480{
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1.0); }
+}
+@keyframes lsPerfectOut10480{
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1.0); }
+  to   { opacity: 0; transform: translate(-50%, -50%) scale(1.18); }
+}
+@keyframes lsPerfectShine10480{
+  0%,100% { opacity: 0.35; transform: rotate(0deg); }
+  50%     { opacity: 0.70; transform: rotate(180deg); }
+}
+</style>
+<script>
+/* ===== LAST SHOT MIRACLE v1.0.4.80 ===== */
+(function(){
+  if(window.__LAST_SHOT_V10480) return;
+  window.__LAST_SHOT_V10480 = true;
+
+  var lastShotActive_10480 = false;
+  var lastShotPreShotTargets_10480 = 0;
+  var warningEl_10480 = null;
+  var edgeEl_10480 = null;
+
+  function showWarning10480(){
+    try{
+      removeWarning10480();
+      warningEl_10480 = document.createElement('div');
+      warningEl_10480.className = 'lastshot-warning-10480';
+      warningEl_10480.textContent = '\u{1F3AF} LAST SHOT!';
+      document.body.appendChild(warningEl_10480);
+
+      edgeEl_10480 = document.createElement('div');
+      edgeEl_10480.className = 'lastshot-edge-10480';
+      document.body.appendChild(edgeEl_10480);
+    }catch(e){}
+  }
+
+  function removeWarning10480(){
+    try{
+      if(warningEl_10480 && warningEl_10480.parentNode){
+        warningEl_10480.parentNode.removeChild(warningEl_10480);
+      }
+      warningEl_10480 = null;
+      if(edgeEl_10480 && edgeEl_10480.parentNode){
+        edgeEl_10480.parentNode.removeChild(edgeEl_10480);
+      }
+      edgeEl_10480 = null;
+    }catch(e){}
+  }
+
+  function showPerfectFinish10480(){
+    try{
+      var pop = document.createElement('div');
+      pop.className = 'lastshot-perfect-10480';
+      pop.innerHTML =
+        '<span class="ls-icon-10480">\u{1F3AF}</span>' +
+        '<div class="ls-tag-10480">PERFECT FINISH</div>' +
+        '<div class="ls-title-10480">LAST SHOT MIRACLE!</div>';
+      document.body.appendChild(pop);
+      setTimeout(function(){
+        try{ if(pop && pop.parentNode) pop.parentNode.removeChild(pop); }catch(e){}
+      }, 3200);
+
+      try{
+        if(typeof spawnConfetti === 'function' && typeof W !== 'undefined' && typeof H !== 'undefined'){
+          spawnConfetti(W/2, H/3, 60);
+        }
+      }catch(e){}
+      try{ if(typeof triggerShake === 'function') triggerShake(12); }catch(e){}
+      try{ if(typeof hapticExplosion === 'function') hapticExplosion(); }catch(e){}
+      try{ if(typeof sndAchieve === 'function') sndAchieve(); }catch(e){}
+    }catch(e){}
+  }
+
+  function checkLastShotSuccess10480(){
+    try{
+      if(!lastShotActive_10480) return;
+      /* If targets cleared - success! */
+      if(typeof targetsLeft !== 'undefined' && targetsLeft <= 0){
+        showPerfectFinish10480();
+      }
+      /* Reset state regardless */
+      lastShotActive_10480 = false;
+      removeWarning10480();
+    }catch(e){
+      try{ console.warn('[LAST SHOT v10480] post-check failed', e); }catch(_){}
+    }
+  }
+
+  /* Wrap shoot function: detect last shot pre-call */
+  function wrapShoot10480(){
+    try{
+      if(typeof window.shoot !== 'function') return false;
+      if(window.__shoot10480Wrapped) return true;
+      var _origShoot10480 = window.shoot;
+      window.shoot = function(dx, dy){
+        try{
+          /* PRE: Detect last shot (shotsLeft will become 0 after this call) */
+          if(typeof shotsLeft !== 'undefined' && typeof targetsLeft !== 'undefined'){
+            if(shotsLeft === 1 && targetsLeft > 0 && !lastShotActive_10480){
+              lastShotActive_10480 = true;
+              lastShotPreShotTargets_10480 = targetsLeft;
+              showWarning10480();
+              try{ if(typeof triggerSlowMo === 'function') triggerSlowMo(600); }catch(e){}
+              try{ if(typeof hapticHeavy === 'function') hapticHeavy(); }catch(e){}
+            }
+          }
+        }catch(e){}
+        var r = _origShoot10480.apply(this, arguments);
+        try{
+          /* POST: Schedule success check after ball travels */
+          if(lastShotActive_10480){
+            setTimeout(checkLastShotSuccess10480, 1500);
+            setTimeout(checkLastShotSuccess10480, 2800);
+            /* Safety fallback - clear warning after max 5s */
+            setTimeout(function(){
+              if(lastShotActive_10480){
+                lastShotActive_10480 = false;
+                removeWarning10480();
+              }
+            }, 5500);
+          }
+        }catch(e){}
+        return r;
+      };
+      window.__shoot10480Wrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  /* Cleanup on screen change (e.g. menu, level complete) */
+  if(typeof window.showScreen === 'function'){
+    var _origShowScreen10480 = window.showScreen;
+    window.showScreen = function(id){
+      var r = _origShowScreen10480.apply(this, arguments);
+      try{
+        if(id !== 'gameS'){
+          /* Leaving game screen - clear last shot state */
+          lastShotActive_10480 = false;
+          removeWarning10480();
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wrapShoot10480);
+  } else {
+    wrapShoot10480();
+  }
+  setTimeout(wrapShoot10480, 600);
+  setTimeout(wrapShoot10480, 1500);
+  setTimeout(wrapShoot10480, 3000);
+
+  try{ console.log('[LAST SHOT MIRACLE v1.0.4.80] active - dramatic last shot detection + perfect finish overlay'); }catch(e){}
+})();
+</script>
+<!-- ===== END LAST SHOT MIRACLE v1.0.4.80 ===== -->
+
 </body>
 </html>
