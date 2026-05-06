@@ -18216,7 +18216,7 @@ body.sector-theme-5-10483{
 .v88-completed::after{content:'✓';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#4caf50;font-weight:bold;font-size:15px;text-shadow:0 0 6px rgba(76,175,80,0.6);}
 </style>
 <script id="v88-script">
-/* v88 Weekly Challenge Completion Pass — coin reward YOK, Daily pattern parallel */
+/* v88.1 Weekly Challenge Completion Pass HOTFIX — sade: state + UI + tracking, gameplay'e dokunmaz */
 (function(){
   function getWeekKey(){
     var d=new Date();
@@ -18241,26 +18241,18 @@ body.sector-theme-5-10483{
   window.isWeeklyChallenge=false;
   window.currentWeekKey=getWeekKey();
   window.currentWeekNum=getWeekNum();
-  // STARTWEEKLYCHALLENGE WRAP (v88 layer over v104451)
+  // STARTWEEKLYCHALLENGE WRAP — SADE: orig once, sonra flag
   if(typeof window.startWeeklyChallenge==='function'){
     var _origStart=window.startWeeklyChallenge;
     window.startWeeklyChallenge=function(){
+      var r=_origStart.apply(this,arguments);
       window.isWeeklyChallenge=true;
       window.currentWeekKey=getWeekKey();
       window.currentWeekNum=getWeekNum();
-      try{
-        if(typeof currentRoom!=='undefined')currentRoom=5;
-        if(typeof currentRoomLevel!=='undefined')currentRoomLevel=0;
-      }catch(e){}
-      var r=_origStart.apply(this,arguments);
-      try{
-        var hudR=document.getElementById('hudRoom');
-        if(hudR)hudR.textContent='WEEKLY #'+window.currentWeekNum;
-      }catch(e){}
       return r;
     };
   }
-  // SHOWMENU WRAP — reset weekly state
+  // SHOWMENU WRAP — reset flag
   if(typeof window.showMenu==='function'){
     var _origMenu=window.showMenu;
     window.showMenu=function(){
@@ -18268,7 +18260,7 @@ body.sector-theme-5-10483{
       return _origMenu.apply(this,arguments);
     };
   }
-  // LEVELCOMPLETE WRAP — mark completed key on win
+  // LEVELCOMPLETE WRAP — mark completed key
   if(typeof window.levelComplete==='function'){
     var _origLC=window.levelComplete;
     window.levelComplete=function(){
@@ -18283,35 +18275,8 @@ body.sector-theme-5-10483{
       return r;
     };
   }
-  // GENERATELEVEL WRAP (6th layer) — Weekly +30% target spawn (extra hard)
-  var _origGen=window.generateLevel;
-  if(typeof _origGen==='function'){
-    window.generateLevel=function(){
-      var r=_origGen.apply(this,arguments);
-      try{
-        if(window.isWeeklyChallenge&&typeof targets!=='undefined'&&typeof C!=='undefined'){
-          var extraCount=Math.floor(targets.length*0.3);
-          for(var i=0;i<extraCount;i++){
-            var tx=100+Math.random()*(C.width-200);
-            var ty=80+Math.random()*(C.height*0.5);
-            var hardType=Math.random()<0.5?'hard':'normal';
-            targets.push({
-              x:tx,y:ty,
-              r:hardType==='hard'?10:14,
-              type:hardType,
-              hp:hardType==='hard'?2:1,
-              maxHp:hardType==='hard'?2:1,
-              alive:true,
-              pulse:0
-            });
-          }
-          if(typeof targetsLeft!=='undefined')targetsLeft+=extraCount;
-        }
-      }catch(e){console.warn('[v88] weekly difficulty',e);}
-      return r;
-    };
-  }
-  // HUD LABEL ENFORCER (interval)
+  /* generateLevel wrap +30% target spawn KALDIRILDI — extra targets eksik field crash riski */
+  // HUD LABEL ENFORCER
   setInterval(function(){
     if(!window.isWeeklyChallenge)return;
     try{
@@ -18348,7 +18313,6 @@ body.sector-theme-5-10483{
       btn.classList.remove('v88-completed');
     }
   }
-  // SHOWSCREEN WRAP — refresh on menu reach
   if(typeof window.showScreen==='function'){
     var _origShow=window.showScreen;
     window.showScreen=function(id){
@@ -18359,7 +18323,7 @@ body.sector-theme-5-10483{
   }
   setInterval(updateWeeklyMenuInfo,30000);
   setTimeout(updateWeeklyMenuInfo,1500);
-  console.log('[v88] Weekly Challenge Completion Pass active. Week:',window.currentWeekKey);
+  console.log('[v88.1] Weekly Challenge HOTFIX active. Week:',window.currentWeekKey);
 })();
 </script>
 </body>
