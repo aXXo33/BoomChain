@@ -2425,7 +2425,7 @@ var d=getSPData();var tiers=SEASON_PASS_DATA.tiers;var maxXp=tiers[tiers.length-
 document.getElementById('spSeasonName').textContent=SEASON_PASS_DATA.name;
 document.getElementById('spXpText').textContent='XP: '+d.xp+' / '+maxXp;
 document.getElementById('spXpBar').style.width=Math.min(100,d.xp/maxXp*100)+'%';
-var pb=document.getElementById('spPremiumBtn');if(d.prem){pb.textContent='\u{2B50} PREMIUM ACTIVE';pb.style.opacity='0.6';}
+var pb=document.getElementById('spPremiumBtn');if(d.prem){pb.style.display='';pb.textContent='\u{2B50} PREMIUM ACTIVE';pb.style.opacity='0.6';}else{pb.style.display='none';}
 var html='';tiers.forEach(function(t,i){
 var ok=d.xp>=t.xp,got=d.claimed.indexOf(i)!==-1;
 var bg=ok?(got?'rgba(46,204,113,0.2)':'rgba(247,201,72,0.2)'):'rgba(255,255,255,0.05)';
@@ -2437,7 +2437,7 @@ else if(got)html+='<span style="color:#2ecc71">\u{2705}<\/span>';else html+='<sp
 html+='<\/div>';});
 document.getElementById('spRewards').innerHTML=html;logEvent('season_pass_opened');}
 function claimSPReward(idx){var d=getSPData();var t=SEASON_PASS_DATA.tiers[idx];if(d.xp<t.xp||d.claimed.indexOf(idx)!==-1)return;d.claimed.push(idx);var r=d.prem?t.premium:t.free;var m=r.match(/(\d+)\s*Coins/i);if(m){coins+=parseInt(m[1]);showCoinFly(W/2,H/2,parseInt(m[1]));}saveSPData(d);saveSave();openSeasonPass();logEvent('sp_reward_claimed',{tier:idx});}
-function buySeasonPass(){var d=getSPData();if(d.prem)return;if(typeof webkit!=='undefined'&&webkit.messageHandlers&&webkit.messageHandlers.iap){webkit.messageHandlers.iap.postMessage({action:'purchase',productId:'season_pass_s1'});}else{d.prem=true;saveSPData(d);openSeasonPass();logEvent('season_pass_bought');}}
+function buySeasonPass(){var d=getSPData();if(d.prem)return;if(typeof webkit!=='undefined'&&webkit.messageHandlers&&webkit.messageHandlers.iap){webkit.messageHandlers.iap.postMessage({action:'purchase',productId:'season_pass_s1'});}else{logEvent('season_pass_buy_unavailable');}}
 
 // ===== ENHANCED LEVEL GEN (10+ levels, new mechanics) =====
 var LEVELS_PER_ROOM=12;
