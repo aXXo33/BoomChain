@@ -18319,5 +18319,34 @@ body.sector-theme-5-10483{
   console.log('[v88.2] Weekly Challenge orig fix + completion pass active. Week:',window.currentWeekKey);
 })();
 </script>
+<script>
+// Interstitial on retry. The only full-screen ad was every 3rd level
+// transition, so a player stuck failing the same level never saw one. Every
+// 2nd retry now shows one, at most once per 90s. Installed after every other
+// patch, it wraps whatever retryLevel is current and always calls it, so the
+// retry itself is unchanged. In the app the shell skips the ad (and calls
+// back at once) for premium players or when no ad is loaded.
+(function(){
+  var RETRY_EVERY=2, COOLDOWN_MS=90000, retries=0, lastAdAt=0;
+  function install(){
+    var inner=window.retryLevel;
+    if(typeof inner!=='function'||inner.__adWrapped)return;
+    window.__bcRetryAfterAd=function(){inner.apply(window,arguments);};
+    var wrapped=function(){
+      retries++;
+      var now=Date.now();
+      if(window.ReactNativeWebView&&retries%RETRY_EVERY===0&&now-lastAdAt>COOLDOWN_MS&&typeof showInterstitialAd==='function'){
+        lastAdAt=now;
+        try{showInterstitialAd('__bcRetryAfterAd');return;}catch(e){}
+      }
+      return inner.apply(window,arguments);
+    };
+    wrapped.__adWrapped=true;
+    window.retryLevel=wrapped;
+  }
+  if(document.readyState==='complete')setTimeout(install,2000);
+  else window.addEventListener('load',function(){setTimeout(install,2000);});
+})();
+</script>
 </body>
 </html>
