@@ -630,6 +630,7 @@ canvas{display:block}
 <div id="menuCoins" class="hud-coin" style="font-size:1.1em;margin-bottom:10px"></div>
 <button class="btn btn-primary" onclick="startWorldMap()">&#x25B6; PLAY</button>
 <button class="btn btn-gold" onclick="openDailyReward()">&#x1F3B0; DAILY SPIN</button>
+<button class="btn btn-gold btn-small" id="freeCoinsAdBtn" onclick="watchAdFreeCoins()" style="display:none;margin-top:5px">&#x1F3AC; FREE 75 COINS</button>
   <button class="btn btn-secondary btn-small" onclick="startDailyChallenge()" style="margin-top:5px;border-color:#ff1744;color:#ff1744">&#x26A0;&#xFE0F; DAILY IMPOSSIBLE</button>
     <button class="btn btn-secondary btn-small" onclick="startWeeklyChallenge()" style="margin-top:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:1px solid #8b5cf6">&#x1F3C6; WEEKLY CHALLENGE</button>
 <button class="btn btn-small" onclick="openSeasonPass()" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;margin:6px;box-shadow:0 4px 15px rgba(155,89,182,0.4)">&#x1F31F; SEASON PASS</button>
@@ -683,7 +684,7 @@ canvas{display:block}
 <div id="lcCoins" style="color:#f7c948;font-size:1em;margin:5px 0"></div>
 <div id="lcPerfect" style="color:#ff6b35;font-size:1.2em;font-weight:800;display:none"></div>
 <button class="btn btn-primary" onclick="nextLevel()">NEXT &#x2192;</button>
-<button class="btn btn-gold btn-small" id="doubleCoinsBtn" onclick="watchAdDoubleCoins()" style="margin-bottom:8px">&#x1F3AC; WATCH AD = 2x COINS</button>
+<button class="btn btn-gold btn-small" id="doubleCoinsBtn" onclick="watchAdDoubleCoins()" style="margin-bottom:8px">&#x1F3AC; WATCH AD = 3x COINS</button>
 <button class="btn btn-secondary btn-small" onclick="shareScore()">&#x1F4E4; SHARE</button>
 </div>
 
@@ -874,7 +875,15 @@ logEvent('session_start',{});
 
 // ===== AD SYSTEM (PLACEHOLDER) =====
 var adCounter=0,AD_FREQUENCY=3;
-function shouldShowAd(){adCounter++;return adCounter%AD_FREQUENCY===0;}
+// Every 2nd level, but never within 60s of the last interstitial (shared with
+// the retry ad) and not during a new player's first levels.
+AD_FREQUENCY=2;
+function shouldShowAd(){adCounter++;var now=Date.now(),best=0;
+  try{best=Math.max(+(save&&save.bestLevel)||0,+level||0);}catch(e){}
+  if(best<4)return false;
+  if(now-(window.__bcLastIntAt||0)<60000)return false;
+  if(adCounter<AD_FREQUENCY)return false;
+  adCounter=0;window.__bcLastIntAt=now;return true;}
   function showInterstitialAd(callback){
         if(window.ReactNativeWebView){
                 window._adCallback=callback;
@@ -3324,7 +3333,7 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
 
         var doubleBtn=document.getElementById('doubleCoinsBtn');
         if(doubleBtn){
-          doubleBtn.innerHTML='🎬 DOUBLE REWARD';
+          doubleBtn.innerHTML='🎬 TRIPLE REWARD';
         }
       }
 
@@ -3589,7 +3598,7 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
         btn.style.marginBottom = '10px';
       } else if(txt.indexOf('WATCH AD') !== -1 || txt.indexOf('DOUBLE') !== -1){
         btn.classList.add('premium-btn-secondary','premium-btn-small');
-        btn.innerHTML = '🎬 DOUBLE REWARD';
+        btn.innerHTML = '🎬 TRIPLE REWARD';
         btn.style.display = 'block';
         btn.style.margin = '0 auto 10px';
       } else if(txt.indexOf('SHARE') !== -1){
@@ -4050,6 +4059,9 @@ body.end-overlay-no-confetti #confettiCanvas{
   // Override old fake grantDoubleCoins
   window.grantDoubleCoins=function(){
     try{
+      // Checked before capture: captureDisplayedCoinBonus resets the flag,
+      // so checking afterwards never blocked a second grant.
+      if(window._doubleRewardClaimedThisLevel) return;
       var earned = captureDisplayedCoinBonus();
 
       if(!earned || earned<=0){
@@ -4068,6 +4080,8 @@ body.end-overlay-no-confetti #confettiCanvas{
 
       window._doubleRewardClaimedThisLevel = true;
 
+      // Triple reward: 12-20 extra coins was not worth watching an ad for.
+      earned = Math.max(earned*2, 30);
       coins += earned;
 
       if(typeof showCoinFly==='function'){
@@ -11666,6 +11680,10 @@ body.non-game-screen-active #hud{
 
   /* Grant +1 shot for endless continue (rewarded ad callback) */
   window.grantEndlessContinueShot10461 = function(){
+    /* Only removing the 'active' class left the inline display:flex that
+       showScreen sets, so the game-over overlay stayed up and the paid-for
+       continue never resumed play. grantExtraShot does the full resume. */
+    if(typeof grantExtraShot === 'function'){ grantExtraShot(); return; }
     try{
       if(typeof shotsLeft === 'number'){
         shotsLeft = (shotsLeft || 0) + 1;
@@ -18335,8 +18353,8 @@ body.sector-theme-5-10483{
     var wrapped=function(){
       retries++;
       var now=Date.now();
-      if(window.ReactNativeWebView&&retries%RETRY_EVERY===0&&now-lastAdAt>COOLDOWN_MS&&typeof showInterstitialAd==='function'){
-        lastAdAt=now;
+      if(window.ReactNativeWebView&&retries%RETRY_EVERY===0&&now-lastAdAt>COOLDOWN_MS&&now-(window.__bcLastIntAt||0)>60000&&((save&&save.bestLevel)||0)>=4&&typeof showInterstitialAd==='function'){
+        lastAdAt=now;window.__bcLastIntAt=now;
         try{showInterstitialAd('__bcRetryAfterAd');return;}catch(e){}
       }
       return inner.apply(window,arguments);
@@ -18346,6 +18364,33 @@ body.sector-theme-5-10483{
   }
   if(document.readyState==='complete')setTimeout(install,2000);
   else window.addEventListener('load',function(){setTimeout(install,2000);});
+})();
+// Daily free coins for an opt-in rewarded ad, 5 a day. The only coin ad was
+// hidden behind a failed extra-ball purchase, so almost nobody saw it.
+(function(){
+  var PER_DAY=5,AMOUNT=75,KEY='bc_freeCoinsAd';
+  function today(){return new Date().toDateString();}
+  function read(){try{var d=JSON.parse(localStorage.getItem(KEY)||'{}');return d.day===today()?d.n||0:0;}catch(e){return 0;}}
+  function write(n){try{localStorage.setItem(KEY,JSON.stringify({day:today(),n:n}));}catch(e){}}
+  function refresh(){
+    var b=document.getElementById('freeCoinsAdBtn');if(!b)return;
+    var left=PER_DAY-read();
+    if(!window.ReactNativeWebView||left<=0){b.style.display='none';return;}
+    b.style.display='';b.innerHTML='&#x1F3AC; FREE '+AMOUNT+' COINS ('+left+'/'+PER_DAY+')';
+  }
+  window.watchAdFreeCoins=function(){if(read()>=PER_DAY)return refresh();showRewardedAd('grantFreeCoinsDaily');};
+  window.grantFreeCoinsDaily=function(){
+    var n=read();if(n>=PER_DAY)return;write(n+1);
+    coins=(coins||0)+AMOUNT;
+    try{saveSave();}catch(e){}
+    try{if(typeof sndCoin==='function')sndCoin();}catch(e){}
+    try{updateMenuInfo();}catch(e){}
+    refresh();
+    try{logEvent('free_coins_ad',{earned:AMOUNT,n:n+1});}catch(e){}
+  };
+  var inner=window.updateMenuInfo;
+  if(typeof inner==='function'){window.updateMenuInfo=function(){var r=inner.apply(this,arguments);refresh();return r;};}
+  if(document.readyState==='complete')refresh();else window.addEventListener('load',refresh);
 })();
 </script>
 </body>
