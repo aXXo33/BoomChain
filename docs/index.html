@@ -2779,8 +2779,6 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
     var btnRow=document.createElement('div');
     btnRow.style.cssText='display:flex;gap:6px;margin-bottom:6px;flex-shrink:0;flex-wrap:wrap;';
     function mkBtn(label,fn){var b=document.createElement('button');b.textContent=label;b.style.cssText='background:#222;color:#0f0;border:1px solid #0f0;padding:6px 10px;font-size:11px;cursor:pointer;';b.onclick=fn;return b;}
-    btnRow.appendChild(mkBtn('TEST INT',function(){logAd('manual_test_interstitial',{});try{window.showInterstitialAd('__noop_cb');}catch(e){logAd('test_int_error',{err:String(e)});}setTimeout(refresh,500);}));
-    btnRow.appendChild(mkBtn('TEST REW',function(){logAd('manual_test_rewarded',{});try{window.showRewardedAd('__noop_cb');}catch(e){logAd('test_rew_error',{err:String(e)});}setTimeout(refresh,500);}));
     btnRow.appendChild(mkBtn('ASK ADAPTERS',function(){requestAdapterStatus();setTimeout(refresh,500);}));
     btnRow.appendChild(mkBtn('CLEAR',function(){writeLog([]);refresh();}));
     btnRow.appendChild(mkBtn('COPY',function(){var txt=JSON.stringify(readLog(),null,2);try{if(navigator.clipboard){navigator.clipboard.writeText(txt);alert('Copied '+readLog().length+' events.');}else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Copied (legacy).');}}catch(e){alert('Copy failed: '+e);}}));
@@ -2799,7 +2797,7 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
   function attachTapHandler(){
     var gear=document.getElementById('globalSettings');
     if(!gear){setTimeout(attachTapHandler,500);return;}
-    gear.addEventListener('click',function(){tapCount++;if(tapTimer)clearTimeout(tapTimer);tapTimer=setTimeout(function(){tapCount=0;},2000);if(tapCount>=5){tapCount=0;setTimeout(openAdDebugPanel,100);}},true);
+    gear.addEventListener('click',function(){tapCount++;if(tapTimer)clearTimeout(tapTimer);tapTimer=setTimeout(function(){tapCount=0;},2000);if(tapCount>=5){tapCount=0;}},true);
   }
   attachTapHandler();
   if(typeof window.openSettings==='function'){
@@ -2814,7 +2812,7 @@ setTimeout(function(){var m=document.getElementById('menuS');if(!m)return;var la
           if(/^v1\.0\./i.test((n.textContent||'').trim())){
             var vTaps=0,vTimer=null;
             n.style.cursor='pointer';
-            n.addEventListener('click',function(){vTaps++;if(vTimer)clearTimeout(vTimer);vTimer=setTimeout(function(){vTaps=0;},2000);if(vTaps>=5){vTaps=0;openAdDebugPanel();}});
+            n.addEventListener('click',function(){vTaps++;if(vTimer)clearTimeout(vTimer);vTimer=setTimeout(function(){vTaps=0;},2000);if(vTaps>=5){vTaps=0;}});
           }
         });
       },50);
